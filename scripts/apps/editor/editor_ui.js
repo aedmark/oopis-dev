@@ -68,12 +68,19 @@ window.EditorUI = class EditorUI {
       className: "editor-preview",
     });
 
-    const editorMainContent = Utils.createElement("div", { className: "editor-main-content" }, [
-      this.elements.textarea,
-      this.elements.preview,
-    ]);
+    const editorMainContent = Utils.createElement(
+        "div",
+        { className: "editor-main-content" },
+        [this.elements.textarea, this.elements.preview]
+    );
 
-    this.elements.main.append(headerContent, toolbar, editorMainContent);
+    const layoutContainer = Utils.createElement(
+        "div",
+        { className: "editor-layout" },
+        [headerContent, toolbar, editorMainContent]
+    );
+
+    this.elements.main.append(layoutContainer);
 
     this.elements.dirtyStatus = Utils.createElement("span", { id: "editor-dirty-status" });
     this.elements.statusMessage = Utils.createElement("span", { id: "editor-status-message" });

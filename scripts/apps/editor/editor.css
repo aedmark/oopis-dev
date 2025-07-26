@@ -16,6 +16,14 @@
     flex-shrink: 0; /* Don't shrink the header */
 }
 
+/* Wrapper for editor header, toolbar, and content */
+.editor-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    height: 100%;
+}
+
 .editor-title-input {
     width: 100%;
     padding: var(--spacing-sm);
