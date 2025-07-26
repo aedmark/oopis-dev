@@ -50,9 +50,7 @@ window.PaintUI = class PaintUI {
     const colorGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.colorPicker]);
 
     this.elements.brushSizeInput = Utils.createElement("input", { type: "number", className: "paint-brush-size", value: initialState.brushSize, min: 1, max: 5 });
-    const brushSizeUp = UIComponents.createButton({ text: "+" });
-    const brushSizeDown = UIComponents.createButton({ text: "-" });
-    const brushGroup = Utils.createElement("div", { className: "paint-brush-controls" }, [brushSizeDown, this.elements.brushSizeInput, brushSizeUp]);
+    const brushGroup = Utils.createElement("div", { className: "paint-brush-controls" }, [this.elements.brushSizeInput]);
 
     this.elements.charInput = Utils.createElement("input", { type: "text", className: "paint-char-selector", value: initialState.currentCharacter, maxLength: 1 });
 
@@ -275,20 +273,11 @@ window.PaintUI = class PaintUI {
     this.elements.colorPicker.addEventListener("input", (e) =>
         this.managerCallbacks.onColorSelect(e.target.value)
     );
-    this.elements.container
-        .querySelector(".paint-brush-controls .btn:nth-child(1)")
-        .addEventListener("click", () =>
-            this.managerCallbacks.onBrushSizeChange(
-                parseInt(this.elements.brushSizeInput.value, 10) - 1
-            )
-        );
-    this.elements.container
-        .querySelector(".paint-brush-controls .btn:nth-child(3)")
-        .addEventListener("click", () =>
-            this.managerCallbacks.onBrushSizeChange(
-                parseInt(this.elements.brushSizeInput.value, 10) + 1
-            )
-        );
+    this.elements.brushSizeInput.addEventListener("change", () =>
+        this.managerCallbacks.onBrushSizeChange(
+            parseInt(this.elements.brushSizeInput.value, 10)
+        )
+    );
     this.elements.charInput.addEventListener("input", (e) =>
         this.managerCallbacks.onCharChange(e.target.value)
     );
