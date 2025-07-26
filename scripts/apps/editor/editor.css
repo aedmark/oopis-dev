@@ -5,7 +5,7 @@
 /* The main app window, provided by UIComponents, is a flex-column.
    The .app-main area within it is a flex-row by default.
    We need to override .app-main for the editor to be a flex-column. */
-#text-editor-app-container .app-main {
+#text-editor-app-container > .app-main {
     display: flex;
     flex-direction: column; /* Stack header, toolbar, and content vertically */
     gap: var(--spacing-sm);
