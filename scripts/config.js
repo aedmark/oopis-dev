@@ -145,18 +145,7 @@ class ConfigManager {
         },
       },
       COMMANDS_MANIFEST: [
-        "adventure", "alias", "awk", "backup", "base64", "basic", "bc", "beep", "bg", "binder", "buletin",
-        "cat", "cd", "check_fail", "chgrp", "chidi", "chmod", "chown", "cksum", "clear",
-        "clearfs", "comm", "committee", "cp", "csplit", "curl", "cut", "date", "delay", "df",
-        "diff", "du", "echo", "edit", "explore", "export", "expr", "fg", "find", "fsck", "gemini", "grep",
-        "groupadd", "groupdel", "groups", "head", "help", "history", "jobs", "kill", "less",
-        "listusers", "loadstate", "log", "login", "logout", "ls", "ln", "man", "more",
-        "mkdir", "mv", "nc", "netstat", "nl", "ocrypt", "paint", "passwd", "patch", "ping", "play",
-        "printscreen", "ps", "pwd", "reboot", "remix", "removeuser", "rename", "reset",
-        "restore", "rm", "rmdir", "run", "savefs", "savestate", "sed", "set",
-        "shuf", "sort", "su", "sudo", "sync","tail", "top", "touch", "tr",
-        "tree", "unalias", "uniq", "unset", "unzip", "upload", "useradd",
-        "usermod", "visudo", "wc", "wget", "whoami", "xor", "zip", "xargs"
+        "adventure", "alias", "awk", "backup", "base64", "basic", "bc", "beep", "bg", "binder", "bulletin", "cat", "cd", "check_fail", "chgrp", "chidi", "chmod", "chown", "cksum", "clear", "clearfs", "comm", "committee", "cp", "csplit", "curl", "cut", "date", "delay", "df", "diff", "du", "echo", "edit", "explore", "export", "expr", "fg", "find", "fsck", "gemini", "grep", "groupadd", "groupdel", "groups", "head", "help", "history", "jobs", "kill", "less", "listusers", "loadstate", "log", "login", "logout", "ls", "ln", "man", "more", "mkdir", "mv", "nc", "netstat", "nl", "ocrypt", "paint", "passwd", "patch", "ping", "play", "printscreen", "ps", "pwd", "reboot", "remix", "removeuser", "rename", "reset", "restore", "rm", "rmdir", "run", "savestate", "sed", "set", "shuf", "sort", "su", "sudo", "sync","tail", "top", "touch", "tr", "tree", "unalias", "uniq", "unset", "unzip", "upload", "useradd", "usermod", "visudo", "wc", "wget", "whoami", "xor", "zip", "xargs"
       ],
     };
 

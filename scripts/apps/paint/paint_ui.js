@@ -14,140 +14,86 @@ window.PaintUI = class PaintUI {
   }
 
   _buildAndShow(initialState) {
-    const { Utils } = this.dependencies;
+    const { Utils, UIComponents } = this.dependencies;
 
-    this.elements.container = Utils.createElement("div", {
-      id: "paint-container",
-      className: "paint-container",
+    // 1. Create the main application window using the toolkit
+    const appWindow = UIComponents.createAppWindow('Oopis Paint', this.managerCallbacks.onExitRequest);
+    this.elements.container = appWindow.container;
+    this.elements.header = appWindow.header;
+    this.elements.main = appWindow.main;
+    this.elements.footer = appWindow.footer;
+
+    // Add a specific class for theming
+    this.elements.container.id = 'oopis-paint-app-container';
+
+    // 2. Create and assemble the toolbar elements
+    const createToolBtn = (name, key, label) => UIComponents.createButton({
+      id: `paint-tool-${name}`,
+      text: label,
+      title: `${name.charAt(0).toUpperCase() + name.slice(1)} (${key.toUpperCase()})`,
     });
 
-    const createToolBtn = (name, key, label) =>
-        Utils.createElement("button", {
-          id: `paint-tool-${name}`,
-          className: "btn",
-          textContent: label,
-          title: `${name.charAt(0).toUpperCase() + name.slice(1)} (${key.toUpperCase()})`,
-        });
-
-    const toolGroup = Utils.createElement(
-        "div", { className: "paint-tool-group" },
-        [
-          (this.elements.pencilBtn = createToolBtn("pencil", "p", "✏️")),
-          (this.elements.eraserBtn = createToolBtn("eraser", "e", "🧼")),
-          (this.elements.lineBtn = createToolBtn("line", "l", "—")),
-          (this.elements.rectBtn = createToolBtn("rect", "r", "▢")),
-          (this.elements.circleBtn = createToolBtn("circle", "c", "◯")),
-          (this.elements.fillBtn = createToolBtn("fill", "f", "🪣")),
-          (this.elements.selectBtn = createToolBtn("select", "s", "⬚")),
-        ]
-    );
+    const toolGroup = Utils.createElement("div", { className: "paint-tool-group" }, [
+      (this.elements.pencilBtn = createToolBtn("pencil", "p", "Pencil")),
+      (this.elements.eraserBtn = createToolBtn("eraser", "e", "Eraser")),
+      (this.elements.lineBtn = createToolBtn("line", "l", "—")),
+      (this.elements.rectBtn = createToolBtn("rect", "r", "▢")),
+      (this.elements.circleBtn = createToolBtn("circle", "c", "◯")),
+      (this.elements.fillBtn = createToolBtn("fill", "f", "Fill")),
+      (this.elements.selectBtn = createToolBtn("select", "s", "⬚")),
+    ]);
 
     this.elements.colorPicker = Utils.createElement("input", {
-      type: "color",
-      id: "paint-color-picker",
-      className: "paint-color-picker",
-      title: "Select Color",
-      value: initialState.currentColor,
+      type: "color", id: "paint-color-picker", className: "paint-color-picker",
+      title: "Select Color", value: initialState.currentColor
     });
-    const colorGroup = Utils.createElement(
-        "div", { className: "paint-tool-group" },
-        [this.elements.colorPicker]
-    );
+    const colorGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.colorPicker]);
 
-    this.elements.brushSizeInput = Utils.createElement("input", {
-      type: "number",
-      className: "paint-brush-size",
-      value: initialState.brushSize,
-      min: 1,
-      max: 5,
-    });
-    const brushSizeUp = Utils.createElement("button", { className: "btn", textContent: "+" });
-    const brushSizeDown = Utils.createElement("button", { className: "btn", textContent: "-" });
-    const brushGroup = Utils.createElement(
-        "div", { className: "paint-brush-controls" },
-        [brushSizeDown, this.elements.brushSizeInput, brushSizeUp]
-    );
+    this.elements.brushSizeInput = Utils.createElement("input", { type: "number", className: "paint-brush-size", value: initialState.brushSize, min: 1, max: 5 });
+    const brushSizeUp = UIComponents.createButton({ text: "+" });
+    const brushSizeDown = UIComponents.createButton({ text: "-" });
+    const brushGroup = Utils.createElement("div", { className: "paint-brush-controls" }, [brushSizeDown, this.elements.brushSizeInput, brushSizeUp]);
 
-    this.elements.charInput = Utils.createElement("input", {
-      type: "text",
-      className: "paint-char-selector",
-      value: initialState.currentCharacter,
-      maxLength: 1,
-    });
+    this.elements.charInput = Utils.createElement("input", { type: "text", className: "paint-char-selector", value: initialState.currentCharacter, maxLength: 1 });
 
-    this.elements.undoBtn = Utils.createElement("button", { className: "btn", textContent: "↩" });
-    this.elements.redoBtn = Utils.createElement("button", { className: "btn", textContent: "↪" });
-    this.elements.gridBtn = Utils.createElement("button", { className: "btn", textContent: "🪟" });
-    const historyGroup = Utils.createElement(
-        "div", { className: "paint-tool-group" },
-        [this.elements.undoBtn, this.elements.redoBtn, this.elements.gridBtn]
-    );
+    this.elements.undoBtn = UIComponents.createButton({ text: "↩" });
+    this.elements.redoBtn = UIComponents.createButton({ text: "↪" });
+    this.elements.gridBtn = UIComponents.createButton({ text: "Grid" });
+    const historyGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.undoBtn, this.elements.redoBtn, this.elements.gridBtn]);
 
-    this.elements.cutBtn = Utils.createElement("button", { className: "btn", textContent: "✂️", title: "Cut (Ctrl+X)" });
-    this.elements.copyBtn = Utils.createElement("button", { className: "btn", textContent: "🖨️", title: "Copy (Ctrl+C)" });
-    this.elements.pasteBtn = Utils.createElement("button", { className: "btn", textContent: "🧩", title: "Paste (Ctrl+V)" });
-    const clipboardGroup = Utils.createElement(
-        "div", { className: "paint-tool-group" },
-        [this.elements.cutBtn, this.elements.copyBtn, this.elements.pasteBtn]
-    );
+    this.elements.zoomInBtn = UIComponents.createButton({ text: "➕" });
+    this.elements.zoomOutBtn = UIComponents.createButton({ text: "➖" });
+    const zoomGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.zoomOutBtn, this.elements.zoomInBtn]);
 
-    this.elements.zoomInBtn = Utils.createElement("button", { className: "btn", textContent: "➕" });
-    this.elements.zoomOutBtn = Utils.createElement("button", { className: "btn", textContent: "➖" });
-    const zoomGroup = Utils.createElement(
-        "div", { className: "paint-tool-group" },
-        [this.elements.zoomOutBtn, this.elements.zoomInBtn]
-    );
+    // **Grab the exit button before we change anything!**
+    const exitBtn = appWindow.header.querySelector('.app-header__exit-btn');
 
-    const toolbarSpacer = Utils.createElement("div", { style: "flex-grow: 1;" });
-    this.elements.exitBtn = Utils.createElement("button", {
-      id: "paint-exit-btn",
-      className: "btn",
-      textContent: "✕",
-      title: "Exit Application",
-    });
+    // Add all toolbar items to the header from the toolkit
+    appWindow.header.classList.add("paint-toolbar");
+    appWindow.header.innerHTML = ''; // Clear default header content
+    appWindow.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, historyGroup, zoomGroup, exitBtn);
 
-    const toolbar = Utils.createElement(
-        "header", { className: "paint-toolbar" },
-        [
-          toolGroup,
-          colorGroup,
-          brushGroup,
-          this.elements.charInput,
-          historyGroup,
-          clipboardGroup,
-          zoomGroup,
-          toolbarSpacer,
-          this.elements.exitBtn,
-        ]
-    );
 
+    // 3. Create the main drawing area
     this.elements.canvas = Utils.createElement("div", { className: "paint-canvas", id: "paint-canvas" });
     this.elements.previewCanvas = Utils.createElement("div", { className: "paint-preview-canvas", id: "paint-preview-canvas" });
     this.elements.selectionRect = Utils.createElement("div", { className: "paint-selection-rect hidden" });
-    const canvasContainer = Utils.createElement(
-        "div", { className: "paint-canvas-container" },
-        [this.elements.canvas, this.elements.previewCanvas, this.elements.selectionRect]
-    );
-    const mainArea = Utils.createElement("main", { className: "paint-main" }, [canvasContainer]);
+    const canvasContainer = Utils.createElement("div", { className: "paint-canvas-container" }, [this.elements.canvas, this.elements.previewCanvas, this.elements.selectionRect]);
+    const mainDrawingArea = Utils.createElement("div", { className: "paint-main-drawing-area" }, [canvasContainer]);
 
+    // Add it to the main content area from the toolkit
+    this.elements.main.appendChild(mainDrawingArea);
+
+    // 4. Create and add status bar elements to the footer
     this.elements.statusTool = Utils.createElement("span");
     this.elements.statusChar = Utils.createElement("span");
     this.elements.statusBrush = Utils.createElement("span");
     this.elements.statusCoords = Utils.createElement("span");
     this.elements.statusZoom = Utils.createElement("span");
-    this.elements.statusBar = Utils.createElement(
-        "footer", { className: "paint-statusbar" },
-        [
-          this.elements.statusTool,
-          this.elements.statusChar,
-          this.elements.statusBrush,
-          this.elements.statusCoords,
-          this.elements.statusZoom,
-        ]
-    );
+    this.elements.footer.classList.add("paint-statusbar");
+    this.elements.footer.append(this.elements.statusTool, this.elements.statusChar, this.elements.statusBrush, this.elements.statusCoords, this.elements.statusZoom);
 
-    this.elements.container.append(toolbar, mainArea, this.elements.statusBar);
-
+    // 5. Final setup
     this.renderInitialCanvas(initialState.canvasData, initialState.canvasDimensions);
     this.updateToolbar(initialState);
     this.updateStatusBar(initialState);
@@ -329,9 +275,6 @@ window.PaintUI = class PaintUI {
     this.elements.colorPicker.addEventListener("input", (e) =>
         this.managerCallbacks.onColorSelect(e.target.value)
     );
-    this.elements.brushSizeInput.addEventListener("change", (e) =>
-        this.managerCallbacks.onBrushSizeChange(parseInt(e.target.value, 10))
-    );
     this.elements.container
         .querySelector(".paint-brush-controls .btn:nth-child(1)")
         .addEventListener("click", () =>
@@ -354,20 +297,13 @@ window.PaintUI = class PaintUI {
     this.elements.gridBtn.addEventListener("click", () =>
         this.managerCallbacks.onToggleGrid()
     );
-    this.elements.cutBtn.addEventListener("click", () => this.managerCallbacks.onCut());
-    this.elements.copyBtn.addEventListener("click", () => this.managerCallbacks.onCopy());
-    this.elements.pasteBtn.addEventListener("click", () =>
-        this.managerCallbacks.onPaste()
-    );
     this.elements.zoomInBtn.addEventListener("click", () =>
         this.managerCallbacks.onZoomIn()
     );
     this.elements.zoomOutBtn.addEventListener("click", () =>
         this.managerCallbacks.onZoomOut()
     );
-    this.elements.exitBtn.addEventListener("click", () =>
-        this.managerCallbacks.onExitRequest()
-    );
+    // Exit button is handled by the UI Component now
     this.elements.canvas.addEventListener("mousedown", (e) => {
       const coords = this._getCoordsFromEvent(e);
       if (coords) this.managerCallbacks.onCanvasMouseDown(coords);
