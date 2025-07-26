@@ -90,3 +90,4 @@ window.PaintCommand = class PaintCommand extends Command {
 
   }
 }
+window.CommandRegistry.register(new PaintCommand());

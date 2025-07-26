@@ -124,3 +124,4 @@ window.ShufCommand = class ShufCommand extends Command {
         return ErrorHandler.createSuccess(finalOutput.join("\n"));
     }
 }
+window.CommandRegistry.register(new ShufCommand());

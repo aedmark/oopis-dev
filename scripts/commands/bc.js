@@ -133,3 +133,4 @@ EXAMPLES
     }
   }
 }
+window.CommandRegistry.register(new BcCommand());

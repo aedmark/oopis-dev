@@ -44,3 +44,4 @@ window.GroupsCommand = class GroupsCommand extends Command {
         return ErrorHandler.createSuccess(userGroups.join(" "));
     }
 }
+window.CommandRegistry.register(new GroupsCommand());

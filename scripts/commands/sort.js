@@ -84,3 +84,4 @@ window.SortCommand = class SortCommand extends Command {
         return ErrorHandler.createSuccess(lines.join("\n"));
     }
 }
+window.CommandRegistry.register(new SortCommand());

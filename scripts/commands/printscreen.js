@@ -100,3 +100,4 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new PrintscreenCommand());

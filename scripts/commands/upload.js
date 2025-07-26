@@ -130,3 +130,4 @@ window.UploadCommand = class UploadCommand extends Command {
         });
     }
 }
+window.CommandRegistry.register(new UploadCommand());

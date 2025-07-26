@@ -99,3 +99,4 @@ window.CommCommand = class CommCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join('\n'));
     }
 }
+window.CommandRegistry.register(new CommCommand());

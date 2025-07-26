@@ -1,34 +1,4 @@
 // scripts/commands/unzip.js
-async function _restoreNode(name, data, parentPath, dependencies, currentUser) {
-    const { FileSystemManager, UserManager, Config } = dependencies;
-    const currentPath = `${parentPath}${parentPath === "/" ? "" : "/"}${name}`;
-    const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
-
-    if (data.type === Config.FILESYSTEM.DEFAULT_FILE_TYPE) {
-        await FileSystemManager.createOrUpdateFile(currentPath, data.content, {
-            currentUser,
-            primaryGroup,
-        });
-    } else if (data.type === Config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
-        const dirResult = await FileSystemManager.createOrUpdateFile(
-            currentPath,
-            null,
-            { isDirectory: true, currentUser, primaryGroup }
-        );
-        if (dirResult.success && data.children) {
-            for (const childName in data.children) {
-                await _restoreNode(
-                    childName,
-                    data.children[childName],
-                    currentPath,
-                    dependencies,
-                    currentUser
-                );
-            }
-        }
-    }
-}
-
 window.UnzipCommand = class UnzipCommand extends Command {
     constructor() {
         super({
@@ -113,3 +83,4 @@ window.UnzipCommand = class UnzipCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new UnzipCommand());

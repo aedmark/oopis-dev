@@ -39,3 +39,4 @@ window.ExprCommand = class ExprCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new ExprCommand());

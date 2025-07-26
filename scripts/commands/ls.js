@@ -379,3 +379,4 @@ window.LsCommand = class LsCommand extends Command {
     return ErrorHandler.createSuccess(outputBlocks.join("\n"));
   }
 }
+window.CommandRegistry.register(new LsCommand());

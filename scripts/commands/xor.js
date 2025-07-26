@@ -61,3 +61,4 @@ window.XorCommand = class XorCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new XorCommand());

@@ -158,3 +158,4 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new RemoveuserCommand());

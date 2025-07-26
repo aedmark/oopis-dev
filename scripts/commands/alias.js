@@ -77,3 +77,4 @@ EXAMPLES
     }
   }
 }
+window.CommandRegistry.register(new AliasCommand());

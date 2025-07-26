@@ -58,3 +58,4 @@ window.PostMessageCommand = class PostMessageCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new PostMessageCommand());

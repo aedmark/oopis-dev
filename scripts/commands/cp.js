@@ -184,3 +184,4 @@ window.CpCommand = class CpCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new CpCommand());

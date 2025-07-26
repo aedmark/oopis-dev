@@ -92,3 +92,4 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: true });
     }
 }
+window.CommandRegistry.register(new ClearfsCommand());

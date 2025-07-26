@@ -76,3 +76,4 @@ window.DelayCommand = class DelayCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new DelayCommand());

@@ -53,3 +53,4 @@ window.SuCommand = class SuCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new SuCommand());

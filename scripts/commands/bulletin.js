@@ -155,3 +155,4 @@ ${message}
         }
     }
 };
+window.CommandRegistry.register(new BulletinCommand());

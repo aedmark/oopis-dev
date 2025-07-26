@@ -21,3 +21,4 @@ window.WhoamiCommand = class WhoamiCommand extends Command {
     return ErrorHandler.createSuccess(UserManager.getCurrentUser().name);
   }
 }
+window.CommandRegistry.register(new WhoamiCommand());

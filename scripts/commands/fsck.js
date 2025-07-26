@@ -247,3 +247,4 @@ window.FsckCommand = class FsckCommand extends Command {
         return ErrorHandler.createSuccess(output.join('\n'));
     }
 }
+window.CommandRegistry.register(new FsckCommand());

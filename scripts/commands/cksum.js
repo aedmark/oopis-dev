@@ -70,3 +70,4 @@ window.CksumCommand = class CksumCommand extends Command {
 
     }
 }
+window.CommandRegistry.register(new CksumCommand());

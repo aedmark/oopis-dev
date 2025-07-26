@@ -43,3 +43,4 @@ window.BgCommand = class BgCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new BgCommand());

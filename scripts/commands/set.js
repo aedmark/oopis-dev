@@ -47,3 +47,4 @@ window.SetCommand = class SetCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new SetCommand());

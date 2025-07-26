@@ -89,3 +89,4 @@ window.ChownCommand = class ChownCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: changesMade });
     }
 }
+window.CommandRegistry.register(new ChownCommand());

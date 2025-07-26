@@ -86,3 +86,4 @@ window.KillCommand = class KillCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new KillCommand());

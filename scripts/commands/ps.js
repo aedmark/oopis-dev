@@ -46,3 +46,4 @@ window.PsCommand = class PsCommand extends Command {
         return ErrorHandler.createSuccess(output.trim());
     }
 }
+window.CommandRegistry.register(new PsCommand());

@@ -56,3 +56,4 @@ window.NcCommand = class NcCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+window.CommandRegistry.register(new NcCommand());

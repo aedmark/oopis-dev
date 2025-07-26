@@ -124,3 +124,4 @@ window.RmCommand = class RmCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
   }
 }
+window.CommandRegistry.register(new RmCommand());

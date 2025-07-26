@@ -53,3 +53,4 @@ window.DiffCommand = class DiffCommand extends Command {
     return ErrorHandler.createSuccess(diffResult);
   }
 }
+window.CommandRegistry.register(new DiffCommand());

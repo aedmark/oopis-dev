@@ -52,3 +52,4 @@ window.CdCommand = class CdCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new CdCommand());

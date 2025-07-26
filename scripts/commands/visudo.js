@@ -86,3 +86,4 @@ window.VisudoCommand = class VisudoCommand extends Command {
         return CommandExecutor.processSingleCommand(`edit ${sudoersPath}`, options);
     }
 }
+window.CommandRegistry.register(new VisudoCommand());

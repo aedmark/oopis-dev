@@ -88,3 +88,4 @@ window.HeadCommand = class HeadCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+window.CommandRegistry.register(new HeadCommand());

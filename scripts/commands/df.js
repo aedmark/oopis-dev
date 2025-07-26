@@ -62,3 +62,4 @@ window.DfCommand = class DfCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+window.CommandRegistry.register(new DfCommand());

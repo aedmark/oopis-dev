@@ -95,3 +95,4 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         );
     }
 };
+window.CommandRegistry.register(new CommitteeCommand());

@@ -60,3 +60,4 @@ window.CatCommand = class CatCommand extends Command {
         return ErrorHandler.createSuccess(content);
     }
 }
+window.CommandRegistry.register(new CatCommand());

@@ -22,3 +22,4 @@ window.DateCommand = class DateCommand extends Command {
     return ErrorHandler.createSuccess(new Date().toString());
   }
 }
+window.CommandRegistry.register(new DateCommand());

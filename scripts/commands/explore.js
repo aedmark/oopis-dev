@@ -55,3 +55,4 @@ window.ExploreCommand = class ExploreCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new ExploreCommand());

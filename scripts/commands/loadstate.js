@@ -43,3 +43,4 @@ window.LoadstateCommand = class LoadstateCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new LoadstateCommand());

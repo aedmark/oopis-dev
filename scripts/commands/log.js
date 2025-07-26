@@ -75,3 +75,4 @@ window.LogCommand = class LogCommand extends Command {
 
   }
 }
+window.CommandRegistry.register(new LogCommand());

@@ -49,3 +49,4 @@ window.GroupaddCommand = class GroupaddCommand extends Command {
         return ErrorHandler.createSuccess(`Group '${groupName}' created.`);
     }
 }
+window.CommandRegistry.register(new GroupaddCommand());

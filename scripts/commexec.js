@@ -36,37 +36,28 @@ class CommandExecutor {
     const { Config, OutputManager, CommandRegistry } = this.dependencies;
     if (!commandName || typeof commandName !== "string") return null;
 
-    // Check the local executor cache first
-    if (this.commands[commandName]) return this.commands[commandName];
+    // Check the registry first. If the command is already there, we're done.
+    const existingCommand = CommandRegistry.getCommands()[commandName];
+    if (existingCommand) {
+      return existingCommand;
+    }
 
-    // Check if the command is in the manifest
+    // If not in the registry, check the manifest to see if it's a valid command
     if (!Config.COMMANDS_MANIFEST.includes(commandName)) {
       return null;
     }
 
     const commandScriptPath = `commands/${commandName}.js`;
     try {
-      // Load the script file
+      // Load the script file. The script itself will handle registration.
       await this._loadScript(commandScriptPath);
 
-      // Convert snake_case (like check_fail) to CamelCase (CheckFail)
-
-      const className = commandName
-          .split('_')
-          .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-          .join('') + 'Command';
-
-      if (typeof window[className] === 'function' && !CommandRegistry.getCommands()[commandName]) {
-        const commandInstance = new window[className]();
-        CommandRegistry.register(commandInstance);
-      }
-
-      // Now, get the instance from the registry (it should be there now)
+      // Now, get the instance from the registry again. It should be there now.
       const commandInstance = CommandRegistry.getCommands()[commandName];
 
       if (!commandInstance) {
         await OutputManager.appendToOutput(
-            `Error: Script loaded but command '${commandName}' not found in registry.`,
+            `Error: Script loaded but command '${commandName}' failed to register itself.`,
             { typeClass: Config.CSS_CLASSES.ERROR_MSG }
         );
         return null;
@@ -81,8 +72,7 @@ class CommandExecutor {
         }
       }
 
-      // Cache the instance in the executor and return it
-      this.commands[commandName] = commandInstance;
+      // No need to cache it here in the executor anymore, the registry is our single source of truth.
       return commandInstance;
     } catch (error) {
       await OutputManager.appendToOutput(

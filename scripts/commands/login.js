@@ -58,3 +58,4 @@ window.LoginCommand = class LoginCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new LoginCommand());

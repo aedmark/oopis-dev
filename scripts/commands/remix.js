@@ -121,3 +121,4 @@ ${file2Content}
         }
     }
 }
+window.CommandRegistry.register(new RemixCommand());

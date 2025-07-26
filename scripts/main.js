@@ -162,6 +162,7 @@ window.onload = async () => {
   const uiComponents = new UIComponents();
   const aiManager = new AIManager();
   const commandRegistry = new CommandRegistry();
+  window.CommandRegistry = commandRegistry;
   const networkManager = new NetworkManager();
   soundManager = new SoundManager();
   const storageHAL = new IndexedDBStorageHAL();

@@ -72,3 +72,4 @@ window.CheckFailCommand = class CheckFailCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new CheckFailCommand());

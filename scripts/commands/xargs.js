@@ -90,3 +90,4 @@ window.XargsCommand = class XargsCommand extends Command {
     return ErrorHandler.createSuccess("");
   }
 };
+window.CommandRegistry.register(new XargsCommand());

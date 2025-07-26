@@ -122,3 +122,4 @@ window.ZipCommand = class ZipCommand extends Command {
         );
     }
 }
+window.CommandRegistry.register(new ZipCommand());

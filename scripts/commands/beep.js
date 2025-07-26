@@ -27,3 +27,4 @@ window.BeepCommand = class BeepCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+window.CommandRegistry.register(new BeepCommand());

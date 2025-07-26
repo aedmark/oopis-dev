@@ -46,3 +46,4 @@ window.UnaliasCommand = class UnaliasCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new UnaliasCommand());

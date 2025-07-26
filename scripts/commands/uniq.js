@@ -102,3 +102,4 @@ window.UniqCommand = class UniqCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join("\n"));
     }
 }
+window.CommandRegistry.register(new UniqCommand());

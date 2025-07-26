@@ -75,3 +75,4 @@ window.HelpCommand = class HelpCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new HelpCommand());

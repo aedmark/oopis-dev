@@ -138,3 +138,4 @@ window.RestoreCommand = class RestoreCommand extends Command {
         );
     }
 }
+window.CommandRegistry.register(new RestoreCommand());

@@ -1,5 +1,4 @@
 // scripts/command_registry.js
-
 class CommandRegistry {
     constructor() {
         this.commandDefinitions = {};

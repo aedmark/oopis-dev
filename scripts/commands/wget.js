@@ -133,3 +133,4 @@ window.WgetCommand = class WgetCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new WgetCommand());

@@ -127,3 +127,4 @@ window.MkdirCommand = class MkdirCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: changesMade });
   }
 }
+window.CommandRegistry.register(new MkdirCommand());

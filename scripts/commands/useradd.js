@@ -100,3 +100,4 @@ window.UseraddCommand = class UseraddCommand extends Command {
         });
     }
 }
+window.CommandRegistry.register(new UseraddCommand());

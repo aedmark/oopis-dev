@@ -71,3 +71,4 @@ window.PingCommand = class PingCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new PingCommand());

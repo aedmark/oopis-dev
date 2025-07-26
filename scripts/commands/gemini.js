@@ -158,3 +158,4 @@ window.GeminiCommand = class GeminiCommand extends Command {
 
     }
 }
+window.CommandRegistry.register(new GeminiCommand());

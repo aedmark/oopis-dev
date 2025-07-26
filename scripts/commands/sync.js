@@ -37,3 +37,4 @@ window.SyncCommand = class SyncCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new SyncCommand());

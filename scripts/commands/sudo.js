@@ -89,3 +89,4 @@ window.SudoCommand = class SudoCommand extends Command {
     });
   }
 }
+window.CommandRegistry.register(new SudoCommand());

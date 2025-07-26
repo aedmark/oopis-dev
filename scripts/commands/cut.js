@@ -118,3 +118,4 @@ window.CutCommand = class CutCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join('\n'));
     }
 }
+window.CommandRegistry.register(new CutCommand());

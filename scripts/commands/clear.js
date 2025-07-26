@@ -29,3 +29,4 @@ window.ClearCommand = class ClearCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new ClearCommand());

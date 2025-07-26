@@ -36,3 +36,4 @@ window.RebootCommand = class RebootCommand extends Command {
         );
     }
 }
+window.CommandRegistry.register(new RebootCommand());

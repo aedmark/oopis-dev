@@ -51,3 +51,4 @@ window.MoreCommand = class MoreCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new MoreCommand());

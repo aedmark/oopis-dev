@@ -145,3 +145,4 @@ window.TrCommand = class TrCommand extends Command {
         return ErrorHandler.createSuccess(processedContent);
     }
 }
+window.CommandRegistry.register(new TrCommand());

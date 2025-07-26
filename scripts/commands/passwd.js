@@ -130,3 +130,4 @@ window.PasswdCommand = class PasswdCommand extends Command {
         });
     }
 }
+window.CommandRegistry.register(new PasswdCommand());

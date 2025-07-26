@@ -56,3 +56,4 @@ window.TopCommand = class TopCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new TopCommand());

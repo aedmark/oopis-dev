@@ -131,3 +131,4 @@ window.TreeCommand = class TreeCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join("\n"));
     }
 }
+window.CommandRegistry.register(new TreeCommand());

@@ -23,3 +23,4 @@ window.PwdCommand = class PwdCommand extends Command {
     return ErrorHandler.createSuccess(FileSystemManager.getCurrentPath());
   }
 }
+window.CommandRegistry.register(new PwdCommand());

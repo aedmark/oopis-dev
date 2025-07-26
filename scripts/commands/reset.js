@@ -82,3 +82,4 @@ window.ResetCommand = class ResetCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new ResetCommand());

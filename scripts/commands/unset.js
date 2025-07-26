@@ -34,3 +34,4 @@ window.UnsetCommand = class UnsetCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new UnsetCommand());

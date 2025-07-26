@@ -44,3 +44,4 @@ window.HistoryCommand = class HistoryCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+window.CommandRegistry.register(new HistoryCommand());

@@ -79,3 +79,4 @@ window.UsermodCommand = class UsermodCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new UsermodCommand());

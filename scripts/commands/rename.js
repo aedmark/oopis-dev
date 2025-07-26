@@ -73,3 +73,4 @@ window.RenameCommand = class RenameCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new RenameCommand());

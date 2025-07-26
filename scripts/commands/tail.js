@@ -128,3 +128,4 @@ window.TailCommand = class TailCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+window.CommandRegistry.register(new TailCommand());

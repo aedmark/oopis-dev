@@ -128,3 +128,4 @@ window.OcryptCommand = class OcryptCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new OcryptCommand());

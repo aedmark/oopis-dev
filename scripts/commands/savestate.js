@@ -34,3 +34,4 @@ window.SavestateCommand = class SavestateCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new SavestateCommand());

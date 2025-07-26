@@ -45,3 +45,4 @@ window.FgCommand = class FgCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new FgCommand());

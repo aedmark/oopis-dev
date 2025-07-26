@@ -70,3 +70,4 @@ EXAMPLES
     }
   }
 }
+window.CommandRegistry.register(new Base64Command());

@@ -61,3 +61,4 @@ window.ExportCommand = class ExportCommand extends Command {
         );
     }
 }
+window.CommandRegistry.register(new ExportCommand());

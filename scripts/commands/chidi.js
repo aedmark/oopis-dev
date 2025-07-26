@@ -231,3 +231,4 @@ window.ChidiCommand = class ChidiCommand extends Command {
 
   }
 }
+window.CommandRegistry.register(new ChidiCommand());

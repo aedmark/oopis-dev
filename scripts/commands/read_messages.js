@@ -53,3 +53,4 @@ window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
         }
     }
 }
+window.CommandRegistry.register(new ReadMessagesCommand());

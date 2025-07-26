@@ -74,3 +74,4 @@ window.EditCommand = class EditCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new EditCommand());

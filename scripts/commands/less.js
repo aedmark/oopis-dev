@@ -49,3 +49,4 @@ window.LessCommand = class LessCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+window.CommandRegistry.register(new LessCommand());

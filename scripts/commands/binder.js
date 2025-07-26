@@ -317,3 +317,4 @@ window.BinderCommand = class BinderCommand extends Command {
         return ErrorHandler.createSuccess("Binder 'exec' completed.");
     }
 };
+window.CommandRegistry.register(new BinderCommand());

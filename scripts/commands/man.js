@@ -100,3 +100,4 @@ window.ManCommand = class ManCommand extends Command {
     return ErrorHandler.createSuccess(manPage);
   }
 }
+window.CommandRegistry.register(new ManCommand());

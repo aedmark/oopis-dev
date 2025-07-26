@@ -51,3 +51,4 @@ window.EchoCommand = class EchoCommand extends Command {
         return ErrorHandler.createSuccess(output, { suppressNewline });
     }
 }
+window.CommandRegistry.register(new EchoCommand());

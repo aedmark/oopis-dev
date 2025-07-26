@@ -43,3 +43,4 @@ window.SedCommand = class SedCommand extends Command {
         return ErrorHandler.createSuccess(transformedLines.join('\n'));
     }
 };
+window.CommandRegistry.register(new SedCommand());

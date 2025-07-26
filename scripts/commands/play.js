@@ -48,3 +48,4 @@ window.PlayCommand = class PlayCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+window.CommandRegistry.register(new PlayCommand());

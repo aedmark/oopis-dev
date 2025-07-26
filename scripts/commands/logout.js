@@ -49,3 +49,4 @@ window.LogoutCommand = class LogoutCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new LogoutCommand());

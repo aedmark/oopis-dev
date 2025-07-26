@@ -154,3 +154,4 @@ window.CurlCommand = class CurlCommand extends Command {
     }
   }
 }
+window.CommandRegistry.register(new CurlCommand());

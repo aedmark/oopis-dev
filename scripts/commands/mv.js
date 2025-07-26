@@ -108,3 +108,4 @@ window.MvCommand = class MvCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: changesMade });
     }
 }
+window.CommandRegistry.register(new MvCommand());
