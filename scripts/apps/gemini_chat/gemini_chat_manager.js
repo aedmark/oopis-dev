@@ -3,15 +3,16 @@ window.GeminiChatManager = class GeminiChatManager extends App {
   constructor() {
     super();
     this.state = {};
-    this.dependencies = {}; // To be populated on enter
+    this.dependencies = {};
     this.callbacks = {};
+    this.ui = null;
   }
 
   async enter(appLayer, options = {}) {
     if (this.isActive) return;
 
-    this.dependencies = options.dependencies; // Dependency injection
-    this.callbacks = this._createCallbacks(); // Create callbacks now
+    this.dependencies = options.dependencies;
+    this.callbacks = this._createCallbacks();
 
     this.isActive = true;
     this.state = {
@@ -23,11 +24,13 @@ window.GeminiChatManager = class GeminiChatManager extends App {
       terminalContext: "",
     };
 
-    this.container = this.dependencies.GeminiChatUI.buildAndShow(this.callbacks);
+    // Instantiate the new UI class
+    this.ui = new this.dependencies.GeminiChatUI(this.callbacks, this.dependencies);
+    this.container = this.ui.getContainer();
     appLayer.appendChild(this.container);
 
     // Initial message
-    this.dependencies.GeminiChatUI.appendMessage(
+    this.ui.appendMessage(
         "Greetings! What would you like to do?",
         "ai",
         true
@@ -38,10 +41,13 @@ window.GeminiChatManager = class GeminiChatManager extends App {
 
   exit() {
     if (!this.isActive) return;
-    this.dependencies.GeminiChatUI.hideAndReset();
+    if (this.ui) {
+      this.ui.hideAndReset();
+    }
     this.dependencies.AppLayerManager.hide(this);
     this.isActive = false;
     this.state = {};
+    this.ui = null;
   }
 
   handleKeyDown(event) {
@@ -51,54 +57,53 @@ window.GeminiChatManager = class GeminiChatManager extends App {
   }
 
   _createCallbacks() {
-    const self = this;
     return {
       onSendMessage: async (userInput) => {
-        const { GeminiChatUI, AIManager } = self.dependencies;
+        const { AIManager } = this.dependencies;
         if (!userInput || userInput.trim() === "") return;
 
-        GeminiChatUI.appendMessage(userInput, "user", false);
-        self.state.conversationHistory.push({
+        this.ui.appendMessage(userInput, "user", false);
+        this.state.conversationHistory.push({
           role: "user",
           parts: [{ text: userInput }],
         });
 
-        GeminiChatUI.toggleLoader(true);
+        this.ui.toggleLoader(true);
 
         const verboseCallback = (message, typeClass) => {
-          GeminiChatUI.appendMessage(message, "system", false);
+          this.ui.appendMessage(message, "system", false);
         };
 
         const agentResult = await AIManager.performAgenticSearch(
             userInput,
-            self.state.conversationHistory,
-            self.state.provider,
-            self.state.model,
-            { isInteractive: true, ...self.state.options, verboseCallback, dependencies: self.dependencies }
+            this.state.conversationHistory,
+            this.state.provider,
+            this.state.model,
+            { isInteractive: true, ...this.state.options, verboseCallback, dependencies: this.dependencies }
         );
 
-        GeminiChatUI.toggleLoader(false);
+        this.ui.toggleLoader(false);
 
         if (agentResult.success) {
           const finalAnswer = agentResult.data;
-          self.state.conversationHistory.push({
+          this.state.conversationHistory.push({
             role: "model",
             parts: [{ text: finalAnswer }],
           });
-          GeminiChatUI.appendMessage(finalAnswer, "ai", true);
+          this.ui.appendMessage(finalAnswer, "ai", true);
         } else {
-          GeminiChatUI.appendMessage(
+          this.ui.appendMessage(
               `An error occurred: ${agentResult.error}`,
               "ai",
               true
           );
-          self.state.conversationHistory.pop();
+          this.state.conversationHistory.pop();
         }
       },
-      onExit: self.exit.bind(self),
+      onExit: this.exit.bind(this),
       onRunCommand: async (commandText) => {
-        const { CommandExecutor } = self.dependencies;
-        self.exit();
+        const { CommandExecutor } = this.dependencies;
+        this.exit();
         await new Promise((resolve) => setTimeout(resolve, 50));
         await CommandExecutor.processSingleCommand(commandText, {
           isInteractive: true,

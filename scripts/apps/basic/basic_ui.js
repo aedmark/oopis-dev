@@ -1,3 +1,4 @@
+// scripts/apps/basic/basic_ui.js
 window.BasicUI = class BasicUI {
   constructor(callbacks, dependencies) {
     this.elements = {};
@@ -11,11 +12,22 @@ window.BasicUI = class BasicUI {
   }
 
   _buildLayout() {
-    const { Utils } = this.dependencies;
+    const { Utils, UIComponents } = this.dependencies;
+
+    // Create the main application window using the toolkit
+    const appWindow = UIComponents.createAppWindow('Oopis BASIC v1.0', this.callbacks.onExit);
+    this.elements.container = appWindow.container;
+    this.elements.main = appWindow.main;
+    // We don't use the footer in this app, but it's there for consistency!
+
+    // Add a specific class for theming
+    this.elements.container.classList.add("basic-app__container");
+
     this.elements.output = Utils.createElement("div", {
       id: "basic-app-output",
       className: "basic-app__output",
     });
+
     this.elements.input = Utils.createElement("input", {
       id: "basic-app-input",
       className: "basic-app__input",
@@ -23,34 +35,18 @@ window.BasicUI = class BasicUI {
       spellcheck: "false",
       autocapitalize: "none",
     });
+
     const inputContainer = Utils.createElement(
         "div",
         { className: "basic-app__input-line" },
         Utils.createElement("span", { textContent: ">" }),
         this.elements.input
     );
-    this.elements.exitBtn = Utils.createElement("button", {
-      className: "basic-app__exit-btn",
-      textContent: "×",
-      title: "Exit BASIC (EXIT)",
-    });
-    const header = Utils.createElement(
-        "header",
-        { className: "basic-app__header" },
-        Utils.createElement("h2", {
-          className: "basic-app__title",
-          textContent: "Oopis BASIC v1.0",
-        }),
-        this.elements.exitBtn
-    );
-    this.elements.container = Utils.createElement(
-        "div",
-        { id: "basic-app-container", className: "basic-app__container" },
-        header,
-        this.elements.output,
-        inputContainer
-    );
 
+    // Append the app-specific elements to the main area provided by the toolkit
+    this.elements.main.append(this.elements.output, inputContainer);
+
+    // Add event listeners
     this.elements.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -59,7 +55,7 @@ window.BasicUI = class BasicUI {
         this.callbacks.onInput(command);
       }
     });
-    this.elements.exitBtn.addEventListener("click", () => this.callbacks.onExit());
+    // The exit button in the header is already handled by createAppWindow
   }
 
   write(text) {

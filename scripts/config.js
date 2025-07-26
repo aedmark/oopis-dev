@@ -154,7 +154,7 @@ class ConfigManager {
         "mkdir", "mv", "nc", "netstat", "nl", "ocrypt", "paint", "passwd", "patch", "ping", "play",
         "printscreen", "ps", "pwd", "reboot", "remix", "removeuser", "rename", "reset",
         "restore", "rm", "rmdir", "run", "savefs", "savestate", "sed", "set",
-        "shuf", "sort", "su", "sudo", "sync", "synth" ,"tail", "top", "touch", "tr",
+        "shuf", "sort", "su", "sudo", "sync","tail", "top", "touch", "tr",
         "tree", "unalias", "uniq", "unset", "unzip", "upload", "useradd",
         "usermod", "visudo", "wc", "wget", "whoami", "xor", "zip", "xargs"
       ],

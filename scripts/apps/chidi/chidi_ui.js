@@ -13,98 +13,102 @@ window.ChidiUI = class ChidiUI {
   }
 
   _buildAndShow(initialState) {
-    const { Utils } = this.dependencies;
+    const { Utils, UIComponents } = this.dependencies;
 
-    const header = Utils.createElement(
-        "header",
-        { className: "chidi-console-header" },
-        Utils.createElement(
-            "div",
-            { id: "chidi-nav-controls", className: "chidi-control-group" },
-            (this.elements.prevBtn = Utils.createElement("button", {
-              id: "chidi-prevBtn",
-              className: "chidi-btn",
-              textContent: "< Prev",
-            })),
-            (this.elements.nextBtn = Utils.createElement("button", {
-              id: "chidi-nextBtn",
-              className: "chidi-btn",
-              textContent: "Next >",
-            }))
-        ),
-        (this.elements.mainTitle = Utils.createElement("h1", {
-          id: "chidi-mainTitle",
-          textContent: "chidi.md",
-        })),
-        Utils.createElement(
-            "div",
-            { className: "chidi-control-group" },
-            (this.elements.summarizeBtn = Utils.createElement("button", {
-              id: "chidi-summarizeBtn",
-              className: "chidi-btn",
-              textContent: "Summarize",
-            })),
-            (this.elements.studyBtn = Utils.createElement("button", {
-              id: "chidi-suggestQuestionsBtn",
-              className: "chidi-btn",
-              textContent: "Study",
-            })),
-            (this.elements.askBtn = Utils.createElement("button", {
-              id: "chidi-askAllFilesBtn",
-              className: "chidi-btn",
-              textContent: "Ask",
-            }))
-        )
+    // Create the main application window using the toolkit
+    const appWindow = UIComponents.createAppWindow('chidi.md', this.callbacks.onClose);
+    this.elements.container = appWindow.container;
+    this.elements.main = appWindow.main;
+    this.elements.footer = appWindow.footer;
+
+    // --- Header Content ---
+    const headerControlsLeft = Utils.createElement(
+        "div",
+        { id: "chidi-nav-controls", className: "chidi-control-group" },
+        [
+          (this.elements.prevBtn = Utils.createElement("button", {
+            id: "chidi-prevBtn",
+            className: "chidi-btn",
+            textContent: "< Prev",
+          })),
+          (this.elements.nextBtn = Utils.createElement("button", {
+            id: "chidi-nextBtn",
+            className: "chidi-btn",
+            textContent: "Next >",
+          }))
+        ]
     );
 
+    this.elements.mainTitle = appWindow.header.querySelector('.app-header__title'); // Get title from toolkit
+
+    const headerControlsRight = Utils.createElement(
+        "div",
+        { className: "chidi-control-group" },
+        [
+          (this.elements.summarizeBtn = Utils.createElement("button", {
+            id: "chidi-summarizeBtn",
+            className: "chidi-btn",
+            textContent: "Summarize",
+          })),
+          (this.elements.studyBtn = Utils.createElement("button", {
+            id: "chidi-suggestQuestionsBtn",
+            className: "chidi-btn",
+            textContent: "Study",
+          })),
+          (this.elements.askBtn = Utils.createElement("button", {
+            id: "chidi-askAllFilesBtn",
+            className: "chidi-btn",
+            textContent: "Ask",
+          }))
+        ]
+    );
+
+    // Insert controls into the main app header
+    appWindow.header.insertBefore(headerControlsLeft, this.elements.mainTitle);
+    appWindow.header.appendChild(headerControlsRight);
+
+
+    // --- Main Content ---
     this.elements.markdownDisplay = Utils.createElement("main", {
       id: "chidi-markdownDisplay",
       className: "chidi-markdown-content",
     });
+    this.elements.main.appendChild(this.elements.markdownDisplay);
 
-    const footer = Utils.createElement(
-        "footer",
-        { className: "chidi-status-readout" },
-        (this.elements.fileCountDisplay = Utils.createElement("div", {
-          id: "chidi-fileCountDisplay",
-          className: "chidi-status-item",
-        })),
-        (this.elements.messageBox = Utils.createElement("div", {
-          id: "chidi-messageBox",
-          className: "chidi-status-message",
-        })),
-        Utils.createElement(
-            "div",
-            { className: "chidi-control-group" },
-            (this.elements.loader = Utils.createElement("div", {
-              id: "chidi-loader",
-              className: "chidi-loader chidi-hidden",
-            })),
-            (this.elements.saveSessionBtn = Utils.createElement("button", {
-              id: "chidi-saveSessionBtn",
-              className: "chidi-btn",
-              textContent: "Save",
-            })),
-            (this.elements.exportBtn = Utils.createElement("button", {
-              id: "chidi-exportBtn",
-              className: "chidi-btn",
-              textContent: "Export",
-            })),
-            (this.elements.closeBtn = Utils.createElement("button", {
-              id: "chidi-closeBtn",
-              className: "chidi-btn chidi-exit-btn",
-              textContent: "Exit",
-            }))
-        )
-    );
 
-    this.elements.container = Utils.createElement(
+    // --- Footer Content ---
+    this.elements.fileCountDisplay = Utils.createElement("div", {
+      id: "chidi-fileCountDisplay",
+      className: "chidi-status-item",
+    });
+    this.elements.messageBox = Utils.createElement("div", {
+      id: "chidi-messageBox",
+      className: "chidi-status-message",
+    });
+    const footerControls = Utils.createElement(
         "div",
-        { id: "chidi-console-panel" },
-        header,
-        this.elements.markdownDisplay,
-        footer
+        { className: "chidi-control-group" },
+        [
+          (this.elements.loader = Utils.createElement("div", {
+            id: "chidi-loader",
+            className: "chidi-loader chidi-hidden",
+          })),
+          (this.elements.saveSessionBtn = Utils.createElement("button", {
+            id: "chidi-saveSessionBtn",
+            className: "chidi-btn",
+            textContent: "Save",
+          })),
+          (this.elements.exportBtn = Utils.createElement("button", {
+            id: "chidi-exportBtn",
+            className: "chidi-btn",
+            textContent: "Export",
+          })),
+        ]
     );
+
+    // Populate the footer provided by the toolkit
+    this.elements.footer.append(this.elements.fileCountDisplay, this.elements.messageBox, footerControls);
+
 
     this._setupEventListeners();
     this.update(initialState);
@@ -157,7 +161,7 @@ window.ChidiUI = class ChidiUI {
   }
 
   _setupEventListeners() {
-    this.elements.closeBtn.addEventListener("click", this.callbacks.onClose);
+    // The main exit button is handled by the toolkit
     this.elements.exportBtn.addEventListener("click", this.callbacks.onExport);
     this.elements.prevBtn.addEventListener("click", this.callbacks.onPrevFile);
     this.elements.nextBtn.addEventListener("click", this.callbacks.onNextFile);

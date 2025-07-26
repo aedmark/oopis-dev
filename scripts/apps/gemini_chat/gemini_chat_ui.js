@@ -1,30 +1,28 @@
 // scripts/apps/gemini_chat/gemini_chat_ui.js
 "use strict";
 
-window.GeminiChatUI = {
-  elements: {},
-  managerCallbacks: {},
-  dependencies: {},
-
-  buildAndShow(callbacks, deps) {
+window.GeminiChatUI = class GeminiChatUI {
+  constructor(callbacks, dependencies) {
+    this.elements = {};
     this.managerCallbacks = callbacks;
-    this.dependencies = deps;
-    const { Utils } = this.dependencies;
+    this.dependencies = dependencies;
+    this._buildLayout();
+  }
 
-    // Create DOM elements
-    this.elements.container = Utils.createElement("div", {
-      id: "gemini-chat-container",
-    });
-    const title = Utils.createElement("h2", { textContent: "Gemini Chat" });
-    const exitBtn = Utils.createElement("button", {
-      className: "btn btn--cancel",
-      textContent: "Exit",
-    });
-    const header = Utils.createElement(
-        "header",
-        { className: "gemini-chat-header" },
-        [title, exitBtn]
-    );
+  getContainer() {
+    return this.elements.container;
+  }
+
+  _buildLayout() {
+    const { Utils, UIComponents } = this.dependencies;
+
+    // Use the UI toolkit to create the main app window
+    const appWindow = UIComponents.createAppWindow('Gemini Chat', this.managerCallbacks.onExit);
+    this.elements.container = appWindow.container;
+    this.elements.main = appWindow.main;
+    this.elements.footer = appWindow.footer;
+
+    // App-specific elements
     this.elements.messageDisplay = Utils.createElement("div", {
       className: "gemini-chat-messages",
     });
@@ -37,6 +35,11 @@ window.GeminiChatUI = {
           Utils.createElement("span"),
         ]
     );
+
+    // Add message display and loader to the main content area
+    this.elements.main.append(this.elements.messageDisplay, this.elements.loader);
+
+    // Create the input form
     this.elements.input = Utils.createElement("input", {
       type: "text",
       placeholder: "Type your message...",
@@ -52,15 +55,10 @@ window.GeminiChatUI = {
         [this.elements.input, sendBtn]
     );
 
-    this.elements.container.append(
-        header,
-        this.elements.messageDisplay,
-        this.elements.loader,
-        form
-    );
+    // Put the form in the footer
+    this.elements.footer.appendChild(form);
 
     // Add event listeners
-    exitBtn.addEventListener("click", () => this.managerCallbacks.onExit());
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       await this.managerCallbacks.onSendMessage(this.elements.input.value);
@@ -69,13 +67,12 @@ window.GeminiChatUI = {
     this.elements.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        form.requestSubmit();
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }
     });
 
     this.elements.input.focus();
-    return this.elements.container;
-  },
+  }
 
   hideAndReset() {
     if (this.elements.container) {
@@ -83,7 +80,7 @@ window.GeminiChatUI = {
     }
     this.elements = {};
     this.managerCallbacks = {};
-  },
+  }
 
   appendMessage(message, sender, processMarkdown) {
     if (!this.elements.messageDisplay) return;
@@ -98,24 +95,19 @@ window.GeminiChatUI = {
       messageDiv.innerHTML = sanitizedHtml;
 
       const copyBtn = Utils.createElement("button", {
-        class: "btn",
-        style:
-            "position: absolute; top: 5px; right: 5px; font-size: 0.75rem; padding: 2px 5px;",
+        className: "btn",
+        style: "position: absolute; top: 5px; right: 5px; font-size: 0.75rem; padding: 2px 5px;",
         textContent: "Copy",
       });
       copyBtn.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(message);
           copyBtn.textContent = "Copied!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copy";
-          }, 2000);
+          setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
         } catch (err) {
           console.error("Failed to copy text:", err);
           copyBtn.textContent = "Error!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copy";
-          }, 2000);
+          setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
         }
       });
       messageDiv.style.position = "relative";
@@ -125,7 +117,7 @@ window.GeminiChatUI = {
         const commandText = codeBlock.textContent.trim();
         if (!commandText.includes("\n")) {
           const runButton = Utils.createElement("button", {
-            class: "btn btn--confirm",
+            className: "btn btn--confirm",
             textContent: `Run Command`,
             style: "display: block; margin-top: 10px;",
           });
@@ -141,11 +133,11 @@ window.GeminiChatUI = {
 
     this.elements.messageDisplay.appendChild(messageDiv);
     this.elements.messageDisplay.scrollTop = this.elements.messageDisplay.scrollHeight;
-  },
+  }
 
   toggleLoader(show) {
     if (this.elements.loader) {
       this.elements.loader.classList.toggle("hidden", !show);
     }
-  },
+  }
 };
