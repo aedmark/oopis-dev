@@ -22,7 +22,7 @@ window.ChmodCommand = class ChmodCommand extends Command {
       For example, a mode of 755 means:
       - Owner: 7 (4+2+1) -> read, write, and execute
       - Group: 5 (4+0+1) -> read and execute
-      - Other: 4 (4+0+0) -> read only
+      - Other: 5 (4+0+1) -> read and execute
       EXAMPLES
       chmod 755 script.sh
       Makes 'script.sh' executable by the owner, and readable

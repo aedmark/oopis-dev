@@ -10,7 +10,8 @@ window.BcCommand = class BcCommand extends Command {
 A simple, command-line calculator.
 
 DESCRIPTION
-       bc is a utility that evaluates mathematical expressions. It can handle
+       bc is a utility that evaluates mathematical expressions from either
+       standard input (via a pipe) or from a string argument. It can handle
        integers and floating-point numbers, basic arithmetic (+, -, *, /, %),
        and parentheses for order of operations.
 

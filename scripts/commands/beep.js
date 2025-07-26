@@ -5,7 +5,15 @@ window.BeepCommand = class BeepCommand extends Command {
             commandName: "beep",
             description: "Plays a simple system beep.",
             helpText: `Usage: beep
-      Plays a short, simple system tone through the emulated sound card.`
+      Plays a short, simple system tone through the emulated sound card.
+      
+      DESCRIPTION
+      The beep command produces a standard terminal beep sound. It's useful
+      for getting auditory feedback, such as signaling the completion of a
+      long-running script or alerting the user to an event.
+      
+      This command requires the AudioContext to be active, which is
+      initialized after the first user interaction with the terminal (a keypress or click).`
         });
     }
 

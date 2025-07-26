@@ -4,7 +4,7 @@ window.CatCommand = class CatCommand extends Command {
         super({
             commandName: "cat",
             description: "Concatenate and display the content of files.",
-            helpText: `Usage: cat [FILE]...
+            helpText: `Usage: cat [OPTION]... [FILE]...
       Concatenate and print files to the standard output.
       DESCRIPTION
       The cat utility reads files sequentially, writing them to the standard
