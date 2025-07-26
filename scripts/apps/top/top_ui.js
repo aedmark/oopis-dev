@@ -12,7 +12,13 @@ window.TopUI = class TopUI {
     }
 
     _buildLayout() {
-        const { Utils } = this.dependencies;
+        const { Utils, UIComponents } = this.dependencies;
+
+        // Create the main application window using the toolkit
+        const appWindow = UIComponents.createAppWindow('OopisOS Process Viewer', this.callbacks.onExit);
+        this.elements.container = appWindow.container;
+        this.elements.main = appWindow.main;
+        // No footer needed for this app
 
         this.elements.processList = Utils.createElement("tbody");
         const table = Utils.createElement("table", { className: "top-table" }, [
@@ -27,26 +33,15 @@ window.TopUI = class TopUI {
             this.elements.processList
         ]);
 
-        const header = Utils.createElement("header", { className: "top-header" }, [
-            Utils.createElement("h2", { textContent: "OopisOS Process Viewer" }),
-            Utils.createElement("button", {
-                className: "top-exit-btn",
-                textContent: "×",
-                title: "Exit (q)",
-                eventListeners: { click: () => this.callbacks.onExit() }
-            })
-        ]);
-
-        this.elements.container = Utils.createElement("div", {
-            id: "top-container",
-            className: "top-container",
-        }, [header, table]);
+        // Place the table into the main content area provided by the toolkit
+        this.elements.main.appendChild(table);
     }
 
     render(processes) {
         if (!this.elements.processList) return;
 
-        this.elements.processList.innerHTML = ""; // Clear existing rows
+        // Clear existing rows more efficiently
+        this.elements.processList.innerHTML = "";
 
         if (processes.length === 0) {
             const row = this.dependencies.Utils.createElement("tr", {},
@@ -60,6 +55,7 @@ window.TopUI = class TopUI {
             return;
         }
 
+        const fragment = document.createDocumentFragment();
         processes.forEach(proc => {
             const row = this.dependencies.Utils.createElement("tr", {}, [
                 this.dependencies.Utils.createElement("td", { textContent: proc.pid }),
@@ -67,8 +63,9 @@ window.TopUI = class TopUI {
                 this.dependencies.Utils.createElement("td", { textContent: proc.status }),
                 this.dependencies.Utils.createElement("td", { textContent: proc.command }),
             ]);
-            this.elements.processList.appendChild(row);
+            fragment.appendChild(row);
         });
+        this.elements.processList.appendChild(fragment);
     }
 
     hideAndReset() {
