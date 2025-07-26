@@ -1,95 +1,102 @@
-// scripts/commands/clearfs.js
-window.ClearfsCommand = class ClearfsCommand extends Command {
+// scripts/commands/comm.js
+window.CommCommand = class CommCommand extends Command {
     constructor() {
         super({
-            commandName: "clearfs",
-            description: "Clears the current user's home directory of all contents.",
-            helpText: `Usage: clearfs
-      Clears the current user's home directory of all contents.
+            commandName: "comm",
+            description: "Compares two sorted files line by line.",
+            helpText: `Usage: comm [OPTION]... FILE1 FILE2
+      Compare two sorted files line by line.
+
       DESCRIPTION
-      The clearfs command permanently removes all files and subdirectories
-      within the current user's home directory (e.g., /home/Guest),
-      effectively resetting it to an empty state.
-      This command only affects the home directory of the user who runs it.
-      It does not affect other parts of the file system.
-      WARNING
-      This operation is irreversible. All data within your home
-      directory will be permanently lost. The command will prompt for
-      confirmation before proceeding.`,
-            argValidation: {
-                exact: 0,
+      The comm utility reads two files and compares them line by line.
+      The output is in three columns. Column one contains lines unique to FILE1,
+      column two contains lines unique to FILE2, and column three contains lines
+      common to both files. It is assumed that the files are already sorted.
+
+      OPTIONS
+      -1              Suppress printing of column 1 (lines unique to FILE1).
+      -2              Suppress printing of column 2 (lines unique to FILE2).
+      -3              Suppress printing of column 3 (lines common to both).
+
+      EXAMPLES
+      comm sorted_a.txt sorted_b.txt
+      Displays the differences and commonalities between the two files.
+
+      comm -12 sorted_a.txt sorted_b.txt
+      Displays only the lines that appear in both files.`,
+            isInputStream: false, // This command specifically takes two file arguments
+            completionType: "paths",
+            flagDefinitions: [
+                { name: "suppressCol1", short: "-1" },
+                { name: "suppressCol2", short: "-2" },
+                { name: "suppressCol3", short: "-3" },
+            ],
+            validations: {
+                args: {
+                    exact: 2,
+                    error: "Usage: comm [OPTION]... FILE1 FILE2"
+                },
+                paths: [
+                    { argIndex: 0, options: { expectedType: 'file', permissions: ['read'] } },
+                    { argIndex: 1, options: { expectedType: 'file', permissions: ['read'] } }
+                ]
             },
         });
     }
 
     async coreLogic(context) {
-        const { options, currentUser, dependencies } = context;
-        const {
-            ModalManager,
-            ErrorHandler,
-            FileSystemManager,
-            Config,
-            TerminalUI,
-            OutputManager,
-        } = dependencies;
+        const { flags, validatedPaths, dependencies } = context;
+        const { ErrorHandler } = dependencies;
 
-        if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "clearfs: Can only be run in interactive mode."
-            );
+        const file1Node = validatedPaths[0].node;
+        const file2Node = validatedPaths[1].node;
+
+        const lines1 = (file1Node.content || "").split('\n');
+        const lines2 = (file2Node.content || "").split('\n');
+
+        let i = 0;
+        let j = 0;
+        const outputLines = [];
+        const col1Prefix = "";
+        const col2Prefix = flags.suppressCol1 ? "" : "\t";
+        const col3Prefix = flags.suppressCol1 && flags.suppressCol2 ? "" :
+            (flags.suppressCol1 || flags.suppressCol2 ? "\t" : "\t\t");
+
+        while (i < lines1.length && j < lines2.length) {
+            if (lines1[i] < lines2[j]) {
+                if (!flags.suppressCol1) {
+                    outputLines.push(`${col1Prefix}${lines1[i]}`);
+                }
+                i++;
+            } else if (lines2[j] < lines1[i]) {
+                if (!flags.suppressCol2) {
+                    outputLines.push(`${col2Prefix}${lines2[j]}`);
+                }
+                j++;
+            } else {
+                if (!flags.suppressCol3) {
+                    outputLines.push(`${col3Prefix}${lines1[i]}`);
+                }
+                i++;
+                j++;
+            }
         }
 
-        const username = currentUser;
-        const userHomePath = `/home/${username}`;
-
-        const confirmed = await new Promise((resolve) =>
-            ModalManager.request({
-                context: "terminal",
-                messageLines: [
-                    `WARNING: This will permanently erase ALL files and directories in your home directory (${userHomePath}).`,
-                    "This action cannot be undone.",
-                    "Are you sure you want to clear your home directory?",
-                ],
-                onConfirm: () => resolve(true),
-                onCancel: () => resolve(false),
-                options,
-            })
-        );
-
-        if (!confirmed) {
-            return ErrorHandler.createSuccess(
-                `Home directory clear for '${username}' cancelled. No action taken.`
-            );
+        while (i < lines1.length) {
+            if (!flags.suppressCol1 && lines1[i]) {
+                outputLines.push(`${col1Prefix}${lines1[i]}`);
+            }
+            i++;
         }
 
-        const homeDirNode = FileSystemManager.getNodeByPath(userHomePath);
-
-        if (
-            !homeDirNode ||
-            homeDirNode.type !== Config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE
-        ) {
-            return ErrorHandler.createError(
-                `clearfs: Critical error - Could not find home directory for '${username}' at '${userHomePath}'.`
-            );
+        while (j < lines2.length) {
+            if (!flags.suppressCol2 && lines2[j]) {
+                outputLines.push(`${col2Prefix}${lines2[j]}`);
+            }
+            j++;
         }
 
-        homeDirNode.children = {};
-        homeDirNode.mtime = new Date().toISOString();
-
-        const currentPath = FileSystemManager.getCurrentPath();
-        if (currentPath.startsWith(userHomePath)) {
-            FileSystemManager.setCurrentPath(userHomePath);
-        }
-
-        TerminalUI.updatePrompt();
-        OutputManager.clearOutput();
-
-        const successMessage = `Home directory for user '${username}' has been cleared.`;
-        await OutputManager.appendToOutput(successMessage, {
-            typeClass: Config.CSS_CLASSES.SUCCESS_MSG,
-        });
-
-        return ErrorHandler.createSuccess("", { stateModified: true });
+        return ErrorHandler.createSuccess(outputLines.join('\n'));
     }
 }
-window.CommandRegistry.register(new ClearfsCommand());
+window.CommandRegistry.register(new CommCommand());
