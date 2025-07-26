@@ -10,24 +10,22 @@ window.EditorUI = class EditorUI {
   buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Create the main application window using the toolkit
+    // 1. Create the standard app window. This provides the main structure.
     const appWindow = UIComponents.createAppWindow('Text Editor', () => this.managerCallbacks.onExitRequest());
     this.elements.container = appWindow.container;
     this.elements.main = appWindow.main;
     this.elements.footer = appWindow.footer;
 
-    // Create editor-specific elements
+    // Set the container ID for specific editor styles
+    this.elements.container.id = 'text-editor-app-container';
+
+    // 2. Create editor-specific elements
     this.elements.titleInput = Utils.createElement("input", {
       id: "editor-title",
       className: "editor-title-input",
       type: "text",
       value: initialState.currentFilePath || "Untitled",
     });
-    const headerContent = Utils.createElement(
-        "header",
-        { className: "editor-header" },
-        [this.elements.titleInput]
-    );
 
     this.elements.saveBtn = UIComponents.createButton({ icon: "💾", text: "Save", onClick: () => this.managerCallbacks.onSaveRequest() });
     this.elements.exitBtn = UIComponents.createButton({ text: "Exit", onClick: () => this.managerCallbacks.onExitRequest() });
@@ -74,18 +72,15 @@ window.EditorUI = class EditorUI {
         [this.elements.textarea, this.elements.preview]
     );
 
-    const layoutContainer = Utils.createElement(
-        "div",
-        { className: "editor-layout" },
-        [headerContent, toolbar, editorMainContent]
-    );
+    // 3. Append the editor's unique parts directly to the provided main area
+    this.elements.main.append(this.elements.titleInput, toolbar, editorMainContent);
 
-    this.elements.main.append(layoutContainer);
-
+    // 4. Set up the footer
     this.elements.dirtyStatus = Utils.createElement("span", { id: "editor-dirty-status" });
     this.elements.statusMessage = Utils.createElement("span", { id: "editor-status-message" });
     this.elements.footer.append(this.elements.dirtyStatus, this.elements.statusMessage);
 
+    // 5. Final setup
     this._addEventListeners();
     this.updateDirtyStatus(initialState.isDirty);
     this.updateWindowTitle(initialState.currentFilePath);

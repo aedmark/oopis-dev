@@ -45,7 +45,6 @@
 .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* This is the corrected line! */
     align-items: center;
     gap: var(--spacing-sm);
     flex-shrink: 0; /* Don't shrink the toolbar */
@@ -54,6 +53,7 @@
 .editor-toolbar-group {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center; /* This is the corrected line! */
     gap: var(--spacing-xs);
 }
 
