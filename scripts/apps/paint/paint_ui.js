@@ -34,12 +34,12 @@ window.PaintUI = class PaintUI {
     });
 
     const toolGroup = Utils.createElement("div", { className: "paint-tool-group" }, [
-      (this.elements.pencilBtn = createToolBtn("pencil", "p", "Pencil")),
-      (this.elements.eraserBtn = createToolBtn("eraser", "e", "Eraser")),
-      (this.elements.lineBtn = createToolBtn("line", "l", "—")),
+      (this.elements.pencilBtn = createToolBtn("pencil", "p", "✏")),
+      (this.elements.eraserBtn = createToolBtn("eraser", "e", "✐")),
+      (this.elements.lineBtn = createToolBtn("line", "l", "▬")),
       (this.elements.rectBtn = createToolBtn("rect", "r", "▢")),
-      (this.elements.circleBtn = createToolBtn("circle", "c", "◯")),
-      (this.elements.fillBtn = createToolBtn("fill", "f", "Fill")),
+      (this.elements.circleBtn = createToolBtn("circle", "c", "◎")),
+      (this.elements.fillBtn = createToolBtn("fill", "f", "▩")),
       (this.elements.selectBtn = createToolBtn("select", "s", "⬚")),
     ]);
 
@@ -58,11 +58,11 @@ window.PaintUI = class PaintUI {
 
     this.elements.undoBtn = UIComponents.createButton({ text: "↩" });
     this.elements.redoBtn = UIComponents.createButton({ text: "↪" });
-    this.elements.gridBtn = UIComponents.createButton({ text: "Grid" });
+    this.elements.gridBtn = UIComponents.createButton({ text: "▦" });
     const historyGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.undoBtn, this.elements.redoBtn, this.elements.gridBtn]);
 
-    this.elements.zoomInBtn = UIComponents.createButton({ text: "➕" });
-    this.elements.zoomOutBtn = UIComponents.createButton({ text: "➖" });
+    this.elements.zoomInBtn = UIComponents.createButton({ text: "+" });
+    this.elements.zoomOutBtn = UIComponents.createButton({ text: "-" });
     const zoomGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.zoomOutBtn, this.elements.zoomInBtn]);
 
     // **Grab the exit button before we change anything!**

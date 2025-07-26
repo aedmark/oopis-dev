@@ -1,4 +1,44 @@
 // scripts/commands/unzip.js
+
+// NEW: The missing helper function to restore files and directories.
+async function _restoreNode(name, nodeData, parentPath, dependencies, currentUser) {
+    const { FileSystemManager, UserManager } = dependencies;
+    const fullPath = FileSystemManager.getAbsolutePath(name, parentPath);
+
+    if (nodeData.type === 'file') {
+        const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
+        const result = await FileSystemManager.createOrUpdateFile(
+            fullPath,
+            nodeData.content || '',
+            { currentUser, primaryGroup }
+        );
+        if (!result.success) {
+            throw new Error(`Failed to create file ${fullPath}: ${result.error}`);
+        }
+    } else if (nodeData.type === 'directory') {
+        const mkdirResult = await FileSystemManager.createOrUpdateFile(
+            fullPath,
+            null, // No content for a directory
+            {
+                isDirectory: true,
+                currentUser: currentUser,
+                primaryGroup: UserManager.getPrimaryGroupForUser(currentUser),
+            }
+        );
+
+        if (!mkdirResult.success) {
+            throw new Error(`Failed to create directory ${fullPath}: ${mkdirResult.error}`);
+        }
+
+        if (nodeData.children) {
+            for (const childName in nodeData.children) {
+                await _restoreNode(childName, nodeData.children[childName], fullPath, dependencies, currentUser);
+            }
+        }
+    }
+}
+
+
 window.UnzipCommand = class UnzipCommand extends Command {
     constructor() {
         super({
@@ -41,10 +81,8 @@ window.UnzipCommand = class UnzipCommand extends Command {
             return ErrorHandler.createError("unzip: missing file operand");
         }
 
-        // Get both the node and the original argument from validatedPaths
         const { node: archiveNode, arg: archivePath } = validatedPaths[0];
 
-        // Check the file extension on the path argument, not the node
         if (!archiveNode || !archivePath.endsWith(".zip")) {
             return ErrorHandler.createError(
                 "unzip: provided file is not a .zip archive."
@@ -74,7 +112,7 @@ window.UnzipCommand = class UnzipCommand extends Command {
             }
             await FileSystemManager.save();
             return ErrorHandler.createSuccess(
-                `Archive '${archivePath}' successfully unzipped.` // Use archivePath for a better message
+                `Archive '${archivePath}' successfully unzipped.`
             );
         } catch (e) {
             return ErrorHandler.createError(
