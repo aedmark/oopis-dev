@@ -7,7 +7,7 @@
    We need to override .app-main for the editor to be a flex-column. */
 #text-editor-app-container > .app-main {
     display: flex;
-    flex-direction: column; /* Stack header, toolbar, and content vertically */
+    flex-direction: column !important; /* Stack header, toolbar, and content vertically */
     gap: var(--spacing-sm);
     padding: var(--spacing-sm);
 }
