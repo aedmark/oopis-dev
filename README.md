@@ -1,5 +1,5 @@
-# OopisOS v5.0: Your Digital Town Hall!
-
+OOS v5
+---
 ```
    /$$$$$$                      /$$            /$$$$$$   /$$$$$$
  /$$__  $$                    |__/           /$$__  $$ /$$__  $$
@@ -14,98 +14,145 @@
                     |__/  A Browser-Based OS Simulation
 ```
 
-# OopisOS v5.0
+# OopisOS v5.0 : **OopisOS: A Pocket-Sized, AI-Powered, Web-Based Operating System**
 
-**OopisOS: A Pocket-Sized, AI-Powered, Web-Based Operating System.**
+Welcome, friend, to OopisOS! You're about to embark on an incredible journey into a world of productivity, creativity, and cutting-edge technology, all running right here in your browser. This guide is your trusted companion, your roadmap to becoming an OopisOS power-user. Let's dive in!
 
-Welcome to OopisOS, a fully-featured, simulated operating system that runs directly in your web browser! OopisOS combines the power and feel of a classic command-line Unix-like environment with a suite of modern, graphical, and AI-powered applications. It's a playground for developers, a tool for learning, and a canvas for creativity.
+## Chapter 1: What is OopisOS?
+
+OopisOS is a complete, simulated operating system designed for the modern web. It's a love letter to the classic command-line interfaces of Unix-like systems, supercharged with a suite of powerful graphical applications and groundbreaking AI tools. Whether you're here to learn the ropes of the command line, write code, create art, play games, or collaborate on a project, OopisOS has something for you.
+
+## Chapter 2: Your First Steps - The Terminal
+
+The heart of OopisOS is the **Terminal**. This is where you'll interact with the system by typing commands.
+
+### The Prompt
+
+When you first arrive, you'll see a line of text ending in `>`. This is the command prompt. It tells you who you are and where you are. By default, you are the `Guest` user in your home directory.
+
+`Guest@OopisOs:~$ >`
+
+- `Guest`: Your current username.
+- `OopisOs`: The system's hostname.
+- `~`: A shortcut for your home directory (`/home/Guest`).
+- `>`: The prompt symbol. If you were the `root` user, this would be a `#`.
+
+### Entering Commands
+
+Simply type a command and press **Enter**. For example, try this:
+
+bash
+
+```
+echo Hello, OopisOS!
+```
+
+The system will respond by printing "Hello, OopisOS!" to the screen. Congratulations, you've just run your first command!
+
+### Getting Help
+
+Two essential commands will be your best friends:
+
+- `help`: Displays a list of all available commands.
+- `man <command>`: Shows the "manual page" for a specific command, giving you a detailed description and a list of all its options (e.g., `man ls`).
+
+## Chapter 3: The File System - Your Digital World
+
+OopisOS has its own virtual file system, just like any other OS. It's a tree-like structure of files and directories.
+
+### Key Concepts
+
+- **Files**: Contain data, like text, code, or even art.
+- **Directories**: Containers that hold files and other directories.
+- **Path**: The address of a file or directory.
+    - **Absolute Path**: Starts from the root of the file system, `/`. Example: `/home/Guest/documents`.
+    - **Relative Path**: Starts from your current location. Example: `documents`.
+- **Special Directories**:
+    - `.` (dot): Represents your current directory.
+    - `..` (dot-dot): Represents the parent directory (one level up).
+
+### Navigating the File System
+
+These are the three most fundamental commands for moving around.
+
+- `pwd` (Print Working Directory): Shows you where you are right now.
+- `ls` (List): Lists the contents of the current directory. Try `ls -l` for a more detailed "long" view.
+- `cd` (Change Directory): Moves you to a different directory. `cd documents` moves you into the `documents` directory. `cd ..` moves you up one level. `cd /` takes you to the very top, the root directory.
+
+## Chapter 4: Core Commands - Your Toolkit
+
+Here is a categorized list of essential commands you'll use every day. Remember to use `man <command>` for more details!
+
+### File & Directory Management
+
+- `mkdir <name>`: Creates a new directory.
+- `touch <file>`: Creates a new, empty file or updates the timestamp of an existing one.
+- `cp <source> <destination>`: Copies a file or directory. Use `cp -r` for directories.
+- `mv <source> <destination>`: Moves or renames a file or directory.
+- `rm <file>`: Deletes a file. Use `rm -r` to delete a directory and all its contents (use with caution!).
+- `cat <file>`: Displays the entire content of a file.
+- `head <file>` / `tail <file>`: Displays the beginning or end of a file.
+
+### User & System Management
+
+- `whoami`: Shows your current username.
+- `login <user>`: Logs in as a different user, starting a fresh session.
+- `su <user>`: Switches to another user, stacking the session. Use `logout` to return.
+- `passwd`: Change your password.
+- `useradd <name>` / `removeuser <name>`: Create or delete user accounts (root only).
+- `ps` / `jobs`: List currently running background processes.
+- `kill <job_id>`: Stop a running background process.
+- `reboot`: Restarts the OopisOS system.
+- `reset`: A powerful command to reset the _entire_ OS to its factory state. **Warning: This erases everything!**
+
+### Text Manipulation & Pipelines
+
+One of the most powerful features of a command line is the ability to chain commands together using the "pipe" (`|`) operator. The output of the first command becomes the input for the second!
+
+- `grep <pattern> <file>`: Searches for a pattern within a file.
+- `sort`: Sorts lines of text alphabetically or numerically.
+- `uniq`: Filters out repeated adjacent lines.
+- `wc`: Counts lines, words, and characters.
+- `cut`: Extracts sections from each line.
+- `sed`: A "stream editor" for find-and-replace operations.
+
+**Example Pipeline:** Find all unique error lines in a log file and count them.
+
+bash
+
+```
+cat system.log | grep "ERROR" | sort | uniq | wc -l
+```
+
+## Chapter 5: The Application Suite
+
+OopisOS isn't just a command line! Launch these powerful graphical applications by typing their name in the terminal.
+
+- `explore`: A two-pane graphical file explorer. Navigate with ease, and right-click on items for context-sensitive actions like creating, renaming, and deleting.
+- `edit [file]`: A powerful, context-aware text editor. It automatically enables live previews for Markdown (`.md`) and HTML (`.html`) files!
+- `code [file]`: A lightweight, fast editor for code, featuring JavaScript syntax highlighting.
+- `paint [file.oopic]`: Unleash your creativity! `paint` is a full-screen, grid-based editor for creating amazing ASCII and ANSI art.
+- `synth`: Launch a simple synthesizer and play music using your computer keyboard.
+- `adventure [file.json]`: Start an interactive text adventure game! Play the built-in game or use `adventure --create <file>` to build your own.
+- `log ["entry"]`: Your personal journal. Run it without arguments to open the full app, or pass a quick note in quotes to log it instantly.
+- `basic [file.bas]`: A complete IDE for the Oopis Basic programming language, with advanced functions that can interact with the OS itself.
+- `top`: A real-time, dynamic view of all running background processes.
+
+## Chapter 6: The AI Revolution in OopisOS
+
+OopisOS integrates next-generation AI to make you more productive and creative.
+
+- `gemini "<prompt>"`: This is your primary AI assistant. It can understand your files and use other OS commands to gather information and answer your questions.
+
+    - **Example**: `gemini "Summarize my README.md and list any scripts in this directory"`
+    - **Chat Mode**: Use `gemini -c` to launch a full-screen, interactive chat application.
+- `chidi [path]`: The AI-powered document analyst. Launch it on a file or directory to get summaries, ask questions about the content, and get study suggestions. It's like having a research assistant built right into your OS.
+
+- `remix <file1> <file2>`: A creative AI tool that reads two documents and synthesizes a brand new article blending the key ideas from both sources.
+
 
 ---
 
-## ✨ Features
+This guide is just the beginning. The best way to learn is by doing. Explore the file system, try out the commands, write a script, compose a song, create some art, and build an adventure. OopisOS is your oyster.
 
-OopisOS is packed with features designed to provide a rich and engaging experience.
-
-### Core System & Command Line
-
-- **Unix-like Shell**: A powerful command-line interface with support for piping (`|`), redirection (`>`), background processes (`&`), and more.
-
-- **Robust File System**: A complete virtual file system with support for directories, files, permissions (`chmod`), and ownership (`chown`, `chgrp`).
-
-- **User & Group Management**: Multi-user support with password protection (`useradd`, `passwd`, `login`, `su`) and group permissions for collaborative projects (`groupadd`, `usermod`).
-
-- **Full Suite of Commands**: Dozens of classic commands are at your fingertips, including `ls`, `cd`, `pwd`, `cat`, `grep`, `find`, `rm`, `mv`, `cp`, `mkdir`, `touch`, and many more.
-
-- **Scripting Support**: Write and execute shell scripts with the `run` command to automate tasks.
-
-
-### 🤖 AI-Powered Tools
-
-- **Gemini Command**: An integrated AI assistant that can use system tools to answer questions about your files and orchestrate complex tasks.
-
-- **Chidi AI Analyst**: A graphical tool that leverages an LLM to help you understand and interact with your documents and code. It can summarize, suggest insightful questions, and answer questions based on your files.
-
-- **Remix Command**: Synthesize a new article from two source documents using AI, creating a unique summary that blends ideas from both.
-
-
-### 🎨 Creative & Productive Applications
-
-- **`edit` and `code`**: Two powerful, full-screen editors. `edit` intelligently adapts for Markdown and HTML with live previews, while `code` offers a lightweight experience with syntax highlighting for various languages.
-
-- **`explore`**: A graphical, two-pane file explorer for easy navigation and file management.
-
-- **`paint`**: A character-based art editor for creating ASCII and ANSI art on an 80x24 canvas.
-
-- **`synth`**: A playable synthesizer application that turns your keyboard into a musical instrument.
-
-- **`adventure`**: An interactive text adventure engine! Play the built-in game or create your own adventures with the creation tools.
-
-- **`log`**: A personal, timestamped journal application to keep track of your thoughts and progress.
-
-- **`basic`**: A complete Integrated Development Environment for the Oopis Basic programming language, featuring advanced functions and system integration.
-
-
----
-
-## 🚀 Getting Started
-
-Getting started with OopisOS is as simple as it gets. No installation is required!
-
-1. **Visit the website**: Navigate to the OopisOS URL.
-
-2. **Start typing**: The terminal is ready for your commands.
-
-3. Type `help` to see a list of available commands.
-
-
----
-
-## 💻 Usage
-
-Interact with OopisOS primarily through its terminal.
-
-- Enter commands at the prompt and press `Enter`.
-
-- Use the **Up** and **Down** arrow keys to navigate your command history.
-
-- Use the **Tab** key for auto-completion of commands, file paths, and more.
-
-- Launch graphical applications like `explore`, `edit`, or `paint` directly from the command line.
-
-
----
-
-## License
-This project is licensed under a modified MIT License. See the LICENSE.txt file for details.
-
----
-
-## Contact
-
-Created by Edmark & Gemini.
-
-- **Email**: [oopismcgoopis@gmail.com](mailto:oopismcgoopis@gmail.com)
-
-- **GitHub**: [https://github.com/aedmark/oopisos-pocket](https://github.com/aedmark/oopisos-pocket)
-
-- **Website**: [https://oopisos.com](https://oopisos.com)
+We're so excited to see what you'll create! Welcome to the committee. Welcome to OopisOS.
