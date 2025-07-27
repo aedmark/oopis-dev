@@ -6,20 +6,24 @@ window.LogCommand = class LogCommand extends Command {
       dependencies: ["apps/log/log_ui.js", "apps/log/log_manager.js"],
       applicationModules: ["LogManager", "LogUI", "App"],
       description: "A personal, timestamped journal and log application.",
-      helpText: `
-    Usage: log ["entry text"]
-    DESCRIPTION
-    The 'log' command is your personal journal within OopisOS.
-    Running 'log' with a quoted string as an argument will instantly
-    create a new, timestamped journal entry without opening the app.
-    Running 'log' with no arguments launches the full-screen application,
-    allowing you to view, search, and manage all your entries.
-    EXAMPLES
-    log "Finished the first draft of the proposal."
-    Creates a new entry with the specified text.
-    log
-    Opens the main journal application.
-    `,
+      helpText: `Usage: log ["entry text"]
+      A personal journal for OopisOS.
+      DESCRIPTION
+      The 'log' command serves as your personal, timestamped journal.
+      It has two modes of operation:
+      1. Quick Add Mode:
+      Running 'log' with a quoted string as an argument will instantly
+      create a new, timestamped journal entry in /home/Guest/.journal/
+      without opening the full application.
+      2. Application Mode:
+      Running 'log' with no arguments launches the full-screen graphical
+      application, which allows you to view, search, edit, and manage
+      all of your journal entries.
+      EXAMPLES
+      log "Finished the first draft of the proposal."
+      Creates a new entry with the specified text.
+      log
+      Opens the main journal application.`,
       argValidation: {
         max: 1,
         error: 'Usage: log ["quick entry text"]',
@@ -49,14 +53,17 @@ window.LogCommand = class LogCommand extends Command {
         );
       }
 
-      if (args.length === 1) {
-        const entryText = args[0];
-        const logManager = new LogManager(); // Create an instance to use its methods
-        logManager.setDependencies(dependencies);
+      // Instantiate the manager to access its methods
+      const logManager = new LogManager();
+      logManager.dependencies = dependencies; // Manually inject dependencies
+
+      if (args.length > 0) {
+        const entryText = args.join(" "); // Join args in case they weren't quoted
         const result = await logManager.quickAdd(entryText, currentUser);
         if (result.success) {
           return ErrorHandler.createSuccess(result.message, {
             messageType: Config.CSS_CLASSES.SUCCESS_MSG,
+            stateModified: true
           });
         } else {
           return ErrorHandler.createError(result.error);
@@ -64,7 +71,7 @@ window.LogCommand = class LogCommand extends Command {
       }
 
       // Launch the full application using the AppLayerManager
-      AppLayerManager.show(new LogManager(), { dependencies });
+      AppLayerManager.show(logManager, { dependencies });
 
       return ErrorHandler.createSuccess("");
     } catch (e) {
