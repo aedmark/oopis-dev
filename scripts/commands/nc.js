@@ -6,13 +6,25 @@ window.NcCommand = class NcCommand extends Command {
             description: "Netcat utility for network communication.",
             helpText: `Usage: nc [--listen [--exec]] | [<targetId> "<message>"]
       A utility for network communication between OopisOS instances.
-
-      OPTIONS:
-        --listen              - Puts the terminal in listening mode, printing messages.
-        --exec                - With --listen, executes incoming messages as commands.
-                                WARNING: This is a major security risk. Only use this
-                                with trusted peers. Requires root privileges.
-        <targetId> "<message>" - Sends a direct message to another instance.`,
+      DESCRIPTION
+      The nc (netcat) command is a versatile networking tool for OopisOS.
+      It can be used to send direct messages to other instances or to
+      set up a listener to receive incoming messages.
+      MODES
+      Listen Mode:
+      nc --listen
+      Puts the terminal in listening mode, printing any incoming
+      messages from other OopisOS instances.
+      Direct Send Mode:
+      nc <target_instance_id> "<message>"
+      Sends a direct message to another instance. Use 'netstat' to
+      find instance IDs.
+      OPTIONS
+      --exec
+      Used with --listen, this will execute any incoming messages
+      as OopisOS commands. Requires root privileges.
+      WARNING: --exec is a major security risk. Only use this
+      with trusted peers.`,
             flagDefinitions: [
                 { name: "listen", short: "--listen" },
                 { name: "exec", short: "--exec" },

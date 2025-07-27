@@ -8,9 +8,15 @@ window.NetstatCommand = class NetstatCommand extends Command {
       Displays a list of all discovered OopisOS instances and their connection status.
 
       DESCRIPTION
-      - Lists your own instance ID.
-      - Shows remote instances discovered via the signaling server.
-      - Indicates which peers have an active WebRTC connection.`
+      The netstat command provides a summary of the current network
+      status. It lists your own instance ID and shows all other OopisOS
+      instances that have been discovered on the local network or through
+      the signaling server. It will also indicate which of these peers have
+      an active, direct WebRTC connection.
+
+      EXAMPLES
+      netstat
+      Displays your instance ID and a list of other known instances.`
         });
     }
 
