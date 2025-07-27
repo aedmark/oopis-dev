@@ -13,7 +13,8 @@ window.TopCommand = class TopCommand extends Command {
       Provides a dynamic, real-time view of the processes running in OopisOS.
       DESCRIPTION
       The top command opens a full-screen application that lists all active
-      background jobs and system processes. The list is updated in real-time.
+      background jobs and system processes. The list is updated in real-time
+      every second.
       KEYBOARD SHORTCUTS
       q - Quit the application.`,
             validations: {
@@ -51,7 +52,6 @@ window.TopCommand = class TopCommand extends Command {
                         reject(new Error(`Operation cancelled. (Reason: ${signal.reason})`));
                     });
                 }
-                // We just wait here... forever... or until we're told otherwise.
             });
         }
     }

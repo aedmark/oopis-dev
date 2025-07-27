@@ -50,7 +50,7 @@ window.VisudoCommand = class VisudoCommand extends Command {
             );
         }
 
-        const sudoersPath = SudoManager.getSudoersFilePath();
+        const sudoersPath = SudoManager.config.SUDO.SUDOERS_PATH;
         let originalContent = "";
         const sudoersNode = FileSystemManager.getNodeByPath(sudoersPath);
         if (sudoersNode) {
