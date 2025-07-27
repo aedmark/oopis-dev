@@ -1,6 +1,4 @@
 // scripts/commands/unzip.js
-
-// NEW: The missing helper function to restore files and directories.
 async function _restoreNode(name, nodeData, parentPath, dependencies, currentUser) {
     const { FileSystemManager, UserManager } = dependencies;
     const fullPath = FileSystemManager.getAbsolutePath(name, parentPath);

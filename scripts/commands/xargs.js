@@ -1,5 +1,4 @@
 // scripts/commands/xargs.js
-
 window.XargsCommand = class XargsCommand extends Command {
   constructor() {
     super({
