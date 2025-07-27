@@ -7,8 +7,18 @@ window.SedCommand = class SedCommand extends Command {
             helpText: `Usage: sed <script> [file...]
       A stream editor for text transformation.
       DESCRIPTION
-      This version supports the basic substitution command: s/regexp/replacement/flags.
-      The 'g' flag for global replacement is supported.`,
+      The sed (stream editor) command filters and transforms text from
+      an input stream (a file or a pipe). It reads the input line by line,
+      applies a script to each line, and then outputs the modified line.
+      This version supports the basic substitution command:
+      s/regexp/replacement/flags
+      The only supported flag is 'g' for global (all occurrences on a line)
+      replacement.
+      EXAMPLES
+      echo "hello world" | sed 's/world/OopisOS/'
+      Prints "hello OopisOS".
+      cat file.txt | sed 's/error/warning/g'
+      Replaces all occurrences of "error" with "warning" in file.txt.`,
             isInputStream: true,
             completionType: "paths"
         });
