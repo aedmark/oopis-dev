@@ -57,7 +57,7 @@ window.PaintManager = class PaintManager extends App {
       isLocked: false,
       currentFilePath: filePath,
       canvasData: [],
-      canvasDimensions: { width: 80, height: 24 },
+      canvasDimensions: { width: 80, height: 32 },
       currentTool: "pencil",
       currentCharacter: "#",
       currentColor: "#FFFFFF",

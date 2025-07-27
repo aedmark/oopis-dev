@@ -54,13 +54,15 @@ window.OcryptCommand = class OcryptCommand extends Command {
       Encrypt or decrypt a file using a key.
       DESCRIPTION
       ocrypt is a simple custom block cipher for demonstration purposes.
-      IT IS NOT SECURE AND SHOULD NOT BE USED FOR REAL-WORLD
-      CRYPTOGRAPHY.
       It uses a key-derived matrix to transform 8-byte blocks of data.
       If [outputfile] is not provided, the result is printed to standard output.
       OPTIONS
       -d, --decrypt
-      Decrypt the input file instead of encrypting.`,
+      Decrypt the input file instead of encrypting.
+      WARNING
+      This tool is for educational purposes ONLY. It is NOT
+      cryptographically secure and should not be used to protect
+      sensitive data.`,
       flagDefinitions: [
         { name: "decrypt", short: "-d", long: "--decrypt" },
       ],

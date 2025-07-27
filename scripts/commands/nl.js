@@ -6,7 +6,17 @@ window.NlCommand = class NlCommand extends Command {
             description: "Numbers lines of files.",
             helpText: `Usage: nl [FILE]...
       Write each FILE to standard output, with line numbers added.
-      With no FILE, or when FILE is -, read standard input.`,
+      DESCRIPTION
+      The nl (number lines) utility reads lines from files or standard
+      input and adds line numbers to all non-empty lines. Blank lines
+      are preserved but not numbered.
+      With no FILE, or when FILE is -, it reads from standard input.
+      EXAMPLES
+      nl document.txt
+      Displays the content of document.txt with non-empty lines numbered.
+      ls | nl
+      Displays the contents of the current directory, with each
+      item on a numbered line.`,
             isInputStream: true,
             completionType: "paths"
         });
@@ -30,7 +40,7 @@ window.NlCommand = class NlCommand extends Command {
             if (line.trim() !== '') {
                 return `     ${String(lineNumber++).padStart(5)}  ${line}`;
             }
-            return `      ${line}`;
+            return `       ${line}`;
         });
 
         return ErrorHandler.createSuccess(outputLines.join('\n'));
