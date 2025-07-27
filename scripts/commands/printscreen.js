@@ -7,10 +7,14 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
             helpText: `Usage: printscreen [output_file]
       Capture a screenshot of the current OopisOS screen.
       DESCRIPTION
-      - Interactive Mode (no arguments): Generates an image of the
-        terminal and initiates a browser download.
-      - Non-Interactive Mode (with output_file): Dumps the visible
-        text content of the terminal to the specified file for testing.
+      The printscreen command captures the visible content of the terminal.
+      It has two modes:
+      - Image Mode (default, interactive): Generates a PNG image of the
+        terminal and initiates a browser download. This uses the html2canvas
+        library to render the DOM.
+      - Text Dump Mode (non-interactive): If an [output_file] is specified,
+        it dumps the visible text content of the terminal to that file. This
+        is primarily used for automated testing.
       NOTE: Image capture may not work on all browsers due to varying
       support for the necessary rendering technologies.`,
             validations: {
