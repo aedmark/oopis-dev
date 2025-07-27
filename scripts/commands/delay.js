@@ -3,13 +3,13 @@ window.DelayCommand = class DelayCommand extends Command {
     constructor() {
         super({
             commandName: "delay",
-            description: "Pauses execution for a specified time.",
+            description: "Pauses script or command execution for a specified time.",
             helpText: `Usage: delay <milliseconds>
       Pause execution for a specified time.
       DESCRIPTION
       The delay command pauses execution for the specified number of
       milliseconds.
-      It is primarily used within scripts (\`run\` command) to create
+      It is primarily used within scripts ('run' command) to create
       timed sequences or demonstrations.
       EXAMPLES
       delay 1000

@@ -18,15 +18,12 @@ window.CsplitCommand = class CsplitCommand extends Command {
       PATTERNS
       N         Split at line number N.
       /REGEX/   Split before the line matching the regular expression.
-      %REGEX%   Skip to the line matching the regular expression, but do not create a file.
-      {N}       Repeat the previous pattern N times.
+      %REGEX%   Skip to the line matching the regular expression, but do not create a file. (Not yet implemented)
+      {N}       Repeat the previous pattern N times. (Not yet implemented)
       EXAMPLES
-      csplit my_log.txt 100 /ERROR/ {5}
-      Creates xx00 with lines 1-99, then creates up to 5 files,
-      each starting with a line containing "ERROR".
-      csplit -f chapter- book.txt %^CHAPTER% {*}
-      Splits book.txt into chapter-00, chapter-01, etc.,
-      skipping the "CHAPTER" line itself.`,
+      csplit my_log.txt 100 /ERROR/
+      Creates xx00 with lines 1-99, then creates xx01 with lines starting
+      from the first line containing "ERROR" to the end of the file.`,
             completionType: "paths",
             flagDefinitions: [
                 { name: "prefix", short: "-f", long: "--prefix", takesValue: true },

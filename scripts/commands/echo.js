@@ -20,7 +20,7 @@ window.EchoCommand = class EchoCommand extends Command {
       EXAMPLES
       echo Hello, world!
       Displays "Hello, world!".
-      echo -e "A line.\\n_A second line."
+      echo -e "A line.\\nA second line."
       Displays two lines of text.
       echo "User: $USER"
       Displays the name of the current user by expanding the
