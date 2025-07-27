@@ -7,11 +7,16 @@ window.PingCommand = class PingCommand extends Command {
             helpText: `Usage: ping <hostname_or_instanceId>
       Send a request to a host to check for connectivity.
       DESCRIPTION
-      - For a standard hostname/URL, it sends a lightweight request to the
-        specified host to determine if it is reachable.
-      - For an OopisOS instance ID (e.g., oos-123456-789), it sends a
-        special 'ping' message and waits for a 'pong' to measure the
-        round-trip time between instances.
+      The ping command sends a request to a network host to determine
+      if it is reachable and to measure the round-trip time.
+      It has two modes of operation:
+      1. Web Host Mode:
+         For a standard hostname/URL (e.g., oopisos.com), it sends a
+         lightweight HTTP HEAD request to the host.
+      2. OopisOS Instance Mode:
+         For an OopisOS instance ID (e.g., oos-123456-789), it sends a
+         special 'ping' message via the NetworkManager and waits for a
+         'pong' response to measure latency between instances.
       EXAMPLES
       ping oopisos.com
       ping oos-1672533600000-123`,

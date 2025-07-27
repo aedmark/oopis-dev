@@ -37,11 +37,77 @@ window.PatchCommand = class PatchCommand extends Command {
         });
     }
 
+    /**
+     * Parses a unified diff format string into an array of hunk objects.
+     * Each hunk object contains information about a specific change.
+     * This is designed to be compatible with a standard patch utility.
+     * @param {string} patchContent The string content of the patch file.
+     * @returns {Array<Object>} An array of hunk objects.
+     * @throws {Error} If the patch format is invalid.
+     */
     _parsePatch(patchContent) {
-        // This is a placeholder for a real diff parser.
-        // For now, this assumes the patch file is a JSON object created by PatchUtils.createPatch.
-        // A more advanced version would parse a standard text-based diff format.
-        return JSON.parse(patchContent);
+        // This function now parses the standard unified diff format,
+        // which looks like this:
+        // --- a/original_file.txt
+        // +++ b/modified_file.txt
+        // @@ -old_start,old_lines +new_start,new_lines @@
+        //  context line (unchanged)
+        // -line to be removed
+        // +line to be added
+
+        const lines = patchContent.split('\n');
+        const hunks = [];
+        let currentHunk = null;
+
+        // This powerful regular expression is our star player! It captures all
+        // the numbers from the hunk header '@@ -a,b +c,d @@'.
+        const hunkHeaderRegex = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
+
+        for (const line of lines) {
+            // Ignore the file header lines, we get all we need from the hunks.
+            if (line.startsWith('---') || line.startsWith('+++')) {
+                continue;
+            }
+
+            if (line.startsWith('@@')) {
+                // When we find a hunk header, we save the previous hunk.
+                if (currentHunk) {
+                    hunks.push(currentHunk);
+                }
+
+                const match = line.match(hunkHeaderRegex);
+                if (!match) {
+                    throw new Error(`Invalid hunk header: ${line}`);
+                }
+
+                // Start a new hunk object! It's like a new initiative for Pawnee!
+                currentHunk = {
+                    oldStart: parseInt(match[1], 10),
+                    // If the line count isn't specified, it defaults to 1.
+                    oldLines: match[2] ? parseInt(match[2], 10) : 1,
+                    newStart: parseInt(match[4], 10),
+                    newLines: match[5] ? parseInt(match[5], 10) : 1,
+                    lines: [],
+                };
+            } else if (currentHunk) {
+                // If we are inside a hunk, add the line to it.
+                // We only care about lines that are part of the change set.
+                if (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) {
+                    currentHunk.lines.push(line);
+                }
+            }
+        }
+
+        // Don't forget to save the very last hunk! No initiative left behind!
+        if (currentHunk) {
+            hunks.push(currentHunk);
+        }
+
+        if (hunks.length === 0 && patchContent.trim() !== "") {
+            throw new Error("Patch file contains no valid hunks.");
+        }
+
+        return hunks;
     }
 
     async coreLogic(context) {
@@ -60,7 +126,14 @@ window.PatchCommand = class PatchCommand extends Command {
         const patchContent = patchFileNode.content || "";
 
         try {
+            // Now this calls our new, brilliant parser!
             const patchObject = this._parsePatch(patchContent);
+
+            // If the patch is empty, there's nothing to do! Job's done!
+            if (patchObject.length === 0) {
+                return ErrorHandler.createSuccess(`'${args[0]}' is already up to date.`, { stateModified: false });
+            }
+
             const patchedContent = PatchUtils.applyPatch(targetContent, patchObject);
 
             const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
@@ -76,6 +149,7 @@ window.PatchCommand = class PatchCommand extends Command {
 
             return ErrorHandler.createSuccess(`Successfully patched '${args[0]}'.`, { stateModified: true });
         } catch (e) {
+            // Our improved parser will throw specific errors for bad formats!
             return ErrorHandler.createError(`patch: Failed to apply patch. Error: ${e.message}`);
         }
     }
