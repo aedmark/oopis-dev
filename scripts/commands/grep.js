@@ -23,7 +23,7 @@ window.GrepCommand = class GrepCommand extends Command {
       -R, -r, --recursive
       Read all files under each directory, recursively.
       -E, --extended-regexp
-      Interpret PATTERN as an extended regular expression.
+      Interpret PATTERN as an extended regular expression. (Currently no-op)
       EXAMPLES
       grep "error" /data/logs/system.log
       Finds all lines containing "error" in the system log.

@@ -6,16 +6,32 @@ window.FindCommand = class FindCommand extends Command {
       description: "Searches for files in a directory hierarchy.",
       helpText: `Usage: find [path...] [expression]
       Search for files in a directory hierarchy based on a set of criteria.
+
+      DESCRIPTION
+      The find command recursively searches a directory tree for files
+      that match a given expression and then performs an action on them.
+      If no action is specified, it defaults to printing the file path.
+
+      EXPRESSIONS
       Expressions are made up of tests and actions:
       -name <pattern>     File name matches shell pattern (e.g., "*.txt").
       -type <f|d>         File is of type f (file) or d (directory).
       -user <name>        File is owned by user <name>.
       -perm <mode>        File's permission bits are exactly <mode> (octal).
       -mtime <n>          File's data was last modified n*24 hours ago.
-      -newermt <date>     File's data was last modified more recently than <date>.
       -delete             Deletes found files. Use with caution.
       -exec <cmd> {} ;    Executes <cmd> on found files. {} is replaced by the file path.
-      ! or -not           Inverts the sense of the next test.`,
+      ! or -not           Inverts the sense of the next test.
+
+      EXAMPLES
+      find . -name "*.js"
+      Finds all files ending in .js in the current directory and subdirectories.
+
+      find /home -type d -user Guest
+      Finds all directories in /home that are owned by the user 'Guest'.
+
+      find . -name "*.tmp" -delete
+      Finds and deletes all files ending in .tmp in the current hierarchy.`,
       completionType: "paths",
       validations: {
         args: {
