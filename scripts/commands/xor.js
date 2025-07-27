@@ -11,7 +11,11 @@ window.XorCommand = class XorCommand extends Command {
       key XOR cipher. It is intended for educational/demonstration
       purposes and is NOT cryptographically secure.
       The same command and key are used for both encryption and decryption.
-      If [outputfile] is not specified, the result is printed to standard output.`,
+      If [outputfile] is not specified, the result is printed to standard output.
+      WARNING
+      This tool is for educational purposes ONLY. It is NOT
+      cryptographically secure and should not be used to protect
+      sensitive data.`,
             validations: {
                 args: {
                     min: 2,
