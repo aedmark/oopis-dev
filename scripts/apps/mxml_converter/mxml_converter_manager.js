@@ -56,6 +56,7 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
             const isRest = /<rest\/>/.test(noteData);
             const durationMatch = noteData.match(/<duration>(\d+)<\/duration>/);
             const duration = durationMatch ? parseInt(durationMatch[1], 10) : 0;
+            const isChord = /<chord\/>/.test(noteData);
 
             if (isRest) {
                 notes.push({ type: 'rest', duration });
@@ -72,7 +73,8 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
                     notes.push({
                         type: 'note',
                         pitch: `${noteName}${octaveMatch[1]}`,
-                        duration
+                        duration,
+                        isChord
                     });
                 }
             }
@@ -92,10 +94,35 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
         return "64n"; // Smallest supported duration
     }
 
+    async _getXMLContent() {
+        const { JSZip } = this.dependencies;
+        if (this.state.inputFile.extension === 'mxl') {
+            this.ui.updateStatus("Decompressing .mxl file...");
+            try {
+                // Corrected line: Removed { base64: true }
+                const zip = await JSZip.loadAsync(this.state.inputFile.content);
+                const mainXmlFile = Object.keys(zip.files).find(name => !name.startsWith('META-INF') && (name.endsWith('.musicxml') || name.endsWith('.xml')));
+                if (mainXmlFile) {
+                    return await zip.file(mainXmlFile).async("string");
+                } else {
+                    throw new Error("No valid .musicxml file found in the archive.");
+                }
+            } catch (e) {
+                this.ui.updateStatus(`Error: Failed to decompress .mxl file. ${e.message}`);
+                return null;
+            }
+        }
+        return this.state.inputFile.content;
+    }
+
     async _convert() {
         const { FileSystemManager, UserManager } = this.dependencies;
+
+        const xmlContent = await this._getXMLContent();
+        if (xmlContent === null) return;
+
         this.ui.updateStatus("Parsing MusicXML...");
-        const { notes, divisions } = this._parseMusicXML(this.state.inputFile.content);
+        const { notes, divisions } = this._parseMusicXML(xmlContent);
 
         if (notes.length === 0) {
             this.ui.updateStatus("Error: No notes found in the file.");
@@ -109,7 +136,11 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
         for (const note of notes) {
             const toneDuration = this._durationToToneJS(note.duration, divisions);
             const durationInSeconds = new Tone.Time(toneDuration).toSeconds();
-            totalDurationMs += durationInSeconds * 1000;
+
+            // Only add to total duration and delay for non-chord notes
+            if (!note.isChord) {
+                totalDurationMs += durationInSeconds * 1000;
+            }
 
             if (note.type === 'note') {
                 scriptLines.push(`play ${note.pitch} ${toneDuration}`);
@@ -119,7 +150,8 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
         }
 
         const scriptContent = scriptLines.join('\n');
-        const outputFilename = this.state.outputFile || this.state.inputFile.path.replace('.musicxml', '.sh');
+        const outputFilename = this.state.outputFile || this.state.inputFile.path.replace(/\.(musicxml|mxl|xml)$/, '.sh');
+
         const currentUser = UserManager.getCurrentUser().name;
         const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
 
