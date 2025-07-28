@@ -49,7 +49,7 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
             divisions = parseInt(divisionsMatch[1], 10);
         }
 
-        const noteRegex = /<note>([\s\S]*?)<\/note>/g;
+        const noteRegex = /<note[^>]*>([\s\S]*?)<\/note>/g;
         let match;
         while ((match = noteRegex.exec(xmlString)) !== null) {
             const noteData = match[1];
@@ -132,24 +132,38 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
         const scriptLines = ["#!/bin/oopis_shell", "# Converted from MusicXML by mxml2sh"];
         let totalDurationMs = 0;
 
-        for (const note of notes) {
-            const toneDuration = this._durationToToneJS(note.duration, divisions);
+        let i = 0;
+        while (i < notes.length) {
+            const currentNote = notes[i];
+            const toneDuration = this._durationToToneJS(currentNote.duration, divisions);
             const durationInSeconds = new Tone.Time(toneDuration).toSeconds();
 
-            // Only add to total duration and delay for non-chord notes
-            if (!note.isChord) {
+            if (currentNote.type === 'rest') {
+                scriptLines.push(`delay ${Math.round(durationInSeconds * 1000)}`);
                 totalDurationMs += durationInSeconds * 1000;
+                i++;
+                continue;
             }
 
-            if (note.type === 'note') {
-                scriptLines.push(`play ${note.pitch} ${toneDuration}`);
-            } else { // rest
-                scriptLines.push(`delay ${Math.round(durationInSeconds * 1000)}`);
+            const chordPitches = [currentNote.pitch];
+            let lookahead = i + 1;
+            while (lookahead < notes.length && notes[lookahead].isChord) {
+                chordPitches.push(notes[lookahead].pitch);
+                lookahead++;
             }
+
+            // Enclose chords in quotes
+            const notesArg = chordPitches.length > 1 ? `"${chordPitches.join(' ')}"` : chordPitches[0];
+            scriptLines.push(`play ${notesArg} ${toneDuration}`);
+
+            totalDurationMs += durationInSeconds * 1000;
+            i = lookahead;
         }
 
         const scriptContent = scriptLines.join('\n');
-        const outputFilename = this.state.outputFile || this.state.inputFile.path.replace(/\.(musicxml|mxl|xml)$/, '.sh');
+        const rawOutputFilename = this.state.outputFile || this.state.inputFile.path.replace(/\.(musicxml|mxl|xml)$/, '.sh');
+        const outputFilename = FileSystemManager.getAbsolutePath(rawOutputFilename);
+
 
         const currentUser = UserManager.getCurrentUser().name;
         const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);

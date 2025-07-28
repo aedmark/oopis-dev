@@ -1,27 +1,43 @@
-// scripts/sound_manager.js
-class SoundManager {
-    constructor() {
+// scripts/managers/sound_manager.js
+window.SoundManager = class SoundManager {
+    constructor(dependencies) {
+        this.dependencies = dependencies;
         this.synth = null;
         this.isInitialized = false;
     }
 
-    // Initializes the synthesizer on the first user interaction
     async initialize() {
-        if (this.isInitialized || typeof Tone === 'undefined') return;
-        await Tone.start();
-        this.synth = new Tone.Synth().toDestination();
-        this.isInitialized = true;
-        console.log("SoundManager: AudioContext started and synthesizer is ready.");
+        if (this.isInitialized) return;
+        try {
+            await Tone.start();
+            this.synth = new Tone.PolySynth(Tone.Synth).toDestination();
+            this.isInitialized = true;
+            console.log("SoundManager initialized successfully.");
+        } catch (e) {
+            console.error("SoundManager initialization failed:", e);
+            this.isInitialized = false;
+        }
     }
 
-    // Plays a note for a given duration
-    playNote(note, duration) {
-        if (!this.isInitialized) return;
-        this.synth.triggerAttackRelease(note, duration);
+    getSynth() {
+        if (!this.isInitialized) {
+            // This is a fallback, but initialization should be handled by the command.
+            this.initialize();
+        }
+        return this.synth;
     }
 
-    // Plays a short, simple beep sound
-    beep() {
-        this.playNote("C4", "8n");
+    // Updated to handle both single notes and arrays (chords)
+    playNote(notes, duration) {
+        if (!this.isInitialized || !this.synth) {
+            console.error("SoundManager not initialized. Cannot play note.");
+            return;
+        }
+        try {
+            const now = Tone.now();
+            this.synth.triggerAttackRelease(notes, duration, now);
+        } catch (e) {
+            console.error(`Error playing note(s): ${notes}`, e);
+        }
     }
-}
+};
