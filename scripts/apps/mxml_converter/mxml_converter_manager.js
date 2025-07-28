@@ -99,7 +99,6 @@ window.MusicXMLConverterManager = class MusicXMLConverterManager extends App {
         if (this.state.inputFile.extension === 'mxl') {
             this.ui.updateStatus("Decompressing .mxl file...");
             try {
-                // Corrected line: Removed { base64: true }
                 const zip = await JSZip.loadAsync(this.state.inputFile.content);
                 const mainXmlFile = Object.keys(zip.files).find(name => !name.startsWith('META-INF') && (name.endsWith('.musicxml') || name.endsWith('.xml')));
                 if (mainXmlFile) {

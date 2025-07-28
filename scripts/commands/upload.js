@@ -40,14 +40,13 @@ window.UploadCommand = class UploadCommand extends Command {
             );
         }
 
-        // --- NEW: Add 'multiple' property ---
         const input = Utils.createElement("input", { type: "file", multiple: true });
         document.body.appendChild(input);
 
         return new Promise((resolve) => {
             input.onchange = async (e) => {
                 const cleanup = () => document.body.contains(input) && document.body.removeChild(input);
-                const files = e.target.files; // This is now a FileList
+                const files = e.target.files;
 
                 if (!files || files.length === 0) {
                     cleanup();
@@ -58,7 +57,6 @@ window.UploadCommand = class UploadCommand extends Command {
                 let anyFileUploaded = false;
                 let errorOccurred = false;
 
-                // --- NEW: Loop through all selected files ---
                 for (const file of files) {
                     const currentPath = FileSystemManager.getCurrentPath();
                     const newFilePath = `${currentPath === "/" ? "" : currentPath}/${file.name}`;
@@ -78,11 +76,10 @@ window.UploadCommand = class UploadCommand extends Command {
 
                         if (!confirmed) {
                             await OutputManager.appendToOutput(`Skipping '${file.name}'.`);
-                            continue; // Skip to the next file
+                            continue;
                         }
                     }
 
-                    // We need another Promise to handle the FileReader for each file
                     const uploadPromise = new Promise((fileResolve) => {
                         const reader = new FileReader();
                         reader.onload = async (event) => {
@@ -100,24 +97,32 @@ window.UploadCommand = class UploadCommand extends Command {
                                     `${Config.MESSAGES.UPLOAD_SUCCESS_PREFIX}${file.name}${Config.MESSAGES.UPLOAD_SUCCESS_MIDDLE}${newFilePath}${Config.MESSAGES.UPLOAD_SUCCESS_SUFFIX}`
                                 );
                                 anyFileUploaded = true;
-                                fileResolve(true); // Indicate success for this file
+                                fileResolve(true);
                             } else {
                                 await OutputManager.appendToOutput(`Error uploading '${file.name}': ${saveResult.error}`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
                                 errorOccurred = true;
-                                fileResolve(false); // Indicate failure for this file
+                                fileResolve(false);
                             }
                         };
                         reader.onerror = () => {
                             OutputManager.appendToOutput(`Error reading file '${file.name}'.`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
                             errorOccurred = true;
-                            fileResolve(false); // Indicate failure for this file
+                            fileResolve(false);
                         };
-                        reader.readAsText(file);
+
+                        // Check the file extension and read as ArrayBuffer for binary types
+                        const binaryExtensions = ['mxl'];
+                        const extension = file.name.split('.').pop().toLowerCase();
+                        if (binaryExtensions.includes(extension)) {
+                            reader.readAsArrayBuffer(file);
+                        } else {
+                            reader.readAsText(file);
+                        }
+
                     });
 
-                    await uploadPromise; // Wait for the current file to finish processing
+                    await uploadPromise;
                 }
-                // --- END of the loop ---
 
                 cleanup();
                 if (errorOccurred) {

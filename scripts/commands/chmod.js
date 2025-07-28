@@ -55,7 +55,6 @@ window.ChmodCommand = class ChmodCommand extends Command {
         const { ErrorHandler } = dependencies;
         const modeArg = args[0];
         const { node } = validatedPaths[0];
-        const nowISO = new Date().toISOString();
 
         if (!/^[0-7]{3,4}$/.test(modeArg)) {
             return ErrorHandler.createError(
@@ -65,7 +64,7 @@ window.ChmodCommand = class ChmodCommand extends Command {
 
         const newMode = parseInt(modeArg, 8);
         node.mode = newMode;
-        node.mtime = nowISO;
+        node.mtime = new Date().toISOString();
 
         return ErrorHandler.createSuccess("", { stateModified: true });
     }

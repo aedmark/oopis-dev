@@ -3,11 +3,10 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
     constructor() {
         super({
             commandName: "mxml2sh",
-            // Add jszip.min.js to the dependencies
+            // Remove jszip.min.js from this list
             dependencies: [
                 "apps/mxml_converter/mxml_converter_ui.js",
                 "apps/mxml_converter/mxml_converter_manager.js",
-                "jszip.min.js",
             ],
             applicationModules: ["MusicXMLConverterManager", "MusicXMLConverterUI", "App", "JSZip"],
             description: "Converts a MusicXML (.musicxml or .mxl) file into a runnable OopisOS script.",

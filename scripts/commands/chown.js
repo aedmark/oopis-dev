@@ -32,17 +32,14 @@ window.ChownCommand = class ChownCommand extends Command {
         });
     }
 
-    async _recursiveChown(node, newOwner, dependencies) {
-        const { FileSystemManager } = dependencies;
+    async _recursiveChown(node, newOwner) {
         const nowISO = new Date().toISOString();
-
         node.owner = newOwner;
         node.mtime = nowISO;
 
         if (node.type === 'directory' && node.children) {
             for (const childName in node.children) {
-                const childNode = node.children[childName];
-                await this._recursiveChown(childNode, newOwner, dependencies);
+                await this._recursiveChown(node.children[childName], newOwner);
             }
         }
     }
@@ -51,34 +48,26 @@ window.ChownCommand = class ChownCommand extends Command {
         const { args, flags, currentUser, dependencies } = context;
         const { UserManager, FileSystemManager, Config, ErrorHandler } = dependencies;
 
-        const newOwnerArg = args.shift();
-        const paths = args;
+        const newOwnerArg = args[0];
+        const paths = args.slice(1);
         let changesMade = false;
 
         if (currentUser !== "root") {
             return ErrorHandler.createError("chown: you must be root to change ownership.");
         }
 
-        if (
-            !(await UserManager.userExists(newOwnerArg)) &&
-            newOwnerArg !== Config.USER.DEFAULT_NAME
-        ) {
-            return ErrorHandler.createError(
-                `chown: user '${newOwnerArg}' does not exist.`
-            );
+        if (!(await UserManager.userExists(newOwnerArg)) && newOwnerArg !== Config.USER.DEFAULT_NAME) {
+            return ErrorHandler.createError(`chown: user '${newOwnerArg}' does not exist.`);
         }
 
         for (const pathArg of paths) {
-            const pathDataResult = FileSystemManager.validatePath(pathArg, { allowMissing: false, ownershipRequired: true });
-
+            const pathDataResult = FileSystemManager.validatePath(pathArg, { allowMissing: false });
             if (!pathDataResult.success) {
-                return ErrorHandler.createError(`chown: ${pathDataResult.error}`);
+                return ErrorHandler.createError(`chown: cannot access '${pathArg}': ${pathDataResult.error}`);
             }
-
             const { node } = pathDataResult.data;
-
             if (node.type === 'directory' && flags.recursive) {
-                await this._recursiveChown(node, newOwnerArg, dependencies);
+                await this._recursiveChown(node, newOwnerArg);
             } else {
                 node.owner = newOwnerArg;
                 node.mtime = new Date().toISOString();

@@ -118,7 +118,7 @@ class FileSystemManager {
         children: {},
         owner: username,
         group: username,
-        mode: 0o700,
+        mode: 0o755,
         mtime: new Date().toISOString(),
       };
       homeDirNode.mtime = new Date().toISOString();
