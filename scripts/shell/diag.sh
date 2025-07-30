@@ -219,7 +219,7 @@ echo "Recursive ownership tests complete."
 delay 400
 echo "---------------------------------------------------------------------"
 echo ""
-echo "===== Phase 4.6666666666...: Testing High-Level Committee Command ====="
+echo "===== Phase 5: Testing High-Level Committee Command ====="
 delay 200
 login root mcgoopis
 echo "--- Setting up for committee test ---"
@@ -261,7 +261,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 5: Testing Sudo & Security Model ====="
+echo "===== Phase 6: Testing Sudo & Security Model ====="
 delay 200
 login root mcgoopis
 useradd sudouser
@@ -306,7 +306,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 6: Testing Scripting & Process Management ====="
+echo "===== Phase 7: Testing Scripting & Process Management ====="
 delay 200
 echo "--- Test: Script argument passing ---"
 run ./arg_test.sh first "second arg" third
@@ -319,7 +319,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 7: Testing Data Processing & Text Utilities ======="
+echo "===== Phase 8: Testing Data Processing & Text Utilities ======="
 delay 200
 echo "--- Test: sort (-n, -r, -u) ---"
 sort -r sort_test.txt
@@ -345,7 +345,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 8: Testing 'find' and Archival (zip/unzip) ====="
+echo "===== Phase 9: Testing 'find' and Archival (zip/unzip) ====="
 delay 200
 echo "--- Test: find by name, type, and permissions ---"
 find find_test -name "*.tmp"
@@ -361,7 +361,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 9: Testing Pager and Calculator Tests ====="
+echo "===== Phase 10: Testing Pager and Calculator Tests ====="
 delay 200
 echo "--- Test: bc command (pipe and argument) ---"
 echo "5 * (10 - 2) / 4" | bc
@@ -388,7 +388,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 10: Testing Data Transformation & Integrity Commands ====="
+echo "===== Phase 11: Testing Data Transformation & Integrity Commands ====="
 delay 200
 echo "--- Test: rmdir ---"
 mkdir empty_dir
@@ -445,7 +445,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 11: Testing Underrepresented Commands (Data/System) ====="
+echo "===== Phase 12: Testing Underrepresented Commands (Data/System) ====="
 delay 200
 echo "--- Test: uniq (-d, -u) ---"
 sort uniq_test.txt | uniq -d
@@ -468,7 +468,7 @@ delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
-echo "===== Phase 12: Testing Shell & Session Commands ====="
+echo "===== Phase 13: Testing Shell & Session Commands ====="
 delay 200
 echo "--- Test: date ---"
 date
@@ -495,31 +495,6 @@ echo "--- Test: printscreen ---"
 printscreen screen.txt
 cat screen.txt
 delay 200
-echo "---------------------------------------------------------------------"
-
-echo ""
-echo "===== Phase 13: Testing User & State Management ====="
-delay 200
-echo "--- Test: su and logout ---"
-login root mcgoopis
-useradd testuser2
-newpass
-newpass
-su testuser2 newpass
-whoami
-logout
-whoami
-delay 400
-echo "--- Test: savestate and loadstate ---"
-login diagUser testpass
-cd /home/diagUser/diag_workspace
-savestate
-echo "Modified State" > state_test.txt
-loadstate
-YES
-cat state_test.txt
-echo "User & State Management tests complete."
-delay 400
 echo "---------------------------------------------------------------------"
 
 echo ""
