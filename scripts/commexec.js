@@ -65,39 +65,39 @@ class CommandExecutor {
         }
         return commandInstance;
       } catch (error) {
-        await OutputManager.appendToOutput(
-            `Error: Built-in command '${commandName}' could not be loaded. ${error.message}`,
-            { typeClass: Config.CSS_CLASSES.ERROR_MSG }
-        );
-        return null;
-      }
-    }
+        // --- Step 3: It's not a built-in, so let's check if it's an INSTALLED package in the VFS. ---
+        const vfsPath = `/bin/${commandName}`;
+        const packageNode = FileSystemManager.getNodeByPath(vfsPath);
 
-    // --- Step 3: It's not built-in, so let's check if it's an INSTALLED package in the VFS. ---
-    const vfsPath = `/bin/${commandName}`;
-    const packageNode = FileSystemManager.getNodeByPath(vfsPath);
+        if (packageNode && packageNode.type === 'file') {
+          try {
+            // Here's the magic! We execute the code directly from the VFS content.
+            eval(packageNode.content);
 
-    if (packageNode && packageNode.type === 'file') {
-      try {
-        // Here's the magic! We execute the code directly from the VFS content.
-        eval(packageNode.content);
-
-        // The script should have registered itself, so we check the registry again.
-        const commandInstance = CommandRegistry.getCommands()[commandName];
-        if (!commandInstance) {
+            // The script should have registered itself, so we check the registry again.
+            const commandInstance = CommandRegistry.getCommands()[commandName];
+            if (!commandInstance) {
+              await OutputManager.appendToOutput(
+                  `Error: Installed package '${commandName}' was executed but failed to register itself. The package may be corrupt.`,
+                  { typeClass: Config.CSS_CLASSES.ERROR_MSG }
+              );
+              return null;
+            }
+            return commandInstance;
+          } catch (e) {
+            await OutputManager.appendToOutput(
+                `Error: Failed to execute package '${commandName}' from '${vfsPath}'. ${e.message}`,
+                { typeClass: Config.CSS_CLASSES.ERROR_MSG }
+            );
+            return null;
+          }
+        } else {
           await OutputManager.appendToOutput(
-              `Error: Installed package '${commandName}' was executed but failed to register itself. The package may be corrupt.`,
+              `Error: Command '${commandName}' could not be loaded. ${error.message}`,
               { typeClass: Config.CSS_CLASSES.ERROR_MSG }
           );
           return null;
         }
-        return commandInstance;
-      } catch (e) {
-        await OutputManager.appendToOutput(
-            `Error: Failed to execute package '${commandName}' from '${vfsPath}'. ${e.message}`,
-            { typeClass: Config.CSS_CLASSES.ERROR_MSG }
-        );
-        return null;
       }
     }
 
