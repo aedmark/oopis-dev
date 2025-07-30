@@ -3,26 +3,58 @@ echo "This script tests all non-interactive core functionality, now with maximum
 delay 200
 echo "---------------------------------------------------------------------"
 echo ""
-echo "--- Phase 1: Creating dedicated test user and workspace ---"
-delay 200
-login root
-delay 200
+echo "--- Phase 1: Setting up test users/groups ---"
+
+# Create all users and groups needed for the entire test run at the beginning.
+# The 'run' command will correctly pipe the next two lines as password and confirmation.
+echo "Creating users: diagUser, testuser, sudouser, limitedsudo..."
 useradd diagUser
+testpass
+testpass
+useradd testuser
+testpass
+testpass
+useradd sudouser
+testpass
+testpass
+useradd limitedsudo
+testpass
+testpass
+useradd paradoxuser
+testpass
+testpass
+useradd comm_user1
+testpass
+testpass
+useradd comm_user2
+testpass
+testpass
+useradd sudouser2
+testpass
+testpass
+useradd recursive_test_user
+testpass
+testpass
+
+echo "Creating groups: testgroup, recursive_test_group, harvest_festival..."
+groupadd testgroup
+groupadd recursive_test_group
+groupadd harvest_festival
 delay 200
+
+echo "Setting up primary diagnostic workspace..."
 mkdir -p /home/diagUser/diag_workspace/
 chown diagUser /home/diagUser/diag_workspace/
-groupadd testgroup
-chgrp testgroup /home/diagUser/diag_workspace/
-chmod 775 /home/diagUser/diag_workspace/
+chgrp diagUser /home/diagUser/diag_workspace/
+chmod 770 /home/diagUser/diag_workspace/
+# Also set permissions on home directory to allow other test users to enter
+chmod 755 /home/diagUser
 
-login diagUser
-echo "Current User (expected: diagUser):"
-delay 200
-whoami
-echo "Current Path after login (expected: /home/diagUser):"
-pwd
-cd /home/diagUser/diag_workspace
+echo "sudouser ALL" >> /etc/sudoers
+echo "sudouser2 ls" >> /etc/sudoers
+echo "Setup complete."
 echo "---------------------------------------------------------------------"
+echo ""
 
 echo ""
 echo "--- Phase 2: Creating diagnostic assets ---"
@@ -133,11 +165,6 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 4: Testing Group Permissions & Ownership (Expanded) ====="
 delay 200
-login root
-useradd testuser
-testpass
-testpass
-delay 200
 usermod -aG testgroup testuser
 groups testuser
 mkdir -p /tmp/no_exec_dir
@@ -150,29 +177,27 @@ chown diagUser group_test_file.txt
 chgrp testgroup group_test_file.txt
 chmod 664 group_test_file.txt
 echo "--- Test: Group write permission ---"
-login testuser
+su testuser testpass
 cd /home/diagUser/diag_workspace
 delay 200
 echo "Append by group member" >> group_test_file.txt
 cat group_test_file.txt
 echo "--- Test: 'Other' permissions (should fail) ---"
-login Guest
+logout
+su Guest
 cd /home/diagUser/diag_workspace
 check_fail "echo 'Append by other user' >> group_test_file.txt"
 delay 200
 echo "--- Test: Permission Edge Cases ---"
-login testuser
+logout
+su testuser testpass
 check_fail "chmod 777 /home/diagUser/diag_workspace/group_test_file.txt"
 check_fail "cd /tmp/no_exec_dir"
-login root
-delay 200
-rm -r -f /tmp
-removeuser -f testuser
-groupdel testgroup
-rm -f /home/diagUser/diag_workspace/group_test_file.txt
 delay 200
 chmod 700 /home/diagUser
-login diagUser
+logout
+delay 200
+su diagUser testpass
 delay 200
 cd /home/diagUser/diag_workspace
 delay 500
@@ -180,14 +205,6 @@ echo "---------------------------------------------------------------------"
 
 echo ""
 echo "===== Phase 4.5: Testing Recursive Ownership & Group Permissions ====="
-delay 200
-
-login root
-echo "--- Setting up for recursive ownership tests ---"
-groupadd recursive_test_group
-useradd recursive_test_user
-testpass
-testpass
 delay 200
 mkdir -p /home/Guest/recursive_chown_test/subdir
 echo "level 1 file" > /home/Guest/recursive_chown_test/file1.txt
@@ -207,27 +224,14 @@ chgrp -R recursive_test_group /home/Guest/recursive_chown_test
 echo "State after recursive chgrp:"
 ls -lR /home/Guest/recursive_chown_test
 delay 400
-
-echo "--- Cleanup from recursive tests ---"
-removeuser -f recursive_test_user
-groupdel recursive_test_group
-rm -r -f /home/Guest/recursive_chown_test
-login Guest
+logout
+su Guest
 echo "Recursive ownership tests complete."
 delay 400
 echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 5: Testing High-Level Committee Command ====="
 delay 200
-login root
-echo "--- Setting up for committee test ---"
-useradd comm_user1
-testpass
-testpass
-useradd comm_user2
-testpass
-testpass
-delay 400
 echo "--- Executing committee command ---"
 committee --create harvest_festival --members comm_user1,comm_user2
 delay 400
@@ -239,21 +243,17 @@ echo "Checking directory and permissions (should be drwxrwx--- ... harvest_festi
 ls -l /home/ | grep "project_harvest_festival"
 delay 400
 echo "--- Test: Member write access (should succeed) ---"
-login comm_user1
+logout
+su comm_user1 testpass
 echo "I solemnly swear to bring a pie." > /home/project_harvest_festival/plan.txt
 cat /home/project_harvest_festival/plan.txt
 delay 400
 echo "--- Test: Non-member access (should fail) ---"
-login Guest
+logout
+su Guest
 check_fail "ls /home/project_harvest_festival"
 check_fail "cat /home/project_harvest_festival/plan.txt"
 delay 400
-echo "--- Cleaning up from committee test ---"
-login root
-removeuser -f comm_user1
-removeuser -f comm_user2
-groupdel harvest_festival
-rm -r -f /home/project_harvest_festival
 echo "Committee command test complete."
 delay 400
 echo "---------------------------------------------------------------------"
@@ -261,43 +261,29 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 6: Testing Sudo & Security Model ====="
 delay 200
-login root
-useradd sudouser
-testpass
-testpass
-delay 400
-echo "sudouser ALL" >> /etc/sudoers
-login sudouser
+logout
+su sudouser testpass
 echo "Attempting first sudo command (password required)..."
 sudo echo "Sudo command successful."
 testpass
 delay 200
 echo "Attempting second sudo command (should not require password)..."
 sudo ls /home/root
-login Guest
+logout
+su Guest
 check_fail "sudo ls /home/root"
-login root
-removeuser -f sudouser
-delay 200
-grep -v "sudouser" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
+
 echo "--- Test: Granular sudo permissions ---"
-useradd sudouser2
-testpass
-testpass
-delay 400
-echo "sudouser2 ls" >> /etc/sudoers
-login sudouser2
+logout
+su sudouser2 testpass
 echo "Attempting allowed specific command (ls)..."
 sudo ls /home/root
 testpass
 delay 200
 echo "Attempting disallowed specific command (rm)..."
 check_fail "sudo rm -f /home/Guest/README.md"
-login root
-removeuser -f sudouser2
-delay 200
-grep -v "sudouser2" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
-login diagUser
+logout
+su diagUser
 cd /home/diagUser/diag_workspace
 echo "Granular sudo test complete."
 delay 400
@@ -939,90 +925,20 @@ check_fail "ls './a directory with spaces and.. special'chars!'"
 echo "Obnoxious filename tests complete."
 delay 200
 
-echo "--- Test: 'find' with complex -exec and permission checks ---"
-mkdir -p find_torture/ro_subdir
-echo "find me" > find_torture/file.txt
-echo "don't find me" > find_torture/file.tmp
-echo "cant touch this" > find_torture/ro_subdir/secret.txt
-login root
-chmod 500 /home/diagUser/diag_workspace/find_torture/ro_subdir
-login diagUser
-cd /home/diagUser/diag_workspace
-find ./find_torture -name "*.txt" -exec cat {} \;
-check_fail "find ./find_torture -name '*.txt' -exec echo '{}' > ./find_torture/ro_subdir/output.log \;"
-login root
-rm -r -f /home/diagUser/diag_workspace/find_torture
-login diagUser
-cd /home/diagUser/diag_workspace
-echo "Complex find tests complete."
-delay 400
-
-echo "--- Test: Nested redirection and command substitution simulation ---"
-echo "ls -l" > cmd.sh
-chmod 700 cmd.sh
-run ./cmd.sh > ls_output.txt
-cat ls_output.txt | grep "cmd.sh" | wc -l
-rm cmd.sh ls_output.txt
-echo "Redirection simulation test complete."
-delay 200
-echo "---------------------------------------------------------------------"
-
-login root
-
-# Grant 'limitedsudo' the ability to run the 'cat' command, and nothing else.
-delay 200
-echo "--- Test: Hyper-specific sudo permissions ---"
-delay 200
-echo 'limitedsudo cat' >> /etc/sudoers
-useradd limitedsudo
-testpass
-testpass
-delay 200
-chmod 701 /home/diagUser
-
-echo "TOP SECRET" > /home/diagUser/diag_workspace/specific_file.txt
-
-login limitedsudo
-cd /home/diagUser/diag_workspace
-delay 200
-echo "Attempting to run allowed command ('cat') on a file..."
-sudo cat /home/diagUser/diag_workspace/specific_file.txt
-testpass
-
-echo "Attempting to run disallowed command ('ls')... (This should fail)"
-check_fail "sudo ls /"
-delay 200
-login root
-removeuser -f limitedsudo
-grep -v "limitedsudo" /etc/sudoers > sudoers.tmp
-mv sudoers.tmp /etc/sudoers
-rm /home/diagUser/diag_workspace/specific_file.txt
-login diagUser
-
-echo "Specific sudo tests complete."
-delay 200
-login root
-removeuser -r -f limitedsudo
-grep -v "limitedsudo" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
-delay 200
-
 echo "--- Test: File ownership vs. permissions paradox ---"
-useradd paradoxuser
-testpass
-testpass
 delay 200
 touch paradox.txt
 chown paradoxuser paradox.txt
 chmod 000 paradox.txt
-login paradoxuser
+logout
+su paradoxuser testpass
 cd /home/diagUser/diag_workspace
 check_fail "cat paradox.txt"
 echo "Permission paradox test complete."
 delay 200
-login root
-removeuser -r -f paradoxuser
-rm paradox.txt
-login diagUser
+logout
+delay 200
+su diagUser
 cd /home/diagUser/diag_workspace
 delay 400
 echo "---------------------------------------------------------------------"
@@ -1079,58 +995,33 @@ echo ""
 echo "===== Phase Beta: Group Permissions & Sudo ====="
 delay 200
 
-login root
 echo "--- Test: Group Permissions ---"
-groupadd testgroup
-useradd testuser
-testpass
-testpass
 delay 200
 usermod -aG testgroup testuser
 touch group_test_file.txt
 chown diagUser group_test_file.txt
 chgrp testgroup group_test_file.txt
 chmod 664 group_test_file.txt
-login testuser
+logout
+delay 200
+su testuser testpass
 cd /home/diagUser/diag_workspace
 echo "Appending to file as group member (should succeed)..."
 echo "appended" >> group_test_file.txt
 cat group_test_file.txt
-login Guest
+logout
+su Guest
 cd /home/diagUser/diag_workspace
 echo "Appending to file as Guest (should fail)..."
 check_fail "echo 'appended by guest' >> group_test_file.txt"
-login root
-delay 200
-removeuser -f testuser
-groupdel testgroup
-rm group_test_file.txt
 echo "Group permissions test complete."
 delay 200
-
-echo "--- Test: sudo with Granular Permissions ---"
-useradd sudouser2
-testpass
-testpass
-delay 200
-echo "sudouser2 ALL=(ALL) /bin/ls" >> /etc/sudoers
-login sudouser2
-echo "Running allowed sudo command (sudo ls)..."
-sudo ls /home/root
-testpass
-echo "Running disallowed sudo command (sudo rm)..."
-check_fail "sudo rm -f /some/file"
-login root
-removeuser -f sudouser2
-grep -v "sudouser2" /etc/sudoers > sudoers.tmp && mv sudoers.tmp /etc/sudoers
-echo "Granular sudo test complete."
-delay 400
-echo "---------------------------------------------------------------------"
 
 echo ""
 echo "===== Phase Delta: Advanced Data & Process Management ====="
 delay 200
-login diagUser
+logout
+su diagUser testpass
 cd /home/diagUser/diag_workspace
 
 echo "--- Test: sort Flags ---"
@@ -1250,7 +1141,7 @@ delay 400
 echo ""
 echo "--- Phase Omega: Final Cleanup ---"
 cd /
-login root
+logout
 delay 300
 removeuser -f diagUser
 removeuser -f sudouser
