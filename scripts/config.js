@@ -238,4 +238,26 @@ class ConfigManager {
       console.error(`Config: Error loading or parsing '${configFilePath}':`, error);
     }
   }
+
+  async loadPackageManifest() {
+    const { FileSystemManager } = this.dependencies;
+    const manifestPath = '/etc/pkg_manifest.json';
+    const manifestNode = FileSystemManager.getNodeByPath(manifestPath);
+
+    if (manifestNode) {
+      try {
+        const manifest = JSON.parse(manifestNode.content || '{}');
+        if (manifest.packages && Array.isArray(manifest.packages)) {
+          manifest.packages.forEach(pkgName => {
+            if (!this.COMMANDS_MANIFEST.includes(pkgName)) {
+              this.COMMANDS_MANIFEST.push(pkgName);
+            }
+          });
+          this.COMMANDS_MANIFEST.sort();
+        }
+      } catch (e) {
+        console.error("Error parsing package manifest:", e);
+      }
+    }
+  }
 }

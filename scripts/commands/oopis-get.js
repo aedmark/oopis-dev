@@ -15,7 +15,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         });
 
         // The central, trusted source for all our wonderful community add-ons!
-        this.REPO_URL = "https://raw.githubusercontent.com/aedmark/OopisOS-Packages/blob/main/";
+        this.REPO_URL = "https://raw.githubusercontent.com/aedmark/OopisOS-Packages/refs/heads/main/";
         this.MANIFEST_FILE = "packages.json";
         this.TEMP_MANIFEST_PATH = "/tmp/packages.json";
     }
@@ -75,6 +75,51 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         }
     }
 
+    async _updatePackageManifest(packageName, action, dependencies) {
+        const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
+        const manifestPath = '/etc/pkg_manifest.json';
+        let manifestData;
+
+        const manifestNode = FileSystemManager.getNodeByPath(manifestPath);
+
+        if (manifestNode) {
+            try {
+                manifestData = JSON.parse(manifestNode.content || '{"packages":[]}');
+            } catch (e) {
+                return ErrorHandler.createError("Failed to parse package manifest.");
+            }
+        } else {
+            manifestData = { packages: [] };
+        }
+
+        if (action === 'add') {
+            if (!manifestData.packages.includes(packageName)) {
+                manifestData.packages.push(packageName);
+            }
+        } else if (action === 'remove') {
+            const index = manifestData.packages.indexOf(packageName);
+            if (index > -1) {
+                manifestData.packages.splice(index, 1);
+            }
+        }
+
+        const currentUser = UserManager.getCurrentUser().name;
+        const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
+        const saveResult = await FileSystemManager.createOrUpdateFile(
+            manifestPath,
+            JSON.stringify(manifestData, null, 2),
+            { currentUser, primaryGroup }
+        );
+
+        if (saveResult.success) {
+            await FileSystemManager.save();
+            return ErrorHandler.createSuccess();
+        } else {
+            return ErrorHandler.createError(`Failed to update package manifest: ${saveResult.error}`);
+        }
+    }
+
+
     async _handleList(context) {
         const { dependencies } = context;
         const { ErrorHandler, OutputManager } = dependencies;
@@ -95,7 +140,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
 
     async _handleInstall(context) {
         const { args, dependencies } = context;
-        const { CommandExecutor, CommandRegistry, ErrorHandler, OutputManager } = dependencies;
+        const { CommandExecutor, ErrorHandler, OutputManager } = dependencies;
         const packageName = args[1];
 
         if (!packageName) {
@@ -137,10 +182,9 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             return ErrorHandler.createError(`oopis-get: failed to set permissions. ${chmodResult.error}`);
         }
 
-        // Dynamically update the system to recognize the new command
-        CommandRegistry.addCommandToManifest(pkg.name);
+        await this._updatePackageManifest(pkg.name, 'add', dependencies);
 
-        return ErrorHandler.createSuccess(`Successfully installed '${packageName}'.`);
+        return ErrorHandler.createSuccess(`Successfully installed '${packageName}'. Please reboot the system for the command to become available.`);
     }
 
     async _handleUpdate(context) {
@@ -149,7 +193,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
 
     async _handleRemove(context) {
         const { args, dependencies } = context;
-        const { CommandExecutor, CommandRegistry, FileSystemManager, ErrorHandler, OutputManager } = dependencies;
+        const { CommandExecutor, FileSystemManager, ErrorHandler, OutputManager } = dependencies;
         const packageName = args[1];
 
         if (!packageName) {
@@ -158,7 +202,6 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
 
         const packagePath = `/bin/${packageName}`;
 
-        // Verify the package file actually exists before trying to remove it.
         const pathValidation = FileSystemManager.validatePath(packagePath, { allowMissing: true });
         if (!pathValidation.data.node) {
             return ErrorHandler.createError(`oopis-get: package '${packageName}' is not installed.`);
@@ -174,10 +217,9 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             return ErrorHandler.createError(`oopis-get: failed to remove package file. ${rmResult.error}`);
         }
 
-        // Dynamically unregister the command so the system no longer knows about it.
-        CommandRegistry.unregisterCommand(packageName);
+        await this._updatePackageManifest(packageName, 'remove', dependencies);
 
-        return ErrorHandler.createSuccess(`Successfully removed '${packageName}'.`);
+        return ErrorHandler.createSuccess(`Successfully removed '${packageName}'. Please reboot for the change to take effect.`);
     }
 };
 window.CommandRegistry.register(new OopisGetCommand());

@@ -33,54 +33,76 @@ class CommandExecutor {
   }
 
   async _ensureCommandLoaded(commandName) {
-    const { Config, OutputManager, CommandRegistry } = this.dependencies;
+    const { Config, OutputManager, CommandRegistry, FileSystemManager } = this.dependencies;
     if (!commandName || typeof commandName !== "string") return null;
 
-    // Check the registry first. If the command is already there, we're done.
+    // --- Step 1: Check if the command is already registered and ready to go. ---
     const existingCommand = CommandRegistry.getCommands()[commandName];
     if (existingCommand) {
       return existingCommand;
     }
 
-    // If not in the registry, check the manifest to see if it's a valid command
-    if (!Config.COMMANDS_MANIFEST.includes(commandName)) {
-      return null;
-    }
+    // --- Step 2: Check if it's a BUILT-IN command listed in the main manifest. ---
+    if (Config.COMMANDS_MANIFEST.includes(commandName)) {
+      const commandScriptPath = `commands/${commandName}.js`;
+      try {
+        await this._loadScript(commandScriptPath);
+        const commandInstance = CommandRegistry.getCommands()[commandName];
 
-    const commandScriptPath = `commands/${commandName}.js`;
-    try {
-      // Load the script file. The script itself will handle registration.
-      await this._loadScript(commandScriptPath);
+        if (!commandInstance) {
+          await OutputManager.appendToOutput(
+              `Error: Script loaded but command '${commandName}' failed to register itself.`,
+              { typeClass: Config.CSS_CLASSES.ERROR_MSG }
+          );
+          return null;
+        }
 
-      // Now, get the instance from the registry again. It should be there now.
-      const commandInstance = CommandRegistry.getCommands()[commandName];
-
-      if (!commandInstance) {
+        const definition = commandInstance.definition;
+        if (definition.dependencies && Array.isArray(definition.dependencies)) {
+          for (const dep of definition.dependencies) {
+            await this._loadScript(dep);
+          }
+        }
+        return commandInstance;
+      } catch (error) {
         await OutputManager.appendToOutput(
-            `Error: Script loaded but command '${commandName}' failed to register itself.`,
+            `Error: Built-in command '${commandName}' could not be loaded. ${error.message}`,
             { typeClass: Config.CSS_CLASSES.ERROR_MSG }
         );
         return null;
       }
-
-      const definition = commandInstance.definition;
-
-      // Load dependencies for the command
-      if (definition.dependencies && Array.isArray(definition.dependencies)) {
-        for (const dep of definition.dependencies) {
-          await this._loadScript(dep);
-        }
-      }
-
-      // No need to cache it here in the executor anymore, the registry is our single source of truth.
-      return commandInstance;
-    } catch (error) {
-      await OutputManager.appendToOutput(
-          `Error: Command '${commandName}' could not be loaded. ${error.message}`,
-          { typeClass: Config.CSS_CLASSES.ERROR_MSG }
-      );
-      return null;
     }
+
+    // --- Step 3: It's not built-in, so let's check if it's an INSTALLED package in the VFS. ---
+    const vfsPath = `/bin/${commandName}`;
+    const packageNode = FileSystemManager.getNodeByPath(vfsPath);
+
+    if (packageNode && packageNode.type === 'file') {
+      try {
+        // Here's the magic! We execute the code directly from the VFS content.
+        eval(packageNode.content);
+
+        // The script should have registered itself, so we check the registry again.
+        const commandInstance = CommandRegistry.getCommands()[commandName];
+        if (!commandInstance) {
+          await OutputManager.appendToOutput(
+              `Error: Installed package '${commandName}' was executed but failed to register itself. The package may be corrupt.`,
+              { typeClass: Config.CSS_CLASSES.ERROR_MSG }
+          );
+          return null;
+        }
+        return commandInstance;
+      } catch (e) {
+        await OutputManager.appendToOutput(
+            `Error: Failed to execute package '${commandName}' from '${vfsPath}'. ${e.message}`,
+            { typeClass: Config.CSS_CLASSES.ERROR_MSG }
+        );
+        return null;
+      }
+    }
+
+    // --- Step 4: If we've reached this point, the command truly doesn't exist. ---
+    return null;
   }
 
   _createCommandHandler(definition) {

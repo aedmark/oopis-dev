@@ -240,6 +240,7 @@ window.onload = async () => {
     await fsManager.load();
     await userManager.initializeDefaultUsers();
     await configManager.loadFromFile();
+    await configManager.loadPackageManifest(); // <-- This is our new line!
     groupManager.initialize();
     environmentManager.initialize();
     sessionManager.initializeStack();
