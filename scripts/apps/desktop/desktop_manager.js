@@ -5,6 +5,8 @@ window.DesktopManager = class DesktopManager extends App {
         this.dependencies = {};
         this.ui = null;
         this.windowManager = null;
+        this.iconManager = null;
+        this.appLauncher = null;
     }
 
     enter(appLayer, options = {}) {
@@ -12,49 +14,39 @@ window.DesktopManager = class DesktopManager extends App {
         this.isActive = true;
         this.dependencies = options.dependencies;
 
-        const { WindowManager, DesktopUI, TaskbarManager } = this.dependencies;
+        const { WindowManager, DesktopUI, TaskbarManager, AppLauncher, IconManager } = this.dependencies;
 
+        // 1. Create the Desktop UI and Taskbar
         this.ui = new DesktopUI({}, this.dependencies);
         this.container = this.ui.getContainer();
-
         appLayer.innerHTML = '';
         appLayer.appendChild(this.container);
-
-        // Instantiate the TaskbarManager first
         this.taskbarManager = new TaskbarManager(this.container, null, this.dependencies);
 
-        // Define the callbacks that link the WindowManager to the TaskbarManager
+        // 2. Setup the Window Manager with callbacks for the Taskbar
         const windowEventCallbacks = {
             onWindowCreated: (id, title) => this.taskbarManager.addWindow(id, title),
             onWindowDestroyed: (id) => this.taskbarManager.removeWindow(id),
             onWindowFocused: (id) => this.taskbarManager.updateActiveWindow(id),
         };
-
-        // Pass the callbacks when creating the WindowManager
         this.windowManager = new WindowManager(this.container, this.dependencies, windowEventCallbacks);
-
-        // Now give the TaskbarManager a reference to the fully-initialized WindowManager
         this.taskbarManager.windowManager = this.windowManager;
 
-        // Create a test window to prove it all works
-        const welcomeContent = this.dependencies.Utils.createElement('div', {
-            innerHTML: '<h3>It Works!</h3><p>The Window Manager now notifies the Taskbar Manager when windows are created or focused. Check out the new taskbar at the bottom!</p>'
-        });
+        // 3. Initialize the App Launcher service
+        this.appLauncher = new AppLauncher(this.windowManager, this.dependencies);
 
-        this.windowManager.createWindow({
-            title: "Phase 3 Complete",
-            contentElement: welcomeContent,
-            width: 450,
-            height: 220
+        // 4. Initialize the Icon Manager and load icons
+        this.iconManager = new IconManager(this.container, this.dependencies, {
+            onIconDoubleClick: (path) => this.appLauncher.launch(path)
         });
+        this.iconManager.loadIcons(); // Asynchronously load and display icons
 
-        console.log("OopisX Taskbar is now online.");
+        console.log("OopisX Desktop Environment with Icon support is now online.");
     }
 
     exit() {
         if (!this.isActive) return;
         this.isActive = false;
-        // In the future, we'll need to properly close all open windows here
         if (this.container) {
             this.container.remove();
         }

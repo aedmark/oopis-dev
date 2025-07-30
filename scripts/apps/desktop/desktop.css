@@ -99,3 +99,43 @@
     color: var(--color-background-darkest);
     border-color: var(--color-info);
 }
+
+.app-content-container {
+    width: 100%;
+    height: 100%;
+    display: flex; /* Helps child apps fill the space */
+    flex-direction: column;
+}
+
+.desktop-icon {
+    position: absolute;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    user-select: none;
+}
+
+.desktop-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-icon__image {
+    font-size: 3rem; /* 48px */
+    line-height: 1;
+}
+
+.desktop-icon__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 1px 1px 2px #000;
+}
