@@ -9,7 +9,7 @@ window.DesktopManager = class DesktopManager extends App {
         this.appLauncher = null;
     }
 
-   async enter(appLayer, options = {}) {
+    async enter(appLayer, options = {}) {
         if (this.isActive) return;
         this.isActive = true;
         this.dependencies = options.dependencies;
@@ -39,7 +39,10 @@ window.DesktopManager = class DesktopManager extends App {
         this.iconManager = new IconManager(this.container, this.dependencies, {
             onIconDoubleClick: (path) => this.appLauncher.launch(path)
         });
-        this.iconManager.loadIcons(); // Asynchronously load and display icons
+
+        // FIX: Ensure welcome files are created *before* loading icons
+        await this._createWelcomeFiles();
+        this.iconManager.loadIcons(); // Now this will find the files
 
         console.log("OopisX Desktop Environment with Icon support is now online.");
     }

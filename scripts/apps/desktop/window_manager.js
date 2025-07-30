@@ -1,7 +1,6 @@
 // gem/scripts/apps/desktop/window_manager.js
 
 window.WindowManager = class WindowManager {
-    // MODIFICATION: The constructor now correctly accepts the `eventCallbacks` parameter.
     constructor(desktopContainer, dependencies, eventCallbacks = {}) {
         this.desktopContainer = desktopContainer;
         this.dependencies = dependencies;
@@ -45,7 +44,6 @@ window.WindowManager = class WindowManager {
         const windowData = { id: windowId, element: windowComponent, options };
         this.windows.set(windowId, windowData);
 
-        // This part was already correct and now it will work!
         this.callbacks.onWindowCreated(windowId, options.title);
 
         this.focusWindow(windowId);
@@ -61,7 +59,7 @@ window.WindowManager = class WindowManager {
         if (windowData) {
             windowData.element.remove();
             this.windows.delete(windowId);
-            this.callbacks.onWindowDestroyed(windowId); // This will now work
+            this.callbacks.onWindowDestroyed(windowId);
             if (this.activeWindowId === windowId) {
                 this.activeWindowId = null;
             }
@@ -86,7 +84,7 @@ window.WindowManager = class WindowManager {
             windowData.element.style.zIndex = this.highestZIndex;
             windowData.element.classList.add('active');
             this.activeWindowId = windowId;
-            this.callbacks.onWindowFocused(windowId); // This will now work
+            this.callbacks.onWindowFocused(windowId);
         }
     }
 }
