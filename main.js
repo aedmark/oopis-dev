@@ -34,6 +34,17 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
         await ModalManager.handleTerminalInput(
             TerminalUI.getCurrentInputValue()
         );
+      } else if (TerminalUI.isObscured()) {
+        // --- FIX STARTS HERE ---
+        // Prevent the default action for character keys to stop them from appearing.
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          TerminalUI.updateInputForObscure(e.key);
+        } else if (e.key === "Backspace" || e.key === "Delete") {
+          // Also handle backspace and delete manually.
+          e.preventDefault();
+          TerminalUI.updateInputForObscure(e.key);
+        }
       }
       return;
     }

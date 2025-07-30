@@ -332,12 +332,14 @@ class UserManager {
   }
 
   async su(username, providedPassword, options = {}) {
-    if (this.currentUser.name === username) {
+    const currentUserName = this.getCurrentUser().name;
+    if (username === currentUserName) {
       return ErrorHandler.createSuccess({
         message: `Already user '${username}'.`,
         noAction: true,
       });
     }
+
     return this._handleAuthFlow(
         username,
         providedPassword,
