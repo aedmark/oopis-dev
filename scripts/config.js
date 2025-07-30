@@ -155,7 +155,7 @@ class ConfigManager {
         "ps", "pwd", "reboot", "remix", "removeuser", "rename", "reset", "restore", "rm", "rmdir",
         "run", "sed", "set", "shuf", "sort", "su", "sudo", "sync","tail", "top", "touch", "tr",
         "tree", "unalias", "uniq", "unset", "unzip", "upload", "useradd", "usermod", "visudo",
-        "wc", "wget", "whoami", "xor", "zip", "xargs"
+        "wc", "wget", "whoami", "xor", "zip", "xargs", "x"
       ],
     };
 

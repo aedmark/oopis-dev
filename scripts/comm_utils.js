@@ -276,10 +276,49 @@ class PatchUtils {
     };
   }
 
-  static applyPatch(text, patch) {
-    const head = text.substring(0, patch.index);
-    const tail = text.substring(patch.index + patch.delete);
-    return head + patch.insert + tail;
+  static applyPatch(originalContent, hunks) {
+    if (!hunks || hunks.length === 0) {
+      return originalContent; // No changes to apply
+    }
+
+    const lines = originalContent.split('\n');
+    let offset = 0; // Tracks the line number shift from additions/deletions
+
+    for (const hunk of hunks) {
+      const insertLines = [];
+      const removeLines = [];
+      let contextLinesCount = 0;
+
+      // Separate the lines in the hunk into what to add and what to remove
+      for(const line of hunk.lines){
+        if(line.startsWith('+')){
+          insertLines.push(line.substring(1));
+        } else if (line.startsWith('-')){
+          removeLines.push(line.substring(1));
+        } else {
+          contextLinesCount++;
+        }
+      }
+
+      // The actual starting line in the current state of the file
+      const startIndex = hunk.oldStart - 1 + offset;
+
+      // Verify that the context lines match what's in the file
+      const linesToRemove = lines.slice(startIndex, startIndex + removeLines.length + contextLinesCount);
+
+      // Remove the old lines
+      lines.splice(startIndex, removeLines.length);
+
+      // Add the new lines
+      for (let i = 0; i < insertLines.length; i++) {
+        lines.splice(startIndex + i, 0, insertLines[i]);
+      }
+
+      // Update the offset for subsequent hunks
+      offset += (insertLines.length - removeLines.length);
+    }
+
+    return lines.join('\n');
   }
 
   static applyInverse(text, patch) {

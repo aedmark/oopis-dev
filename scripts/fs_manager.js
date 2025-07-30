@@ -30,7 +30,16 @@ class FileSystemManager {
           },
           etc: {
             type: this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE,
-            children: {},
+            children: {
+              'sudoers': {
+                type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+                content: "# /etc/sudoers\n#\n# This file MUST be edited with the 'visudo' command as root.\n\nroot ALL=(ALL) ALL\n%root ALL=(ALL) ALL\n",
+                owner: 'root',
+                group: 'root',
+                mode: 0o440,
+                mtime: nowISO,
+              }
+            },
             owner: "root",
             group: "root",
             mode: 0o755,
@@ -71,37 +80,6 @@ class FileSystemManager {
     };
     await this.createUserHomeDirectory("root");
     await this.createUserHomeDirectory(guestUsername);
-    const rootNode = this.fsData[this.config.FILESYSTEM.ROOT_PATH];
-    if (rootNode) {
-      rootNode.children["etc"] = {
-        type: this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE,
-        children: {},
-        owner: "root",
-        group: "root",
-        mode: 0o755,
-        mtime: nowISO,
-      };
-      rootNode.mtime = nowISO;
-
-      const etcNode = rootNode.children["etc"];
-      if (etcNode) {
-        etcNode.children["oopis.conf"] = {
-          type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
-          content: this.OOPIS_CONF_CONTENT,
-          owner: "root",
-          group: "root",
-          mode: 0o644,
-          mtime: nowISO,
-        };
-        etcNode.mtime = nowISO;
-      } else {
-        console.error("FileSystemManager: Failed to create /etc directory.");
-      }
-    } else {
-      console.error(
-          "FileSystemManager: Root node not found during initialization. Critical error."
-      );
-    }
   }
 
   async createUserHomeDirectory(username) {
@@ -141,6 +119,23 @@ class FileSystemManager {
 
     if (loadedData) {
       this.fsData = loadedData;
+      // --- Migration: Ensure essential files exist ---
+      const etcNode = this.fsData['/']?.children?.etc;
+      if (etcNode && etcNode.type === 'directory' && !etcNode.children['sudoers']) {
+        const nowISO = new Date().toISOString();
+        etcNode.children['sudoers'] = {
+          type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+          content: "# /etc/sudoers\n#\n# This file MUST be edited with the 'visudo' command as root.\n\nroot ALL=(ALL) ALL\n%root ALL=(ALL) ALL\n",
+          owner: 'root',
+          group: 'root',
+          mode: 0o440,
+          mtime: nowISO,
+        };
+        etcNode.mtime = nowISO;
+        console.log("FileSystem Migration: Created missing /etc/sudoers file.");
+        await this.save(); // Save the updated filesystem
+      }
+      // --- End Migration ---
     } else {
       await OutputManager.appendToOutput(
           "No file system found. Initializing new one.",

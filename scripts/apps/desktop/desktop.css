@@ -1,0 +1,101 @@
+/* gem/scripts/apps/desktop/desktop.css */
+
+.desktop-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-subtle);
+    background: repeating-conic-gradient(var(--color-background-darkest) 0% 25%, var(--color-background-dark) 0% 50%)
+    50% / 30px 30px;
+}
+
+.app-window {
+    position: absolute;
+    min-width: 250px;
+    min-height: 150px;
+    background-color: var(--color-background-medium);
+    border: var(--border-width-thick) solid var(--color-border-primary);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-drop-medium);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.window-header {
+    background-color: var(--color-border-primary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.window-content {
+    flex-grow: 1;
+    padding: var(--spacing-sm);
+    overflow: auto;
+}
+
+.window-close-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-primary);
+}
+
+.window-close-btn:hover {
+    color: var(--color-error);
+}
+
+.app-window.active .window-header {
+    background-color: var(--color-info);
+    color: var(--color-background-darkest);
+}
+
+.taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: rgba(39, 39, 42, 0.9); /* var(--color-background-medium with alpha) */
+    border-top: 1px solid var(--color-border-primary);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-sm);
+}
+
+.taskbar__task-list {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.taskbar-button {
+    background-color: var(--color-background-light);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-secondary);
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.taskbar-button:hover {
+    background-color: var(--color-border-primary);
+}
+
+.taskbar-button.active {
+    background-color: var(--color-info);
+    color: var(--color-background-darkest);
+    border-color: var(--color-info);
+}

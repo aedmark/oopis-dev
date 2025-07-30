@@ -18,6 +18,46 @@ class UIComponents {
       onClick: onExit
     });
 
+    // Method added to the UIComponents class in gem/scripts/ui_components.js
+
+    createWindowComponent(title, contentElement, callbacks = {})
+    {
+      const { onFocus, onClose } = callbacks;
+      const { Utils } = this.dependencies;
+
+      const titleSpan = Utils.createElement('span', { className: 'window-title', textContent: title });
+      const closeBtn = this.createButton({ text: '×', classes: ['window-close-btn'], onClick: onClose });
+      const header = Utils.createElement('header', { className: 'window-header' }, [titleSpan, closeBtn]);
+      const content = Utils.createElement('div', { className: 'window-content' }, [contentElement]);
+      const windowDiv = Utils.createElement('div', { className: 'app-window' }, [header, content]);
+
+      // --- Dragging Logic ---
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      header.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - windowDiv.offsetLeft;
+        offsetY = e.clientY - windowDiv.offsetTop;
+        if (onFocus) onFocus();
+        // Prevent text selection while dragging
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          windowDiv.style.left = `${e.clientX - offsetX}px`;
+          windowDiv.style.top = `${e.clientY - offsetY}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      return windowDiv;
+    }
+
     const header = Utils.createElement('header', { className: 'app-header' }, [
       Utils.createElement('h2', { className: 'app-header__title', textContent: title }),
       exitBtn
