@@ -95,7 +95,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
 
     async _handleInstall(context) {
         const { args, dependencies } = context;
-        const { CommandExecutor, CommandRegistry, Config, ErrorHandler, OutputManager } = dependencies;
+        const { CommandExecutor, CommandRegistry, ErrorHandler, OutputManager } = dependencies;
         const packageName = args[1];
 
         if (!packageName) {
@@ -148,7 +148,36 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
     }
 
     async _handleRemove(context) {
-        return context.dependencies.ErrorHandler.createSuccess("Placeholder: remove sub-command reached.");
+        const { args, dependencies } = context;
+        const { CommandExecutor, CommandRegistry, FileSystemManager, ErrorHandler, OutputManager } = dependencies;
+        const packageName = args[1];
+
+        if (!packageName) {
+            return ErrorHandler.createError("oopis-get: remove requires a package name.");
+        }
+
+        const packagePath = `/bin/${packageName}`;
+
+        // Verify the package file actually exists before trying to remove it.
+        const pathValidation = FileSystemManager.validatePath(packagePath, { allowMissing: true });
+        if (!pathValidation.data.node) {
+            return ErrorHandler.createError(`oopis-get: package '${packageName}' is not installed.`);
+        }
+
+        await OutputManager.appendToOutput(`Removing '${packageName}'...`);
+        const rmResult = await CommandExecutor.processSingleCommand(
+            `rm ${packagePath}`,
+            { isInteractive: false }
+        );
+
+        if (!rmResult.success) {
+            return ErrorHandler.createError(`oopis-get: failed to remove package file. ${rmResult.error}`);
+        }
+
+        // Dynamically unregister the command so the system no longer knows about it.
+        CommandRegistry.unregisterCommand(packageName);
+
+        return ErrorHandler.createSuccess(`Successfully removed '${packageName}'.`);
     }
 };
 window.CommandRegistry.register(new OopisGetCommand());
