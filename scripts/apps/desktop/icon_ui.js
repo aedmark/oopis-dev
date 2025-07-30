@@ -19,7 +19,46 @@ window.IconUI = class IconUI {
 
         iconDiv.addEventListener('dblclick', () => this.callbacks.onDoubleClick(fileData.path));
 
-        // Basic drag logic will be added in a later stage.
+        // --- NEW: Dragging Logic ---
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        iconDiv.addEventListener('mousedown', (e) => {
+            // Only drag with the primary mouse button
+            if (e.button !== 0) return;
+
+            isDragging = true;
+            // Get the parent container (the desktop) to calculate relative offsets
+            const parentRect = iconDiv.parentElement.getBoundingClientRect();
+            offsetX = e.clientX - iconDiv.getBoundingClientRect().left + parentRect.left;
+            offsetY = e.clientY - iconDiv.getBoundingClientRect().top + parentRect.top;
+
+            iconDiv.classList.add('dragging');
+            // Prevent text selection while dragging
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                // Ensure the icon stays within the bounds of its container
+                const parentRect = iconDiv.parentElement.getBoundingClientRect();
+                let newLeft = e.clientX - offsetX;
+                let newTop = e.clientY - offsetY;
+
+                newLeft = Math.max(0, Math.min(newLeft, parentRect.width - iconDiv.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, parentRect.height - iconDiv.offsetHeight));
+
+                iconDiv.style.left = `${newLeft}px`;
+                iconDiv.style.top = `${newTop}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                iconDiv.classList.remove('dragging');
+            }
+        });
 
         return iconDiv;
     }

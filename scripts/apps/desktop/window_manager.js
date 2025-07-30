@@ -1,12 +1,15 @@
 // gem/scripts/apps/desktop/window_manager.js
+
 window.WindowManager = class WindowManager {
-    constructor(desktopContainer, dependencies) {
-        this.desktopContainer = desktopContainer; // The DOM element where windows will live
+    // MODIFICATION: The constructor now correctly accepts the `eventCallbacks` parameter.
+    constructor(desktopContainer, dependencies, eventCallbacks = {}) {
+        this.desktopContainer = desktopContainer;
         this.dependencies = dependencies;
-        this.windows = new Map(); // Stores window instances by a unique ID
+        this.windows = new Map();
         this.activeWindowId = null;
         this.highestZIndex = 100;
-        this.windowCounter = 0; // For generating unique IDs
+        this.windowCounter = 0;
+        // FIXED: This now correctly uses the passed-in parameter.
         this.callbacks = {
             onWindowCreated: eventCallbacks.onWindowCreated || (() => {}),
             onWindowDestroyed: eventCallbacks.onWindowDestroyed || (() => {}),
@@ -41,7 +44,10 @@ window.WindowManager = class WindowManager {
         this.desktopContainer.appendChild(windowComponent);
         const windowData = { id: windowId, element: windowComponent, options };
         this.windows.set(windowId, windowData);
+
+        // This part was already correct and now it will work!
         this.callbacks.onWindowCreated(windowId, options.title);
+
         this.focusWindow(windowId);
         return windowId;
     }
@@ -55,10 +61,9 @@ window.WindowManager = class WindowManager {
         if (windowData) {
             windowData.element.remove();
             this.windows.delete(windowId);
-            this.callbacks.onWindowDestroyed(windowId);
+            this.callbacks.onWindowDestroyed(windowId); // This will now work
             if (this.activeWindowId === windowId) {
                 this.activeWindowId = null;
-                // Optional: focus the next available window
             }
         }
     }
@@ -68,9 +73,8 @@ window.WindowManager = class WindowManager {
      * @param {string} windowId - The ID of the window to focus.
      */
     focusWindow(windowId) {
-        if (this.activeWindowId === windowId) return;
+        if (this.activeWindowId === windowId && document.activeElement === this.windows.get(windowId)?.element) return;
 
-        // Deactivate the old window
         if (this.activeWindowId) {
             const oldActive = this.windows.get(this.activeWindowId);
             oldActive?.element.classList.remove('active');
@@ -82,7 +86,7 @@ window.WindowManager = class WindowManager {
             windowData.element.style.zIndex = this.highestZIndex;
             windowData.element.classList.add('active');
             this.activeWindowId = windowId;
-            this.callbacks.onWindowFocused(windowId);
+            this.callbacks.onWindowFocused(windowId); // This will now work
         }
     }
 }

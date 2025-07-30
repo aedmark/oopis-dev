@@ -9,7 +9,7 @@ window.DesktopManager = class DesktopManager extends App {
         this.appLauncher = null;
     }
 
-    enter(appLayer, options = {}) {
+   async enter(appLayer, options = {}) {
         if (this.isActive) return;
         this.isActive = true;
         this.dependencies = options.dependencies;
@@ -42,6 +42,23 @@ window.DesktopManager = class DesktopManager extends App {
         this.iconManager.loadIcons(); // Asynchronously load and display icons
 
         console.log("OopisX Desktop Environment with Icon support is now online.");
+    }
+
+    async _createWelcomeFiles() {
+        const { FileSystemManager, UserManager, CommandExecutor } = this.dependencies;
+        const currentUser = UserManager.getCurrentUser().name;
+        const desktopPath = `/home/${currentUser}/Desktop`;
+
+        const desktopNode = FileSystemManager.getNodeByPath(desktopPath);
+        if (desktopNode && Object.keys(desktopNode.children).length === 0) {
+            // Desktop is empty, let's create some files!
+            const welcomeContent = `Welcome to OopisX, the graphical user interface for OopisOS!\n\n- You can drag these icons around.\n- Double-click them to open applications.\n- Right-click the desktop to create new files or folders.`;
+            const welcomePath = `${desktopPath}/Welcome.txt`;
+            await CommandExecutor.processSingleCommand(`echo "${welcomeContent}" > "${welcomePath}"`, { isInteractive: false });
+
+            const paintPath = `${desktopPath}/My Drawing.oopic`;
+            await CommandExecutor.processSingleCommand(`touch "${paintPath}"`, { isInteractive: false });
+        }
     }
 
     exit() {
