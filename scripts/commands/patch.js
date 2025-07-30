@@ -85,8 +85,8 @@ window.PatchCommand = class PatchCommand extends Command {
                     oldStart: parseInt(match[1], 10),
                     // If the line count isn't specified, it defaults to 1.
                     oldLines: match[2] ? parseInt(match[2], 10) : 1,
-                    newStart: parseInt(match[4], 10),
-                    newLines: match[5] ? parseInt(match[5], 10) : 1,
+                    newStart: parseInt(match[3], 10),
+                    newLines: match[4] ? parseInt(match[4], 10) : 1,
                     lines: [],
                 };
             } else if (currentHunk) {

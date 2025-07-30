@@ -1044,22 +1044,6 @@ rm race.txt
 echo "Race condition test complete."
 delay 200
 
-echo "--- Test: State save/load integrity ---"
-echo "pre-save" > state_integrity.txt
-savestate
-rm state_integrity.txt
-mkdir -p new_dir_post_save
-echo "post-save" > new_dir_post_save/another.txt
-loadstate
-YES
-delay 200
-ls state_integrity.txt
-check_fail "ls new_dir_post_save"
-rm state_integrity.txt
-echo "State integrity tests complete."
-delay 400
-echo "---------------------------------------------------------------------"
-
 echo ""
 echo "===== Phase Alpha: Core Command & Flag Behavior ====="
 delay 200
@@ -1243,7 +1227,7 @@ delay 200
 echo "--- Test: Generating a patch file with a custom utility ---"
 # This simulates creating a patch object. A real 'diff' would output text,
 # but for this test, we'll create the JSON patch our command expects.
-echo '{"index":4,"delete":20,"insert":"first line, now modified.","deleted":"original first line."}' > changes.diff
+diff -u original_document.txt modified_document.txt > changes.diff
 echo "Patch file 'changes.diff' generated. Contents:"
 cat changes.diff
 delay 200

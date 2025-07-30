@@ -19,13 +19,12 @@ window.DiffCommand = class DiffCommand extends Command {
       diff -u original.txt updated.txt > changes.patch
       Creates a patch file that can be applied with 'patch original.txt changes.patch'.`,
       completionType: "paths",
-      options: {
-        'u': {
-          alias: 'unified',
-          description: 'Output in the unified diff format.',
-          type: 'boolean'
+      flagDefinitions: [
+        { name: "unified",
+          short: "-u",
+          long: "--unified"
         }
-      },
+      ],
       validations: {
         args: {
           exact: 2,
@@ -162,7 +161,7 @@ window.DiffCommand = class DiffCommand extends Command {
   }
 
   async coreLogic(context) {
-    const { args, options, validatedPaths, dependencies } = context;
+    const { args, validatedPaths, dependencies } = context;
     const { DiffUtils, ErrorHandler } = dependencies;
 
     const file1Path = args[0];
@@ -170,22 +169,15 @@ window.DiffCommand = class DiffCommand extends Command {
     const file1Node = validatedPaths[0].node;
     const file2Node = validatedPaths[1].node;
 
-    // Check if our new '-u' flag was used.
-    if (options.u) {
-      // If so, call our new, brilliant function!
+    if (context.flags.unified) {
       const unifiedDiff = this._createUnifiedDiff(
           file1Node.content || "",
           file2Node.content || "",
           file1Path,
           file2Path
       );
-      // If there are no differences, we return a success message with no output.
-      if (unifiedDiff === "") {
-        return ErrorHandler.createSuccess();
-      }
       return ErrorHandler.createSuccess(unifiedDiff);
     } else {
-      // Otherwise, keep the original behavior. Backward compatibility is key!
       const diffResult = DiffUtils.compare(
           file1Node.content || "",
           file2Node.content || ""
