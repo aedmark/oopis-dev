@@ -1,3 +1,5 @@
+// gem/scripts/user_manager.js
+
 class UserManager {
   constructor(config, fsManager, groupManager) {
     this.config = config;
@@ -329,7 +331,7 @@ class UserManager {
     });
   }
 
-  async su(username, providedPassword, context = {}) {
+  async su(username, providedPassword, options = {}) {
     if (this.currentUser.name === username) {
       return ErrorHandler.createSuccess({
         message: `Already user '${username}'.`,
@@ -341,7 +343,7 @@ class UserManager {
         providedPassword,
         this._performSu.bind(this),
         "su: Authentication failure.",
-        context.options
+        options
     );
   }
 
