@@ -22,8 +22,10 @@ window.SuCommand = class SuCommand extends Command {
       su Guest
       Switches to the 'Guest' user.`,
             completionType: "users",
-            argValidation: {
-                max: 2,
+            validations: {
+                args: {
+                    max: 2,
+                },
             },
         });
     }

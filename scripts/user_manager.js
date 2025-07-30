@@ -329,7 +329,7 @@ class UserManager {
     });
   }
 
-  async su(username, providedPassword, options = {}) {
+  async su(username, providedPassword, context = {}) {
     if (this.currentUser.name === username) {
       return ErrorHandler.createSuccess({
         message: `Already user '${username}'.`,
@@ -341,7 +341,7 @@ class UserManager {
         providedPassword,
         this._performSu.bind(this),
         "su: Authentication failure.",
-        options
+        context.options
     );
   }
 
