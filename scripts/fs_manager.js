@@ -177,29 +177,33 @@ class FileSystemManager {
     let effectiveBasePath = basePath;
     if (targetPath.startsWith(this.config.FILESYSTEM.PATH_SEPARATOR))
       effectiveBasePath = this.config.FILESYSTEM.ROOT_PATH;
+
     const baseSegments =
         effectiveBasePath === this.config.FILESYSTEM.ROOT_PATH
             ? []
             : effectiveBasePath
                 .substring(1)
                 .split(this.config.FILESYSTEM.PATH_SEPARATOR)
-                .filter((s) => s && s !== this.config.FILESYSTEM.CURRENT_DIR_SYMBOL);
+                .filter((s) => s && s !== this.config.FILESYSTEM.CURRENT_DIR_SYMBOL && s !== this.config.FILESYSTEM.PARENT_DIR_SYMBOL);
+
     let resolvedSegments = [...baseSegments];
     const targetSegments = targetPath.split(this.config.FILESYSTEM.PATH_SEPARATOR);
+
     for (const segment of targetSegments) {
       if (segment === "" || segment === this.config.FILESYSTEM.CURRENT_DIR_SYMBOL) {
-        if (
-            targetPath.startsWith(this.config.FILESYSTEM.PATH_SEPARATOR) &&
-            resolvedSegments.length === 0 &&
-            segment === ""
-        ) {
-        }
         continue;
       }
       if (segment === this.config.FILESYSTEM.PARENT_DIR_SYMBOL) {
         if (resolvedSegments.length > 0) resolvedSegments.pop();
-      } else resolvedSegments.push(segment);
+      } else {
+        // Sanitize each segment to remove potentially malicious characters
+        const sanitizedSegment = segment.replace(/[\\/&<>"']/g, '');
+        if (sanitizedSegment) {
+          resolvedSegments.push(sanitizedSegment);
+        }
+      }
     }
+
     if (resolvedSegments.length === 0) return this.config.FILESYSTEM.ROOT_PATH;
     return (
         this.config.FILESYSTEM.PATH_SEPARATOR +

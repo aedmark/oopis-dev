@@ -71,8 +71,10 @@ class CommandExecutor {
 
         if (packageNode && packageNode.type === 'file') {
           try {
-            // Here's the magic! We execute the code directly from the VFS content.
-            eval(packageNode.content);
+            const scriptElement = document.createElement('script');
+            scriptElement.textContent = packageNode.content;
+            document.head.appendChild(scriptElement);
+            document.head.removeChild(scriptElement); // Clean up after execution================================================================
 
             // The script should have registered itself, so we check the registry again.
             const commandInstance = CommandRegistry.getCommands()[commandName];
@@ -262,8 +264,15 @@ class CommandExecutor {
       args: options.args || [],
     };
 
+    let stepCounter = 0;
+    const MAX_STEPS = Config.FILESYSTEM.MAX_SCRIPT_STEPS || 10000;
+
     try {
       for (let i = 0; i < lines.length; i++) {
+        stepCounter++;
+        if (stepCounter > MAX_STEPS) {
+          throw new Error(`Maximum script execution steps (${MAX_STEPS}) exceeded.`);
+        }
         scriptingContext.currentLineIndex = i;
         const line = lines[i].trim();
         if (line && !line.startsWith("#")) {

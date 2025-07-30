@@ -5,7 +5,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "--- Phase 1: Creating dedicated test user and workspace ---"
 delay 200
-login root mcgoopis
+login root
 delay 200
 useradd diagUser
 testpass
@@ -135,7 +135,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 4: Testing Group Permissions & Ownership (Expanded) ====="
 delay 200
-login root mcgoopis
+login root
 useradd testuser
 testpass
 testpass
@@ -166,7 +166,7 @@ echo "--- Test: Permission Edge Cases ---"
 login testuser testpass
 check_fail "chmod 777 /home/diagUser/diag_workspace/group_test_file.txt"
 check_fail "cd /tmp/no_exec_dir"
-login root mcgoopis
+login root
 delay 200
 rm -r -f /tmp
 removeuser -f testuser
@@ -184,7 +184,7 @@ echo ""
 echo "===== Phase 4.5: Testing Recursive Ownership & Group Permissions ====="
 delay 200
 
-login root mcgoopis
+login root
 echo "--- Setting up for recursive ownership tests ---"
 groupadd recursive_test_group
 useradd recursive_test_user
@@ -221,7 +221,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 5: Testing High-Level Committee Command ====="
 delay 200
-login root mcgoopis
+login root
 echo "--- Setting up for committee test ---"
 useradd comm_user1
 testpass
@@ -251,7 +251,7 @@ check_fail "ls /home/project_harvest_festival"
 check_fail "cat /home/project_harvest_festival/plan.txt"
 delay 400
 echo "--- Cleaning up from committee test ---"
-login root mcgoopis
+login root
 removeuser -f comm_user1
 removeuser -f comm_user2
 groupdel harvest_festival
@@ -263,7 +263,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 6: Testing Sudo & Security Model ====="
 delay 200
-login root mcgoopis
+login root
 useradd sudouser
 testpass
 testpass
@@ -278,7 +278,7 @@ echo "Attempting second sudo command (should not require password)..."
 sudo ls /home/root
 login Guest
 check_fail "sudo ls /home/root"
-login root mcgoopis
+login root
 removeuser -f sudouser
 delay 200
 grep -v "sudouser" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
@@ -295,7 +295,7 @@ testpass
 delay 200
 echo "Attempting disallowed specific command (rm)..."
 check_fail "sudo rm -f /home/Guest/README.md"
-login root mcgoopis
+login root
 removeuser -f sudouser2
 delay 200
 grep -v "sudouser2" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
@@ -946,13 +946,13 @@ mkdir -p find_torture/ro_subdir
 echo "find me" > find_torture/file.txt
 echo "don't find me" > find_torture/file.tmp
 echo "cant touch this" > find_torture/ro_subdir/secret.txt
-login root mcgoopis
+login root
 chmod 500 /home/diagUser/diag_workspace/find_torture/ro_subdir
 login diagUser testpass
 cd /home/diagUser/diag_workspace
 find ./find_torture -name "*.txt" -exec cat {} \;
 check_fail "find ./find_torture -name '*.txt' -exec echo '{}' > ./find_torture/ro_subdir/output.log \;"
-login root mcgoopis
+login root
 rm -r -f /home/diagUser/diag_workspace/find_torture
 login diagUser testpass
 cd /home/diagUser/diag_workspace
@@ -969,7 +969,7 @@ echo "Redirection simulation test complete."
 delay 200
 echo "---------------------------------------------------------------------"
 
-login root mcgoopis
+login root
 
 # Grant 'limitedsudo' the ability to run the 'cat' command, and nothing else.
 delay 200
@@ -994,7 +994,7 @@ testpass
 echo "Attempting to run disallowed command ('ls')... (This should fail)"
 check_fail "sudo ls /"
 delay 200
-login root mcgoopis
+login root
 removeuser -f limitedsudo
 grep -v "limitedsudo" /etc/sudoers > sudoers.tmp
 mv sudoers.tmp /etc/sudoers
@@ -1003,7 +1003,7 @@ login diagUser testpass
 
 echo "Specific sudo tests complete."
 delay 200
-login root mcgoopis
+login root
 removeuser -r -f limitedsudo
 grep -v "limitedsudo" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
 delay 200
@@ -1021,7 +1021,7 @@ cd /home/diagUser/diag_workspace
 check_fail "cat paradox.txt"
 echo "Permission paradox test complete."
 delay 200
-login root mcgoopis
+login root
 removeuser -r -f paradoxuser
 rm paradox.txt
 login diagUser testpass
@@ -1081,7 +1081,7 @@ echo ""
 echo "===== Phase Beta: Group Permissions & Sudo ====="
 delay 200
 
-login root mcgoopis
+login root
 echo "--- Test: Group Permissions ---"
 groupadd testgroup
 useradd testuser
@@ -1102,7 +1102,7 @@ login Guest
 cd /home/diagUser/diag_workspace
 echo "Appending to file as Guest (should fail)..."
 check_fail "echo 'appended by guest' >> group_test_file.txt"
-login root mcgoopis
+login root
 delay 200
 removeuser -f testuser
 groupdel testgroup
@@ -1122,7 +1122,7 @@ sudo ls /home/root
 testpass
 echo "Running disallowed sudo command (sudo rm)..."
 check_fail "sudo rm -f /some/file"
-login root mcgoopis
+login root
 removeuser -f sudouser2
 grep -v "sudouser2" /etc/sudoers > sudoers.tmp && mv sudoers.tmp /etc/sudoers
 echo "Granular sudo test complete."
@@ -1252,7 +1252,7 @@ delay 400
 echo ""
 echo "--- Phase Omega: Final Cleanup ---"
 cd /
-login root mcgoopis
+login root
 delay 300
 removeuser -f diagUser
 removeuser -f sudouser

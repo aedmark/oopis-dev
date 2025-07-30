@@ -393,6 +393,7 @@ class UserManager {
   }
 
   async initializeDefaultUsers() {
+    const { OutputManager, Config } = this.dependencies;
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
         "User list",
@@ -400,10 +401,22 @@ class UserManager {
     );
     let changesMade = false;
     if (!users["root"] || !users["root"].passwordData) {
+      const randomPassword = Math.random().toString(36).slice(-8);
       users["root"] = {
-        passwordData: await this._secureHashPassword("mcgoopis"),
+        passwordData: await this._secureHashPassword(randomPassword),
         primaryGroup: "root",
       };
+      // Display the one-time password to the user in the console.
+      setTimeout(() => {
+        OutputManager.appendToOutput(
+            `IMPORTANT: Your one-time root password is: ${randomPassword}`,
+            { typeClass: Config.CSS_CLASSES.WARNING_MSG }
+        );
+        OutputManager.appendToOutput(
+            `Please save it securely or change it immediately using 'passwd'.`,
+            { typeClass: Config.CSS_CLASSES.CONSOLE_LOG_MSG }
+        );
+      }, 500);
       changesMade = true;
     }
     if (!users[this.config.USER.DEFAULT_NAME]) {

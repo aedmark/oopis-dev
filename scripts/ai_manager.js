@@ -379,8 +379,12 @@ User Prompt: "{{prompt}}"`;
 
       const commandsToExecute = planText
           .split("\n")
-          .map((line) => line.replace(/^\d+\.\s*/, "").trim())
-          .filter((line) => this.COMMAND_WHITELIST.includes(line.split(" ")[0]));
+          .filter((line) => {
+            if (!line) return false;
+            const commandName = line.split(" ")[0];
+            // Ensure the command exists and is in the whitelist.
+            return this.COMMAND_WHITELIST.includes(commandName);
+          });
 
       if (commandsToExecute.length === 0) {
         return ErrorHandler.createSuccess(planText);
