@@ -259,7 +259,7 @@ class ModalManager {
       }
     } else {
       // type === 'input'
-      if (onConfirm) await onConfirm(input.trim(), data);
+      if (onConfirm) await onConfirm(input, data);
     }
 
     return true;

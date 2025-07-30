@@ -136,40 +136,6 @@ class UserManager {
     return ErrorHandler.createError("Failed to save new user credentials.");
   }
 
-  async _authenticateUser(username, providedPassword) {
-    const users = this.storageManager.loadItem(
-        this.config.STORAGE_KEYS.USER_CREDENTIALS,
-        "User list",
-        {}
-    );
-    const userEntry = users[username];
-    if (
-        !userEntry &&
-        username !== this.config.USER.DEFAULT_NAME &&
-        username !== "root"
-    ) {
-      return ErrorHandler.createError("Invalid username.");
-    }
-    const { salt, hash } = userEntry?.passwordData || {};
-    if (salt && hash) {
-      if (providedPassword === null) {
-        return {
-          success: false,
-          error: "Password required.",
-          requiresPasswordPrompt: true,
-        };
-      }
-      if (!(await this._verifyPasswordWithSalt(providedPassword, salt, hash))) {
-        return ErrorHandler.createError(this.config.MESSAGES.INVALID_PASSWORD);
-      }
-    } else if (providedPassword !== null) {
-      return ErrorHandler.createError(
-          "This account does not require a password."
-      );
-    }
-    return ErrorHandler.createSuccess();
-  }
-
   async verifyPassword(username, password) {
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
@@ -223,7 +189,7 @@ class UserManager {
             "You can only change your own password."
         );
       }
-      const authResult = await this._authenticateUser(
+      const authResult = await this.verifyPassword(
           actorUsername,
           oldPassword
       );
@@ -262,40 +228,64 @@ class UserManager {
       failureMessage,
       options
   ) {
-    const authResult = await this._authenticateUser(username, providedPassword);
-    if (!authResult.success) {
-      if (!authResult.requiresPasswordPrompt) return authResult;
-      return new Promise((resolve) => {
-        this.modalManager.request({
-          context: "terminal",
-          type: "input",
-          messageLines: [this.config.MESSAGES.PASSWORD_PROMPT],
-          obscured: true,
-          onConfirm: async (passwordFromPrompt) => {
-            const finalAuthResult = await this._authenticateUser(
-                username,
-                passwordFromPrompt
-            );
-            resolve(
-                finalAuthResult.success
-                    ? await successCallback(username)
-                    : ErrorHandler.createError(
-                        finalAuthResult.error || failureMessage
-                    )
-            );
-          },
-          onCancel: () =>
-              resolve(
-                  ErrorHandler.createSuccess({
-                    output: this.config.MESSAGES.OPERATION_CANCELLED,
-                  })
-              ),
-          options,
-        });
-      });
+    const users = this.storageManager.loadItem(
+        this.config.STORAGE_KEYS.USER_CREDENTIALS,
+        "User list",
+        {}
+    );
+    const userEntry = users[username];
+
+    if (!userEntry && username !== this.config.USER.DEFAULT_NAME && username !== "root") {
+      return ErrorHandler.createError("Invalid username.");
     }
-    return await successCallback(username);
+
+    const { salt, hash } = userEntry?.passwordData || {};
+
+    if (salt && hash) {
+      // Password is required for this user
+      if (providedPassword !== null) {
+        // Password was given on the command line
+        if (await this._verifyPasswordWithSalt(providedPassword, salt, hash)) {
+          return await successCallback(username);
+        } else {
+          return ErrorHandler.createError(this.config.MESSAGES.INVALID_PASSWORD);
+        }
+      } else {
+        // No password on command line, so we must prompt
+        return new Promise((resolve) => {
+          this.modalManager.request({
+            context: "terminal",
+            type: "input",
+            messageLines: [this.config.MESSAGES.PASSWORD_PROMPT],
+            obscured: true,
+            onConfirm: async (passwordFromPrompt) => {
+              if (await this._verifyPasswordWithSalt(passwordFromPrompt, salt, hash)) {
+                resolve(await successCallback(username));
+              } else {
+                resolve(ErrorHandler.createError(failureMessage));
+              }
+            },
+            onCancel: () =>
+                resolve(
+                    ErrorHandler.createSuccess({
+                      output: this.config.MESSAGES.OPERATION_CANCELLED,
+                    })
+                ),
+            options,
+          });
+        });
+      }
+    } else {
+      // No password is set for this user
+      if (providedPassword !== null) {
+        return ErrorHandler.createError(
+            "This account does not require a password."
+        );
+      }
+      return await successCallback(username);
+    }
   }
+
 
   async login(username, providedPassword, options = {}) {
     const currentUserName = this.getCurrentUser().name;

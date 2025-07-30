@@ -15,7 +15,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         });
 
         // The central, trusted source for all our wonderful community add-ons!
-        this.REPO_URL = "https://raw.githubusercontent.com/aedmark/OopisOS-Packages/main/";
+        this.REPO_URL = "https://raw.githubusercontent.com/aedmark/OopisOS-Packages/blob/main/";
         this.MANIFEST_FILE = "packages.json";
         this.TEMP_MANIFEST_PATH = "/tmp/packages.json";
     }
