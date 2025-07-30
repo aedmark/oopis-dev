@@ -8,8 +8,6 @@ delay 200
 login root
 delay 200
 useradd diagUser
-testpass
-testpass
 delay 200
 mkdir -p /home/diagUser/diag_workspace/
 chown diagUser /home/diagUser/diag_workspace/
@@ -17,7 +15,7 @@ groupadd testgroup
 chgrp testgroup /home/diagUser/diag_workspace/
 chmod 775 /home/diagUser/diag_workspace/
 
-login diagUser testpass
+login diagUser
 echo "Current User (expected: diagUser):"
 delay 200
 whoami
@@ -152,7 +150,7 @@ chown diagUser group_test_file.txt
 chgrp testgroup group_test_file.txt
 chmod 664 group_test_file.txt
 echo "--- Test: Group write permission ---"
-login testuser testpass
+login testuser
 cd /home/diagUser/diag_workspace
 delay 200
 echo "Append by group member" >> group_test_file.txt
@@ -163,7 +161,7 @@ cd /home/diagUser/diag_workspace
 check_fail "echo 'Append by other user' >> group_test_file.txt"
 delay 200
 echo "--- Test: Permission Edge Cases ---"
-login testuser testpass
+login testuser
 check_fail "chmod 777 /home/diagUser/diag_workspace/group_test_file.txt"
 check_fail "cd /tmp/no_exec_dir"
 login root
@@ -174,7 +172,7 @@ groupdel testgroup
 rm -f /home/diagUser/diag_workspace/group_test_file.txt
 delay 200
 chmod 700 /home/diagUser
-login diagUser testpass
+login diagUser
 delay 200
 cd /home/diagUser/diag_workspace
 delay 500
@@ -241,7 +239,7 @@ echo "Checking directory and permissions (should be drwxrwx--- ... harvest_festi
 ls -l /home/ | grep "project_harvest_festival"
 delay 400
 echo "--- Test: Member write access (should succeed) ---"
-login comm_user1 testpass
+login comm_user1
 echo "I solemnly swear to bring a pie." > /home/project_harvest_festival/plan.txt
 cat /home/project_harvest_festival/plan.txt
 delay 400
@@ -269,7 +267,7 @@ testpass
 testpass
 delay 400
 echo "sudouser ALL" >> /etc/sudoers
-login sudouser testpass
+login sudouser
 echo "Attempting first sudo command (password required)..."
 sudo echo "Sudo command successful."
 testpass
@@ -288,7 +286,7 @@ testpass
 testpass
 delay 400
 echo "sudouser2 ls" >> /etc/sudoers
-login sudouser2 testpass
+login sudouser2
 echo "Attempting allowed specific command (ls)..."
 sudo ls /home/root
 testpass
@@ -299,7 +297,7 @@ login root
 removeuser -f sudouser2
 delay 200
 grep -v "sudouser2" /etc/sudoers > sudoers.tmp; mv sudoers.tmp /etc/sudoers
-login diagUser testpass
+login diagUser
 cd /home/diagUser/diag_workspace
 echo "Granular sudo test complete."
 delay 400
@@ -948,13 +946,13 @@ echo "don't find me" > find_torture/file.tmp
 echo "cant touch this" > find_torture/ro_subdir/secret.txt
 login root
 chmod 500 /home/diagUser/diag_workspace/find_torture/ro_subdir
-login diagUser testpass
+login diagUser
 cd /home/diagUser/diag_workspace
 find ./find_torture -name "*.txt" -exec cat {} \;
 check_fail "find ./find_torture -name '*.txt' -exec echo '{}' > ./find_torture/ro_subdir/output.log \;"
 login root
 rm -r -f /home/diagUser/diag_workspace/find_torture
-login diagUser testpass
+login diagUser
 cd /home/diagUser/diag_workspace
 echo "Complex find tests complete."
 delay 400
@@ -984,7 +982,7 @@ chmod 701 /home/diagUser
 
 echo "TOP SECRET" > /home/diagUser/diag_workspace/specific_file.txt
 
-login limitedsudo testpass
+login limitedsudo
 cd /home/diagUser/diag_workspace
 delay 200
 echo "Attempting to run allowed command ('cat') on a file..."
@@ -999,7 +997,7 @@ removeuser -f limitedsudo
 grep -v "limitedsudo" /etc/sudoers > sudoers.tmp
 mv sudoers.tmp /etc/sudoers
 rm /home/diagUser/diag_workspace/specific_file.txt
-login diagUser testpass
+login diagUser
 
 echo "Specific sudo tests complete."
 delay 200
@@ -1016,7 +1014,7 @@ delay 200
 touch paradox.txt
 chown paradoxuser paradox.txt
 chmod 000 paradox.txt
-login paradoxuser testpass
+login paradoxuser
 cd /home/diagUser/diag_workspace
 check_fail "cat paradox.txt"
 echo "Permission paradox test complete."
@@ -1024,7 +1022,7 @@ delay 200
 login root
 removeuser -r -f paradoxuser
 rm paradox.txt
-login diagUser testpass
+login diagUser
 cd /home/diagUser/diag_workspace
 delay 400
 echo "---------------------------------------------------------------------"
@@ -1093,7 +1091,7 @@ touch group_test_file.txt
 chown diagUser group_test_file.txt
 chgrp testgroup group_test_file.txt
 chmod 664 group_test_file.txt
-login testuser testpass
+login testuser
 cd /home/diagUser/diag_workspace
 echo "Appending to file as group member (should succeed)..."
 echo "appended" >> group_test_file.txt
@@ -1116,7 +1114,7 @@ testpass
 testpass
 delay 200
 echo "sudouser2 ALL=(ALL) /bin/ls" >> /etc/sudoers
-login sudouser2 testpass
+login sudouser2
 echo "Running allowed sudo command (sudo ls)..."
 sudo ls /home/root
 testpass
@@ -1132,7 +1130,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase Delta: Advanced Data & Process Management ====="
 delay 200
-login diagUser testpass
+login diagUser
 cd /home/diagUser/diag_workspace
 
 echo "--- Test: sort Flags ---"

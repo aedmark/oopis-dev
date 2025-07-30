@@ -1,24 +1,24 @@
 // gem/scripts/user_manager.js
 
 class UserManager {
-  constructor(config, fsManager, groupManager) {
-    this.config = config;
-    this.fsManager = fsManager;
-    this.groupManager = groupManager;
-    this.currentUser = { name: this.config.USER.DEFAULT_NAME };
+  constructor(dependencies) {
+    this.dependencies = dependencies;
+    this.config = dependencies.Config;
+    this.fsManager = dependencies.FileSystemManager;
+    this.groupManager = dependencies.GroupManager;
+    this.storageManager = dependencies.StorageManager;
     this.sessionManager = null;
     this.sudoManager = null;
     this.commandExecutor = null;
     this.modalManager = null;
-    this.storageManager = null;
+    this.currentUser = { name: this.config.USER.DEFAULT_NAME };
   }
 
-  setDependencies(sessionManager, sudoManager, commandExecutor, modalManager, storageManager) {
+  setDependencies(sessionManager, sudoManager, commandExecutor, modalManager) {
     this.sessionManager = sessionManager;
     this.sudoManager = sudoManager;
     this.commandExecutor = commandExecutor;
     this.modalManager = modalManager;
-    this.storageManager = storageManager;
   }
 
   async _secureHashPassword(password) {

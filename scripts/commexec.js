@@ -252,7 +252,7 @@ class CommandExecutor {
 
 
   async executeScript(lines, options = {}) {
-    const { ErrorHandler, EnvironmentManager } = this.dependencies;
+    const { ErrorHandler, EnvironmentManager, Config } = this.dependencies;
 
     // Create a new, sandboxed environment for the script
     EnvironmentManager.push();

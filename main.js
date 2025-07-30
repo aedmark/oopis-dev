@@ -1,7 +1,7 @@
 // scripts/main.js
 function initializeTerminalEventListeners(domElements, commandExecutor, dependencies) {
   // Destructure dependencies needed in this function
-  const { AppLayerManager, ModalManager, TerminalUI, TabCompletionManager, HistoryManager } = dependencies;
+  const { AppLayerManager, ModalManager, TerminalUI, TabCompletionManager, HistoryManager, SoundManager } = dependencies;
 
   if (!domElements.terminalDiv || !domElements.editableInputDiv) {
     console.error(
@@ -35,7 +35,6 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
             TerminalUI.getCurrentInputValue()
         );
       } else if (TerminalUI.isObscured()) {
-        // --- FIX STARTS HERE ---
         // Prevent the default action for character keys to stop them from appearing.
         if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
@@ -60,8 +59,8 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
     switch (e.key) {
       case "Enter":
         e.preventDefault();
-        if (!soundManager.isInitialized) {
-          await soundManager.initialize();
+        if (!SoundManager.isInitialized) {
+          await SoundManager.initialize();
         }
         TabCompletionManager.resetCycle();
         await commandExecutor.processSingleCommand(
@@ -137,8 +136,6 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
   }
 }
 
-let soundManager;
-
 window.onload = async () => {
   const domElements = {
     terminalBezel: document.getElementById("terminal-bezel"),
@@ -157,7 +154,6 @@ window.onload = async () => {
   const indexedDBManager = new IndexedDBManager();
   const groupManager = new GroupManager();
   const fsManager = new FileSystemManager(configManager);
-  const userManager = new UserManager(configManager, fsManager, groupManager);
   const sessionManager = new SessionManager();
   const sudoManager = new SudoManager();
   const environmentManager = new EnvironmentManager();
@@ -175,15 +171,16 @@ window.onload = async () => {
   const commandRegistry = new CommandRegistry();
   window.CommandRegistry = commandRegistry;
   const networkManager = new NetworkManager();
-  soundManager = new SoundManager();
+  const soundManager = new SoundManager();
   const storageHAL = new IndexedDBStorageHAL();
 
+  // The dependencies object now gets created early.
   const dependencies = {
     Config: configManager,
     StorageManager: storageManager,
     IndexedDBManager: indexedDBManager,
     FileSystemManager: fsManager,
-    UserManager: userManager,
+    UserManager: null, // We'll create this one after its own dependencies are set.
     SessionManager: sessionManager,
     CommandExecutor: commandExecutor,
     SudoManager: sudoManager,
@@ -210,8 +207,11 @@ window.onload = async () => {
     UIComponents: uiComponents,
     domElements: domElements,
     SoundManager: soundManager,
-    StorageHAL: storageHAL, // Add our new HAL
+    StorageHAL: storageHAL,
   };
+
+  const userManager = new UserManager(dependencies);
+  dependencies.UserManager = userManager; // Now add the created userManager to the dependencies.
 
   const pagerManager = new PagerManager(dependencies);
   dependencies.PagerManager = pagerManager;
@@ -221,7 +221,7 @@ window.onload = async () => {
   storageManager.setDependencies(dependencies);
   indexedDBManager.setDependencies(dependencies);
   fsManager.setDependencies(dependencies);
-  userManager.setDependencies(sessionManager, sudoManager, commandExecutor, modalManager, storageManager);
+  userManager.setDependencies(sessionManager, sudoManager, commandExecutor, modalManager);
   sessionManager.setDependencies(dependencies);
   sudoManager.setDependencies(fsManager, groupManager, configManager);
   environmentManager.setDependencies(userManager, fsManager, configManager);
@@ -251,7 +251,7 @@ window.onload = async () => {
     await fsManager.load();
     await userManager.initializeDefaultUsers();
     await configManager.loadFromFile();
-    await configManager.loadPackageManifest(); // <-- This is our new line!
+    await configManager.loadPackageManifest();
     groupManager.initialize();
     environmentManager.initialize();
     sessionManager.initializeStack();
