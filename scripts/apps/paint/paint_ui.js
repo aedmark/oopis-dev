@@ -54,6 +54,11 @@ window.PaintUI = class PaintUI {
 
     this.elements.charInput = Utils.createElement("input", { type: "text", className: "paint-char-selector", value: initialState.currentCharacter, maxLength: 1 });
 
+    this.elements.cutBtn = UIComponents.createButton({ text: "Cut", onClick: () => this.managerCallbacks.onCut() });
+    this.elements.copyBtn = UIComponents.createButton({ text: "Copy", onClick: () => this.managerCallbacks.onCopy() });
+    this.elements.pasteBtn = UIComponents.createButton({ text: "Paste", onClick: () => this.managerCallbacks.onPaste() });
+    const editGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.cutBtn, this.elements.copyBtn, this.elements.pasteBtn]);
+
     this.elements.undoBtn = UIComponents.createButton({ text: "↩" });
     this.elements.redoBtn = UIComponents.createButton({ text: "↪" });
     this.elements.gridBtn = UIComponents.createButton({ text: "▦" });
@@ -69,7 +74,7 @@ window.PaintUI = class PaintUI {
     // Add all toolbar items to the header from the toolkit
     appWindow.header.classList.add("paint-toolbar");
     appWindow.header.innerHTML = ''; // Clear default header content
-    appWindow.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, historyGroup, zoomGroup, exitBtn);
+    appWindow.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup, exitBtn);
 
 
     // 3. Create the main drawing area

@@ -1,3 +1,4 @@
+// scripts/apps/paint/paint_manager.js
 window.PaintManager = class PaintManager extends App {
   constructor() {
     super();
@@ -48,6 +49,29 @@ window.PaintManager = class PaintManager extends App {
       });
     } else {
       performExit();
+    }
+  }
+
+  handleKeyDown(event) {
+    if (!this.isActive) return;
+
+    // Handle Ctrl/Cmd key combinations
+    if (event.ctrlKey || event.metaKey) {
+      let handled = true;
+      switch (event.key.toLowerCase()) {
+        case 's': this._saveContent(); break;
+        case 'o': this.exit(); break;
+        case 'z': event.shiftKey ? this.callbacks.onRedo() : this.callbacks.onUndo(); break;
+        case 'y': this.callbacks.onRedo(); break;
+        case 'x': this.callbacks.onCut(); break;
+        case 'c': this.callbacks.onCopy(); break;
+        case 'v': this.callbacks.onPaste(); break;
+        default: handled = false;
+      }
+      if (handled) event.preventDefault();
+    } else if (event.key === 'Escape') { // Handle single key presses
+      event.preventDefault();
+      this.exit();
     }
   }
 
@@ -399,6 +423,7 @@ window.PaintManager = class PaintManager extends App {
         this.ui.updateStatusBar(this.state);
       },
       onGetState: () => this.state,
+      isGridVisible: () => this.state.gridVisible,
     };
   }
 

@@ -2,11 +2,15 @@
 class CommandRegistry {
     constructor() {
         this.commandDefinitions = {};
+        this.dependencies = {};
+    }
+
+    setDependencies(dependencies) {
+        this.dependencies = dependencies;
     }
 
     register(commandInstance) {
         if (commandInstance && commandInstance.commandName) {
-            // Store the entire instance, which includes the definition
             this.commandDefinitions[commandInstance.commandName] = commandInstance;
         } else {
             console.error(
@@ -16,8 +20,32 @@ class CommandRegistry {
         }
     }
 
+    addCommandToManifest(commandName) {
+        const { Config } = this.dependencies;
+        if (!Config.COMMANDS_MANIFEST.includes(commandName)) {
+            Config.COMMANDS_MANIFEST.push(commandName);
+            Config.COMMANDS_MANIFEST.sort(); // Keep it tidy!
+        }
+    }
+
+    removeCommandFromManifest(commandName) {
+        const { Config } = this.dependencies;
+        const index = Config.COMMANDS_MANIFEST.indexOf(commandName);
+        if (index > -1) {
+            Config.COMMANDS_MANIFEST.splice(index, 1);
+        }
+    }
+
+    unregisterCommand(commandName) {
+        if (this.commandDefinitions[commandName]) {
+            delete this.commandDefinitions[commandName];
+            this.removeCommandFromManifest(commandName);
+            return true;
+        }
+        return false;
+    }
+
     getDefinitions() {
-        // Return the definitions from the stored instances
         const definitionsOnly = {};
         for (const key in this.commandDefinitions) {
             definitionsOnly[key] = this.commandDefinitions[key].definition;
@@ -25,7 +53,6 @@ class CommandRegistry {
         return definitionsOnly;
     }
 
-    // Expose the instances themselves if needed by the executor
     getCommands() {
         return this.commandDefinitions;
     }
