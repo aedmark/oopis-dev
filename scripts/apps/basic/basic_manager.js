@@ -1,15 +1,38 @@
+/**
+ * BASIC IDE Manager - Provides an integrated development environment for BASIC programming
+ * @class BasicManager
+ * @extends App
+ */
 window.BasicManager = class BasicManager extends App {
+  /**
+   * Create a BASIC IDE manager instance
+   */
   constructor() {
     super();
+    /** @type {Object} Injected dependencies */
     this.dependencies = {};
+    /** @type {Basic_interp|null} BASIC interpreter instance */
     this.interpreter = null;
+    /** @type {Map<number, string>} Program line buffer */
     this.programBuffer = new Map();
+    /** @type {Function|null} Input promise resolver for program execution */
     this.onInputPromiseResolver = null;
+    /** @type {Object} Load options including file path and content */
     this.loadOptions = {};
+    /** @type {Object} Callback functions for UI interaction */
     this.callbacks = {};
+    /** @type {Object|null} UI instance */
     this.ui = null;
   }
 
+  /**
+   * Enter the BASIC IDE
+   * @param {HTMLElement} appLayer - DOM element to attach the IDE UI
+   * @param {Object} options - Configuration options
+   * @param {Object} options.dependencies - Required dependencies
+   * @param {string} [options.path] - File path to load
+   * @param {string} [options.content] - File content to load
+   */
   enter(appLayer, options = {}) {
     this.dependencies = options.dependencies;
     this.interpreter = new this.dependencies.Basic_interp(this.dependencies);
@@ -26,6 +49,9 @@ window.BasicManager = class BasicManager extends App {
     this._init();
   }
 
+  /**
+   * Exit the BASIC IDE
+   */
   exit() {
     if (!this.isActive) return;
     const { AppLayerManager } = this.dependencies;
@@ -43,6 +69,10 @@ window.BasicManager = class BasicManager extends App {
     this.ui = null;
   }
 
+  /**
+   * Initialize the IDE interface
+   * @private
+   */
   _init() {
     this.ui.writeln("Oopis BASIC [Version 1.0]");
     this.ui.writeln("(c) 2025 Oopis Systems. All rights reserved.");
@@ -57,6 +87,11 @@ window.BasicManager = class BasicManager extends App {
     setTimeout(() => this.ui.focusInput(), 0);
   }
 
+  /**
+   * Create callback functions for UI interaction
+   * @private
+   * @returns {Object} Callback object
+   */
   _createCallbacks() {
     return {
       onInput: this._handleIdeInput.bind(this),
@@ -64,6 +99,11 @@ window.BasicManager = class BasicManager extends App {
     };
   }
 
+  /**
+   * Load program content into the line buffer
+   * @private
+   * @param {string} content - Program source code
+   */
   _loadContentIntoBuffer(content) {
     this.programBuffer.clear();
     const lines = content.split("\n");
@@ -80,6 +120,11 @@ window.BasicManager = class BasicManager extends App {
     }
   }
 
+  /**
+   * Handle input from the IDE command line
+   * @private
+   * @param {string} command - User input command
+   */
   async _handleIdeInput(command) {
     command = command.trim();
     this.ui.writeln(`> ${command}`);
@@ -121,6 +166,12 @@ window.BasicManager = class BasicManager extends App {
     }
   }
 
+  /**
+   * Execute an IDE command
+   * @private
+   * @param {string} cmd - Command name
+   * @param {string} argsStr - Command arguments
+   */
   async _executeIdeCommand(cmd, argsStr) {
     switch (cmd) {
       case "RUN":
@@ -149,6 +200,11 @@ window.BasicManager = class BasicManager extends App {
     }
   }
 
+  /**
+   * Get the complete program text from the buffer
+   * @private
+   * @returns {string} Complete program source code
+   */
   _getProgramText() {
     const sortedLines = Array.from(this.programBuffer.keys()).sort(
         (a, b) => a - b
@@ -158,6 +214,10 @@ window.BasicManager = class BasicManager extends App {
         .join("\n");
   }
 
+  /**
+   * List the current program in the buffer
+   * @private
+   */
   _listProgram() {
     const sortedLines = Array.from(this.programBuffer.keys()).sort(
         (a, b) => a - b
@@ -168,6 +228,10 @@ window.BasicManager = class BasicManager extends App {
     this.ui.writeln("OK");
   }
 
+  /**
+   * Run the current program
+   * @private
+   */
   async _runProgram() {
     const programText = this._getProgramText();
     if (programText.length === 0) {
@@ -184,7 +248,6 @@ window.BasicManager = class BasicManager extends App {
               this.onInputPromiseResolver = resolve;
             }),
         pokeCallback: (_x, _y, _char, _color) => {
-          // This could be implemented to draw directly on the BASIC UI's output div
         },
       });
     } catch (error) {
@@ -193,6 +256,11 @@ window.BasicManager = class BasicManager extends App {
     this.ui.writeln("");
   }
 
+  /**
+   * Save the current program to a file
+   * @private
+   * @param {string} filePathArg - File path argument
+   */
   async _saveProgram(filePathArg) {
     const { FileSystemManager, UserManager } = this.dependencies;
     let savePath = filePathArg
@@ -224,6 +292,11 @@ window.BasicManager = class BasicManager extends App {
     }
   }
 
+  /**
+   * Load a program from a file
+   * @private
+   * @param {string} filePathArg - File path argument
+   */
   async _loadProgram(filePathArg) {
     const { FileSystemManager } = this.dependencies;
     if (!filePathArg) {

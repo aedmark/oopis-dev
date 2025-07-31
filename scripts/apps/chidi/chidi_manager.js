@@ -1,12 +1,34 @@
+// scripts/apps/chidi/chidi_manager.js
+
+/**
+ * Chidi Document Analyst Manager - AI-powered document analysis and Q&A system
+ * @class ChidiManager
+ * @extends App
+ */
 window.ChidiManager = class ChidiManager extends App {
+  /**
+   * Create a Chidi manager instance
+   */
   constructor() {
     super();
+    /** @type {Object} Application state including files, conversation history, and settings */
     this.state = {};
+    /** @type {Object} Injected dependencies */
     this.dependencies = {};
+    /** @type {Object} Callback functions for UI interaction */
     this.callbacks = {};
+    /** @type {Object|null} UI instance */
     this.ui = null;
   }
 
+  /**
+   * Enter the Chidi document analyst
+   * @param {HTMLElement} appLayer - DOM element to attach the UI
+   * @param {Object} options - Configuration options
+   * @param {Object} options.dependencies - Required dependencies
+   * @param {Array} options.initialFiles - Files to analyze
+   * @param {Object} options.launchOptions - Launch configuration
+   */
   enter(appLayer, options = {}) {
     if (this.isActive) return;
 
@@ -26,6 +48,9 @@ window.ChidiManager = class ChidiManager extends App {
     this.ui.showMessage(initialMessage, true);
   }
 
+  /**
+   * Exit the Chidi application
+   */
   exit() {
     if (!this.isActive) return;
     if (this.ui) {
@@ -37,6 +62,12 @@ window.ChidiManager = class ChidiManager extends App {
     this.ui = null;
   }
 
+  /**
+   * Initialize application state
+   * @private
+   * @param {Array} initialFiles - Files to load for analysis
+   * @param {Object} launchOptions - Launch configuration options
+   */
   _initializeState(initialFiles, launchOptions) {
     const { Utils } = this.dependencies;
     this.state = {
@@ -73,6 +104,13 @@ window.ChidiManager = class ChidiManager extends App {
     }
   }
 
+  /**
+   * Call the LLM API for document analysis
+   * @private
+   * @param {Array} chatHistory - Conversation history
+   * @param {string} [systemPrompt] - System prompt for the AI
+   * @returns {Promise<Object>} API response result
+   */
   async _callLlmApi(chatHistory, systemPrompt) {
     const { AIManager } = this.dependencies;
     const apiKeyResult = await AIManager.getApiKey(this.state.provider, {
@@ -95,6 +133,11 @@ window.ChidiManager = class ChidiManager extends App {
     return result;
   }
 
+  /**
+   * Create callback functions for UI interaction
+   * @private
+   * @returns {Object} Callback object with all UI handlers
+   */
   _createCallbacks() {
     return {
       onPrevFile: () => {

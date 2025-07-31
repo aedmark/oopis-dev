@@ -1,26 +1,44 @@
 // scripts/apps/basic/basic_ui.js
+
+/**
+ * BASIC IDE User Interface - Handles the visual interface for the BASIC development environment
+ * @class BasicUI
+ */
 window.BasicUI = class BasicUI {
+  /**
+   * Create a BASIC UI instance
+   * @param {Object} callbacks - Callback functions for user interaction
+   * @param {Object} dependencies - Required dependencies
+   */
   constructor(callbacks, dependencies) {
+    /** @type {Object} DOM elements cache */
     this.elements = {};
+    /** @type {Object} Callback functions */
     this.callbacks = callbacks;
+    /** @type {Object} Injected dependencies */
     this.dependencies = dependencies;
     this._buildLayout();
   }
 
+  /**
+   * Get the main container element
+   * @returns {HTMLElement} Container DOM element
+   */
   getContainer() {
     return this.elements.container;
   }
 
+  /**
+   * Build the UI layout
+   * @private
+   */
   _buildLayout() {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Create the main application window using the toolkit
     const appWindow = UIComponents.createAppWindow('Oopis BASIC v1.0', this.callbacks.onExit);
     this.elements.container = appWindow.container;
     this.elements.main = appWindow.main;
-    // We don't use the footer in this app, but it's there for consistency!
 
-    // Add a specific class for theming
     this.elements.container.classList.add("basic-app__container");
 
     this.elements.output = Utils.createElement("div", {
@@ -43,10 +61,8 @@ window.BasicUI = class BasicUI {
         this.elements.input
     );
 
-    // Append the app-specific elements to the main area provided by the toolkit
     this.elements.main.append(this.elements.output, inputContainer);
 
-    // Add event listeners
     this.elements.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -55,9 +71,12 @@ window.BasicUI = class BasicUI {
         this.callbacks.onInput(command);
       }
     });
-    // The exit button in the header is already handled by createAppWindow
   }
 
+  /**
+   * Write text to the output without a newline
+   * @param {string} text - Text to write
+   */
   write(text) {
     if (this.elements.output) {
       this.elements.output.textContent += text;
@@ -65,6 +84,10 @@ window.BasicUI = class BasicUI {
     }
   }
 
+  /**
+   * Write text to the output with a newline
+   * @param {string} text - Text to write
+   */
   writeln(text) {
     if (this.elements.output) {
       this.elements.output.textContent += text + "\n";
@@ -72,12 +95,18 @@ window.BasicUI = class BasicUI {
     }
   }
 
+  /**
+   * Focus the input field
+   */
   focusInput() {
     if (this.elements.input) {
       this.elements.input.focus();
     }
   }
 
+  /**
+   * Reset and clean up the UI
+   */
   reset() {
     this.elements = {};
     this.callbacks = {};
