@@ -171,6 +171,26 @@ class AliasManager {
         "Aliases",
         {}
     );
+    
+    // Set up default aliases on first boot
+    if (Object.keys(this.aliases).length === 0) {
+      const defaultAliases = {
+        'll': 'ls -la',
+        'la': 'ls -a',
+        '..': 'cd ..',
+        '...': 'cd ../..',
+        'h': 'history',
+        'c': 'clear',
+        'q': 'exit',
+        'e': 'edit',
+        'ex': 'explore'
+      };
+      
+      Object.entries(defaultAliases).forEach(([name, value]) => {
+        this.aliases[name] = value;
+      });
+      this._save();
+    }
   }
 
   setAlias(name, value) {

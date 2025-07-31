@@ -17,6 +17,11 @@ window.EchoCommand = class EchoCommand extends Command {
       \\n     new line
       \\t     horizontal tab
       \\c     produce no further output (the trailing newline is suppressed)
+      BRACE EXPANSION
+      The shell supports brace expansion before passing arguments to echo:
+      {a,b,c}    Comma expansion - expands to separate arguments
+      {1..10}    Sequence expansion - numeric ranges
+      {a..z}     Sequence expansion - alphabetic ranges
       EXAMPLES
       echo Hello, world!
       Displays "Hello, world!".
@@ -24,7 +29,11 @@ window.EchoCommand = class EchoCommand extends Command {
       Displays two lines of text.
       echo "User: $USER"
       Displays the name of the current user by expanding the
-      $USER environment variable.`,
+      $USER environment variable.
+      echo file{1,2,3}.txt
+      Displays "file1.txt file2.txt file3.txt".
+      echo {1..5}
+      Displays "1 2 3 4 5".`,
             flagDefinitions: [{ name: "enableBackslashEscapes", short: "-e" }],
         });
     }

@@ -14,7 +14,45 @@
                     |__/  A Browser-Based OS Simulation
 ```
 
-# OopisOS v5.0 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
+# OopisOS v5.1 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
+
+## Recent Changes
+
+What a whirlwind of progress! Here's a breakdown of all the amazing work that has been completed. Every single item here is a step toward making our project the best it can be!
+
+###  New Features
+
+- **Default Aliases on First Boot**: To make life easier for everyone, we now automatically set up a list of handy default aliases (`ll`, `la`, `..`, `h`, `c`, `q`, `e`, `ex`) when the shell is run for the first time. It's all about efficiency and making things user-friendly!
+
+- **Brace Expansion**: We've implemented powerful shell-style brace expansion! You can now use both comma expansion (e.g., `{a,b,c}`) and sequence expansion (e.g., `{1..10}`, `{a..z}`) in your commands. This is a huge step forward for our command pre-processing pipeline!
+
+###  Bug Fixes
+
+- **Symbolic Link Deletion**: We've squashed a tricky bug! The `rm` command now correctly handles symbolic links. We've added `resolveLastSymlink: false` and specific handling for `SYMBOLIC_LINK_TYPE` in our `deleteNodeRecursive` function to make sure everything works smoothly. No more unexpected behavior!
+
+###  Refactoring
+
+- **MXML Converter**: The `mxml2sh` converter has been refactored from a modal GUI application to a sleek, efficient, command-line-only tool. We've removed all the unnecessary UI overhead while keeping all the core conversion functionality. It's leaner, meaner, and more powerful than ever!
+
+###  Testing
+
+- **Test Suite Enhancement**: To ensure our new brace expansion feature is rock-solid, we've added a comprehensive test phase to `diag.sh`. This new suite validates everything from simple comma and sequence expansions to more complex scenarios. We believe in thoroughness!
+
+---
+
+###  Changed Files
+
+Here is a summary of the files that were touched during this flurry of incredible work. This will help everyone stay on the same page.
+
+- `scripts/commands/mxml2sh.js`: Refactored from a modal app to a CLI-only implementation. All conversion logic is now directly in the command, with support for both `.musicxml` and `.mxl` files.
+
+- `scripts/session_manager.js`: Modified `AliasManager.initialize()` to set up our new default aliases on the first boot.
+
+- `scripts/fs_manager.js`: Updated the `deleteNodeRecursive()` method to properly handle symbolic links.
+
+- `scripts/commexec.js`: Added the `_expandBraces()` method to handle both sequence and comma brace expansions in the command preprocessing pipeline.
+
+- `scripts/shell/diag.sh`: Added the "Phase 25" test suite for our new brace expansion features.
 
 Welcome, friend, to OopisOS! You're about to embark on an incredible journey into a world of productivity, creativity, and cutting-edge technology, all running right here in your browser. This guide is your trusted companion, your roadmap to becoming an OopisOS power-user. Let's dive in!
 

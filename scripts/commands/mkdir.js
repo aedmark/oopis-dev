@@ -14,13 +14,22 @@ window.MkdirCommand = class MkdirCommand extends Command {
       Create parent directories as needed. If this option is not
       specified, the full path prefix of each operand must already
       exist.
+      BRACE EXPANSION
+      The shell supports brace expansion before passing arguments to mkdir:
+      {a,b,c}    Comma expansion - creates multiple directories
+      {1..10}    Sequence expansion - numeric ranges
+      {a..z}     Sequence expansion - alphabetic ranges
       EXAMPLES
       mkdir documents
       Creates a new directory named 'documents' in the current
       directory.
       mkdir -p projects/assets/images
       Creates the 'projects', 'assets', and 'images' directories
-      if they do not already exist.`,
+      if they do not already exist.
+      mkdir {dir1,dir2,dir3}
+      Creates three directories: dir1, dir2, and dir3.
+      mkdir test{1..5}
+      Creates five directories: test1, test2, test3, test4, test5.`,
       completionType: "paths",
       flagDefinitions: [
         {

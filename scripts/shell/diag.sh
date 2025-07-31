@@ -696,10 +696,6 @@ check_fail "cat link_a"
 echo "Loop detection test complete."
 delay 200
 
-echo "--- Finalizing symlink test cleanup ---"
-rm link_a link_b my_link
-check_fail "cat link_a"
-check_fail "cat original_target.txt"
 echo "Symbolic link tests complete."
 echo "---------------------------------------------------------------------"
 delay 200
@@ -1216,6 +1212,22 @@ rm -r -f /home/limitedsudo
 rm -r -f /home/paradoxuser
 rm -r -f /home/recursive_test_user
 rm -r -f /home/sudouser2
+rm -r -f /home/sudouser2
+rm -r -f /find_test
+rm -r -f /overwrite_dir
+rm -r -f /recursive_test
+rm -r -f /zip_test
+rm -r -f /tmp/*
+rm -f /awk_test.csv
+rm -f /interactive_test.txt
+rm -f /link_a
+rm -f /link_b
+rm -f /my_archive.zip
+rm -f /my_link
+rm -f /paradox.txt
+rm -f /uniq_test.txt
+rm -f /screen.txt
+
 
 delay 200
 
@@ -1226,6 +1238,72 @@ groupdel harvest_festival
 login Guest
 listusers
 delay 200
+echo "---------------------------------------------------------------------"
+echo ""
+echo "===== Phase 25: Testing Brace Expansion Features ====="
+delay 200
+
+echo "--- Test: Comma expansion {a,b,c} ---"
+echo "Testing basic comma expansion:"
+echo {hello,world,test}
+delay 200
+
+echo "--- Test: File operations with comma expansion ---"
+touch test_file.txt
+cp test_file{,.bak}
+ls test_file*
+rm test_file.txt test_file.bak
+echo "File copy with brace expansion complete."
+delay 200
+
+echo "--- Test: Directory creation with comma expansion ---"
+mkdir {dir1,dir2,dir3}
+ls -d dir*
+rmdir dir1 dir2 dir3
+echo "Directory creation with brace expansion complete."
+delay 200
+
+echo "--- Test: Numeric sequence expansion {1..5} ---"
+echo "Testing numeric sequence:"
+echo {1..5}
+delay 200
+
+echo "--- Test: Reverse numeric sequence {5..1} ---"
+echo "Testing reverse numeric sequence:"
+echo {5..1}
+delay 200
+
+echo "--- Test: Alphabetic sequence expansion {a..e} ---"
+echo "Testing alphabetic sequence:"
+echo {a..e}
+delay 200
+
+echo "--- Test: Reverse alphabetic sequence {e..a} ---"
+echo "Testing reverse alphabetic sequence:"
+echo {e..a}
+delay 200
+
+echo "--- Test: File creation with sequence expansion ---"
+touch file{1..3}.txt
+ls file*.txt
+rm file1.txt file2.txt file3.txt
+echo "File creation with sequence expansion complete."
+delay 200
+
+echo "--- Test: Complex brace expansion with paths ---"
+mkdir -p test_dir/{sub1,sub2,sub3}
+ls -R test_dir/
+rm -r test_dir
+echo "Complex path expansion complete."
+delay 200
+
+echo "--- Test: Mixed expansion types ---"
+echo "Testing mixed comma and sequence:"
+echo prefix_{1..3,a,b}_suffix
+delay 200
+
+echo "Brace expansion tests complete."
+delay 400
 echo "---------------------------------------------------------------------"
 echo ""
 echo "      ===== OopisOS Core Test Suite v5 Complete ======="

@@ -24,6 +24,11 @@ window.CpCommand = class CpCommand extends Command {
       modification time.
       -r, -R, --recursive
       Copy directories recursively.
+      BRACE EXPANSION
+      The shell supports brace expansion before passing arguments to cp:
+      {a,b,c}    Comma expansion - operates on multiple files
+      {1..10}    Sequence expansion - numeric ranges
+      {a..z}     Sequence expansion - alphabetic ranges
       EXAMPLES
       cp file1.txt file2.txt
       Copies the content of file1.txt to file2.txt.
@@ -32,7 +37,11 @@ window.CpCommand = class CpCommand extends Command {
       file with the same name exists.
       cp -r project/ backup/
       Recursively copies the entire 'project' directory into the
-      'backup' directory.`,
+      'backup' directory.
+      cp file{,.bak}
+      Creates a backup copy: expands to 'cp file file.bak'.
+      cp {doc1,doc2,doc3}.txt backup/
+      Copies doc1.txt, doc2.txt, and doc3.txt to backup directory.`,
             completionType: "paths",
             flagDefinitions: [
                 { name: "recursive", short: "-r", long: "--recursive", aliases: ["-R"] },

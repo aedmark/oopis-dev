@@ -555,6 +555,7 @@ class FileSystemManager {
     const { force = false, currentUser } = options;
     const pathValidationResult = this.validatePath(path, {
       disallowRoot: true,
+      resolveLastSymlink: false
     });
     if (!pathValidationResult.success) {
       if (force && !pathValidationResult.data?.node) {
@@ -579,6 +580,16 @@ class FileSystemManager {
       const permError = `cannot remove '${path}'${this.config.MESSAGES.PERMISSION_DENIED_SUFFIX}`;
       return ErrorHandler.createError(permError);
     }
+    
+    // Handle symbolic links - just delete them without following
+    if (node.type === this.config.FILESYSTEM.SYMBOLIC_LINK_TYPE) {
+      delete parentNode.children[itemName];
+      parentNode.mtime = nowISO;
+      anyChangeMade = true;
+      return ErrorHandler.createSuccess({ messages, anyChangeMade });
+    }
+    
+    // Handle directories - recursively delete contents
     if (node.type === this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
       if (node.children && typeof node.children === "object") {
         const childrenNames = Object.keys(node.children);
@@ -597,6 +608,8 @@ class FileSystemManager {
         );
       }
     }
+    
+    // Delete the node itself (files, empty directories, etc.)
     delete parentNode.children[itemName];
     parentNode.mtime = nowISO;
     anyChangeMade = true;

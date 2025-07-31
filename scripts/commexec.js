@@ -613,9 +613,51 @@ class CommandExecutor {
     return lastResult;
   }
 
+  _expandBraces(commandString) {
+    // Handle sequence expansion {1..10} or {a..z}
+    commandString = commandString.replace(/\{(\w+)\.\.(\w+)\}/g, (match, start, end) => {
+      const startNum = parseInt(start);
+      const endNum = parseInt(end);
+      
+      if (!isNaN(startNum) && !isNaN(endNum)) {
+        // Numeric sequence
+        const result = [];
+        const step = startNum <= endNum ? 1 : -1;
+        for (let i = startNum; step > 0 ? i <= endNum : i >= endNum; i += step) {
+          result.push(i);
+        }
+        return result.join(' ');
+      } else if (start.length === 1 && end.length === 1) {
+        // Character sequence
+        const startCode = start.charCodeAt(0);
+        const endCode = end.charCodeAt(0);
+        const result = [];
+        const step = startCode <= endCode ? 1 : -1;
+        for (let i = startCode; step > 0 ? i <= endCode : i >= endCode; i += step) {
+          result.push(String.fromCharCode(i));
+        }
+        return result.join(' ');
+      }
+      return match; // No expansion
+    });
+    
+    // Handle comma expansion {item1,item2,item3}
+    commandString = commandString.replace(/\{([^}]+)\}/g, (match, content) => {
+      if (content.includes(',')) {
+        return content.split(',').map(item => item.trim()).join(' ');
+      }
+      return match; // No expansion
+    });
+    
+    return commandString;
+  }
+
   async _preprocessCommandString(rawCommandText, scriptingContext = null) {
     const { EnvironmentManager, AliasManager } = this.dependencies;
     let commandToProcess = rawCommandText.trim();
+    
+    // Handle brace expansion
+    commandToProcess = this._expandBraces(commandToProcess);
 
     // Handle `VAR=$(...)` style command substitution and assignment
     const assignmentSubstitutionRegex = /^([a-zA-Z_][a-zA-Z0-9_]*)=\$\(([^)]+)\)$/;
