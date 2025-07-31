@@ -39,15 +39,17 @@ testpass
 echo "Creating groups: testgroup, recursive_test_group, harvest_festival..."
 groupadd testgroup
 groupadd recursive_test_group
-groupadd harvest_festival
 delay 200
 
 echo "Setting up primary diagnostic workspace..."
 mkdir -p /home/diagUser/diag_workspace/
+# The owner is the diagnostic user
 chown diagUser /home/diagUser/diag_workspace/
-chgrp diagUser /home/diagUser/diag_workspace/
+# The group must be 'testgroup' so 'testuser' can enter
+chgrp testgroup /home/diagUser/diag_workspace/
+# Permissions allow owner (diagUser) and group (testgroup) full access
 chmod 770 /home/diagUser/diag_workspace/
-# Also set permissions on home directory to allow other test users to enter
+# Permissions on the parent directory must allow others to pass through
 chmod 755 /home/diagUser
 
 echo "sudouser ALL" >> /etc/sudoers
@@ -86,9 +88,9 @@ echo "file one content" > zip_test/file1.txt
 echo "nested file content" > zip_test/nested_dir/file2.txt
 delay 200
 echo "Scripting assets..."
-echo '#!/bin/oopis_shell' > arg_test.sh
-echo 'echo "Arg 1: $1, Arg 2: $2, Arg Count: $#, All Args: $@" ' >> arg_test.sh
-chmod 700 arg_test.sh
+echo '#!/bin/oopis_shell' > /home/root/arg_test.sh
+echo 'echo "Arg 1: $1, Arg 2: $2, Arg Count: $#, All Args: $@" ' >> /home/root/arg_test.sh
+chmod 777 /home/root/arg_test.sh
 delay 200
 echo "Sorting assets..."
 touch -d "2 days ago" old.ext
@@ -185,8 +187,7 @@ cat group_test_file.txt
 echo "--- Test: 'Other' permissions (should fail) ---"
 logout
 su Guest
-cd /home/diagUser/diag_workspace
-check_fail "echo 'Append by other user' >> group_test_file.txt"
+check_fail "echo 'Append by other user' >> /home/diagUser/diag_workspace/group_test_file.txt"
 delay 200
 echo "--- Test: Permission Edge Cases ---"
 logout
@@ -194,7 +195,6 @@ su testuser testpass
 check_fail "chmod 777 /home/diagUser/diag_workspace/group_test_file.txt"
 check_fail "cd /tmp/no_exec_dir"
 delay 200
-chmod 700 /home/diagUser
 logout
 delay 200
 su diagUser testpass
@@ -206,6 +206,7 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 4.5: Testing Recursive Ownership & Group Permissions ====="
 delay 200
+logout
 mkdir -p /home/Guest/recursive_chown_test/subdir
 echo "level 1 file" > /home/Guest/recursive_chown_test/file1.txt
 echo "level 2 file" > /home/Guest/recursive_chown_test/subdir/file2.txt
@@ -224,8 +225,6 @@ chgrp -R recursive_test_group /home/Guest/recursive_chown_test
 echo "State after recursive chgrp:"
 ls -lR /home/Guest/recursive_chown_test
 delay 400
-logout
-su Guest
 echo "Recursive ownership tests complete."
 delay 400
 echo "---------------------------------------------------------------------"
@@ -249,7 +248,6 @@ echo "I solemnly swear to bring a pie." > /home/project_harvest_festival/plan.tx
 cat /home/project_harvest_festival/plan.txt
 delay 400
 echo "--- Test: Non-member access (should fail) ---"
-logout
 su Guest
 check_fail "ls /home/project_harvest_festival"
 check_fail "cat /home/project_harvest_festival/plan.txt"
@@ -283,7 +281,7 @@ delay 200
 echo "Attempting disallowed specific command (rm)..."
 check_fail "sudo rm -f /home/Guest/README.md"
 logout
-su diagUser
+su diagUser testpass
 cd /home/diagUser/diag_workspace
 echo "Granular sudo test complete."
 delay 400
@@ -292,6 +290,8 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase 7: Testing Scripting & Process Management ====="
 delay 200
+logout
+cd /home/root
 echo "--- Test: Script argument passing ---"
 run ./arg_test.sh first "second arg" third
 echo "--- Test: Background jobs (ps, kill) ---"

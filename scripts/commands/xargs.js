@@ -53,7 +53,7 @@ window.XargsCommand = class XargsCommand extends Command {
     }
 
     if (flags.replace) {
-      // Logic for -I flag remains the same, as it processes one item at a time.
+      // Logic for -I flag (this part is already correct)
       const placeholder = flags.replace;
       for (const item of itemsFromInput) {
         const commandWithReplacement = baseCommandParts
@@ -72,15 +72,17 @@ window.XargsCommand = class XargsCommand extends Command {
         }
       }
     } else {
-      const maxArgs = flags.maxArgs ? parseInt(flags.maxArgs, 10) : 128; // Default batch size
+      // Instead of creating one giant command, we create one command per input item.
+      // This is safer and avoids the validation issue in `rm`.
       const baseCommand = baseCommandParts.join(" ");
+      for (const item of itemsFromInput) {
+        // Construct the command safely, quoting the item if it contains spaces.
+        const quotedItem = /\s/.test(item) ? `"${item}"` : item;
+        const fullCommand = `${baseCommand} ${quotedItem}`;
 
-      for (let i = 0; i < itemsFromInput.length; i += maxArgs) {
-        const batch = itemsFromInput.slice(i, i + maxArgs);
-        const fullCommand = `${baseCommand} ${batch.map(item => `"${item}"`).join(" ")}`;
         const result = await CommandExecutor.processSingleCommand(fullCommand, options);
         if (!result.success) {
-          // Stop on the first error, just like the original logic
+          // Stop on the first error, which is the expected behavior.
           return ErrorHandler.createError(result.error);
         }
       }
