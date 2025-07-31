@@ -55,20 +55,22 @@ window.DelayCommand = class DelayCommand extends Command {
 
         const delayPromise = new Promise((resolve) => setTimeout(resolve, ms));
 
-        const abortPromise = new Promise((_, reject) => {
+        const abortPromise = new Promise((resolve) => {
             if (!signal) return;
             signal.addEventListener(
                 "abort",
                 () => {
-                    reject(
-                        new Error(`Operation cancelled. (Reason: ${signal.reason})`)
-                    );
+                    resolve("cancelled");
                 },
                 { once: true }
             );
         });
 
-        await Promise.race([delayPromise, abortPromise]);
+        const result = await Promise.race([delayPromise, abortPromise]);
+        
+        if (result === "cancelled") {
+            return ErrorHandler.createSuccess("");
+        }
 
         if (options.isInteractive && !options.scriptingContext) {
             await OutputManager.appendToOutput(`Delay complete.`);

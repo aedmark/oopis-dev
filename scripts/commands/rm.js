@@ -109,9 +109,7 @@ window.RmCommand = class RmCommand extends Command {
         if (deleteResult.data.anyChangeMade) anyChangeMade = true;
       } else {
         allSuccess = false;
-        messages.push(
-            ...(deleteResult.error.messages || [deleteResult.error])
-        );
+        messages.push(deleteResult.error || "Unknown error during rm operation.");
       }
     }
 

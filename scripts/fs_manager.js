@@ -531,9 +531,7 @@ class FileSystemManager {
       if (force && !pathValidationResult.data?.node) {
         return ErrorHandler.createSuccess({ messages: [] });
       }
-      return ErrorHandler.createError({
-        messages: [pathValidationResult.error],
-      });
+      return ErrorHandler.createError(pathValidationResult.error);
     }
     const { node, resolvedPath } = pathValidationResult.data;
     const parentPath =
@@ -550,7 +548,7 @@ class FileSystemManager {
     let anyChangeMade = false;
     if (!parentNode || !this.hasPermission(parentNode, currentUser, "write")) {
       const permError = `cannot remove '${path}'${this.config.MESSAGES.PERMISSION_DENIED_SUFFIX}`;
-      return ErrorHandler.createError({ messages: force ? [] : [permError] });
+      return ErrorHandler.createError(permError);
     }
     if (node.type === this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
       if (node.children && typeof node.children === "object") {
@@ -559,8 +557,8 @@ class FileSystemManager {
           const childPath = this.getAbsolutePath(childName, resolvedPath);
           const result = await this.deleteNodeRecursive(childPath, options);
           if (!result.success) {
-            messages.push(...result.error.messages);
-            return ErrorHandler.createError({ messages });
+            messages.push(result.error);
+            return ErrorHandler.createError(messages.join('\n'));
           }
         }
       } else {

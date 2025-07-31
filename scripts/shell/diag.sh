@@ -78,7 +78,6 @@ echo -e "apple\nbanana\napple\napple\norange\nbanana" > uniq_test.txt
 echo -e "id,value,status\n1,150,active\n2,80,inactive\n3,200,active" > awk_test.csv
 echo "Generating xargs assets..."
 delay 200
-touch file1.tmp file2.tmp file3.tmp
 echo "Finding assets..."
 touch find_test/a.txt find_test/b.tmp find_test/subdir/c.tmp
 chmod 777 find_test/a.txt
@@ -322,6 +321,11 @@ grep -i "FOX" text_file.txt
 grep -c "quick" text_file.txt
 grep -v "cat" text_file.txt
 echo "--- Test: xargs and pipe awareness ---"
+logout
+su diagUser testpass
+cd /home/diagUser/diag_workspace
+rm -f file1.tmp file2.tmp file3.tmp
+touch file1.tmp file2.tmp file3.tmp
 ls -1 *.tmp | xargs rm
 check_fail "ls file1.tmp"
 echo "xargs deletion verified."
@@ -332,11 +336,19 @@ echo ""
 echo "===== Phase 9: Testing 'find' and Archival (zip/unzip) ====="
 delay 200
 echo "--- Test: find by name, type, and permissions ---"
+logout
+cd /
+mkdir -p find_test/subdir
+touch find_test/a.txt find_test/b.tmp find_test/subdir/c.tmp
+chmod 777 find_test/a.txt
 find find_test -name "*.tmp"
 find find_test -type d
 find find_test -perm 777
 delay 400
 echo "--- Test: zip/unzip ---"
+mkdir -p zip_test/nested_dir
+echo "file one content" > zip_test/file1.txt
+echo "nested file content" > zip_test/nested_dir/file2.txt
 zip my_archive.zip ./zip_test
 rm -r -f zip_test
 unzip my_archive.zip .
@@ -432,16 +444,21 @@ echo ""
 echo "===== Phase 12: Testing Underrepresented Commands (Data/System) ====="
 delay 200
 echo "--- Test: uniq (-d, -u) ---"
+echo -e "apple\nbanana\napple\napple\norange\nbanana" > uniq_test.txt
 sort uniq_test.txt | uniq -d
 sort uniq_test.txt | uniq -u
 echo "--- Test: awk scripting ---"
 echo "Printing active users with values over 100 from csv"
+echo -e "id,value,status\n1,150,active\n2,80,inactive\n3,200,active" > awk_test.csv
 awk -F, '/,active/ { print "User " $1 " is " $3 }' awk_test.csv
 echo "--- Test: shuf (-i, -e) ---"
 shuf -i 1-5 -n 3
 shuf -e one two three four five
 delay 400
 echo "--- Test: tree (-L, -d) ---"
+mkdir -p recursive_test/level2/level3
+echo "I am a secret" > recursive_test/secret.txt
+echo "I am a deeper secret" > recursive_test/level2/level3/deep_secret.txt
 tree -L 2 ./recursive_test
 tree -d ./recursive_test
 echo "--- Test: du (recursive) and grep (-R) ---"
@@ -586,6 +603,7 @@ rm set_var.sh
 echo "Scripting scope test complete."
 delay 200
 echo "--- Test: 'find' and 'xargs' with spaced filenames ---"
+rm -f "a file with spaces.tmp"
 touch "a file with spaces.tmp"
 find . -name "*.tmp" | xargs rm
 check_fail "ls \"a file with spaces.tmp\""
@@ -932,8 +950,7 @@ chown paradoxuser paradox.txt
 chmod 000 paradox.txt
 logout
 su paradoxuser testpass
-cd /home/diagUser/diag_workspace
-check_fail "cat paradox.txt"
+check_fail "cat /paradox.txt"
 echo "Permission paradox test complete."
 delay 200
 logout
@@ -1094,6 +1111,7 @@ echo "Special characters test complete."
 delay 200
 
 echo "--- Test: xargs with Quoted Arguments ---"
+rm -f "a file with spaces.tmp" "a file with spaces.tmp.bak"
 touch "a file with spaces.tmp"
 ls *.tmp | xargs -I {} mv {} {}.bak
 ls *.bak
