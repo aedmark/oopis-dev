@@ -287,7 +287,7 @@ class CommandExecutor {
           if (!result.success) {
             // If a command fails in the script, we throw an error.
             // This will be caught by the try...catch in the 'run' command's coreLogic.
-            throw new Error(`Error on line ${i + 1}: ${result.error}`);
+            throw new Error(`Error on line ${i + 1}: ${result.error || 'Unknown error'}`);
           }
         }
       }

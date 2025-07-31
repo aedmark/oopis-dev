@@ -949,6 +949,38 @@ echo "Binder command suite test complete."
 delay 400
 echo "---------------------------------------------------------------------"
 
+echo ""
+echo "===== Phase 24: Testing Agenda Command (Non-Interactive) ====="
+delay 200
+
+echo "--- Test: Scheduling a job with sudo ---"
+# Use sudo to add a job. The daemon should start as root.
+sudo agenda add "* * * * *" "echo agenda_test"
+delay 2000 # Give the daemon a moment to process and save
+
+echo "--- Test: Listing the job ---"
+# Anyone should be able to list the jobs.
+agenda list
+
+echo "--- Test: Verifying schedule file ownership (should be root) ---"
+# The agenda.json file must be owned by root.
+ls -l /etc/agenda.json
+
+echo "--- Test: Removing the job with sudo ---"
+# Removing a job also requires root privileges.
+sudo agenda remove 1
+delay 500 # Give the daemon time to process the removal
+
+echo "--- Test: Verifying job removal ---"
+agenda list
+
+# Clean up the test file
+rm /etc/agenda.json
+
+echo "Agenda command test complete."
+delay 400
+echo "---------------------------------------------------------------------"
+
 echo "===== Phase X: Testing Filesystem Torture & I/O Gauntlet ====="
 delay 200
 
