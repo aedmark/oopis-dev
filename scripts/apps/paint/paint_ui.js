@@ -16,15 +16,44 @@ window.PaintUI = class PaintUI {
   _buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
-    // 1. Create the main application window using the toolkit
-    const appWindow = UIComponents.createAppWindow('Oopis Paint', this.managerCallbacks.onExitRequest);
-    this.elements.container = appWindow.container;
-    this.elements.header = appWindow.header;
-    this.elements.main = appWindow.main;
-    this.elements.footer = appWindow.footer;
+    // Check if we're in windowed mode (inside desktop)
+    const isWindowed = this.dependencies.isWindowed;
+    
+    if (isWindowed) {
+      // In windowed mode, create a simple container without app window chrome
+      this.elements.container = Utils.createElement('div', {
+        id: 'oopis-paint-app-container',
+        className: 'paint-windowed-container',
+        style: 'width: 100%; height: 100%; display: flex; flex-direction: column;'
+      });
+      
+      this.elements.header = Utils.createElement('div', {
+        className: 'paint-toolbar',
+        style: 'flex-shrink: 0;'
+      });
+      
+      this.elements.main = Utils.createElement('div', {
+        className: 'paint-main-content',
+        style: 'flex: 1; overflow: hidden;'
+      });
+      
+      this.elements.footer = Utils.createElement('div', {
+        className: 'paint-statusbar',
+        style: 'flex-shrink: 0;'
+      });
+      
+      this.elements.container.append(this.elements.header, this.elements.main, this.elements.footer);
+    } else {
+      // 1. Create the main application window using the toolkit
+      const appWindow = UIComponents.createAppWindow('Oopis Paint', this.managerCallbacks.onExitRequest);
+      this.elements.container = appWindow.container;
+      this.elements.header = appWindow.header;
+      this.elements.main = appWindow.main;
+      this.elements.footer = appWindow.footer;
 
-    // Add a specific class for theming
-    this.elements.container.id = 'oopis-paint-app-container';
+      // Add a specific class for theming
+      this.elements.container.id = 'oopis-paint-app-container';
+    }
 
     // 2. Create and assemble the toolbar elements
     const createToolBtn = (name, key, label) => UIComponents.createButton({
@@ -68,13 +97,16 @@ window.PaintUI = class PaintUI {
     this.elements.zoomOutBtn = UIComponents.createButton({ text: "-" });
     const zoomGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.zoomOutBtn, this.elements.zoomInBtn]);
 
-    // **Grab the exit button before we change anything!**
-    const exitBtn = appWindow.header.querySelector('.app-header__exit-btn');
-
-    // Add all toolbar items to the header from the toolkit
-    appWindow.header.classList.add("paint-toolbar");
-    appWindow.header.innerHTML = ''; // Clear default header content
-    appWindow.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup, exitBtn);
+    if (!isWindowed) {
+      // **Grab the exit button before we change anything!**
+      const exitBtn = this.elements.header.querySelector('.app-header__exit-btn');
+      // Add all toolbar items to the header from the toolkit
+      this.elements.header.innerHTML = ''; // Clear default header content
+      this.elements.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup, exitBtn);
+    } else {
+      // In windowed mode, just add the toolbar items without exit button
+      this.elements.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup);
+    }
 
 
     // 3. Create the main drawing area
@@ -93,7 +125,6 @@ window.PaintUI = class PaintUI {
     this.elements.statusBrush = Utils.createElement("span");
     this.elements.statusCoords = Utils.createElement("span");
     this.elements.statusZoom = Utils.createElement("span");
-    this.elements.footer.classList.add("paint-statusbar");
     this.elements.footer.append(this.elements.statusTool, this.elements.statusChar, this.elements.statusBrush, this.elements.statusCoords, this.elements.statusZoom);
 
     // 5. Final setup

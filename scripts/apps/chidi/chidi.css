@@ -49,7 +49,6 @@
     color: var(--color-info);
 }
 
-/* ... (other markdown styles remain the same) ... */
 .chidi-markdown-content a { color: var(--color-text-link); text-decoration: none; }
 .chidi-markdown-content a:hover { text-decoration: underline; }
 .chidi-markdown-content code:not(pre > code) { background-color: var(--color-background-medium); color: #fde047; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.9em; }

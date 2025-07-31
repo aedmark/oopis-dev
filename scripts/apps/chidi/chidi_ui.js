@@ -1,27 +1,48 @@
 // scripts/apps/chidi/chidi_ui.js
+
+/**
+ * Chidi User Interface - Handles the visual interface for the document analyst
+ * @class ChidiUI
+ */
 window.ChidiUI = class ChidiUI {
+  /**
+   * Create a Chidi UI instance
+   * @param {Object} initialState - Initial application state
+   * @param {Object} callbacks - Callback functions for user interaction
+   * @param {Object} dependencies - Required dependencies
+   */
   constructor(initialState, callbacks, dependencies) {
+    /** @type {Object} DOM elements cache */
     this.elements = {};
+    /** @type {Object} Callback functions */
     this.callbacks = callbacks;
+    /** @type {Object} Injected dependencies */
     this.dependencies = dependencies;
 
     this._buildAndShow(initialState);
   }
 
+  /**
+   * Get the main container element
+   * @returns {HTMLElement} Container DOM element
+   */
   getContainer() {
     return this.elements.container;
   }
 
+  /**
+   * Build and show the UI layout
+   * @private
+   * @param {Object} initialState - Initial application state
+   */
   _buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Create the main application window using the toolkit
     const appWindow = UIComponents.createAppWindow('chidi.md', this.callbacks.onClose);
     this.elements.container = appWindow.container;
     this.elements.main = appWindow.main;
     this.elements.footer = appWindow.footer;
 
-    // --- Header Content ---
     const headerControlsLeft = Utils.createElement(
         "div",
         { id: "chidi-nav-controls", className: "chidi-control-group" },
@@ -39,7 +60,7 @@ window.ChidiUI = class ChidiUI {
         ]
     );
 
-    this.elements.mainTitle = appWindow.header.querySelector('.app-header__title'); // Get title from toolkit
+    this.elements.mainTitle = appWindow.header.querySelector('.app-header__title');
 
     const headerControlsRight = Utils.createElement(
         "div",
@@ -63,20 +84,16 @@ window.ChidiUI = class ChidiUI {
         ]
     );
 
-    // Insert controls into the main app header
     appWindow.header.insertBefore(headerControlsLeft, this.elements.mainTitle);
     appWindow.header.appendChild(headerControlsRight);
 
 
-    // --- Main Content ---
     this.elements.markdownDisplay = Utils.createElement("main", {
       id: "chidi-markdownDisplay",
       className: "chidi-markdown-content",
     });
     this.elements.main.appendChild(this.elements.markdownDisplay);
 
-
-    // --- Footer Content ---
     this.elements.fileCountDisplay = Utils.createElement("div", {
       id: "chidi-fileCountDisplay",
       className: "chidi-status-item",
@@ -106,7 +123,6 @@ window.ChidiUI = class ChidiUI {
         ]
     );
 
-    // Populate the footer provided by the toolkit
     this.elements.footer.append(this.elements.fileCountDisplay, this.elements.messageBox, footerControls);
 
 
@@ -114,12 +130,19 @@ window.ChidiUI = class ChidiUI {
     this.update(initialState);
   }
 
+  /**
+   * Hide the UI and clean up resources
+   */
   hideAndReset() {
     this.elements = {};
     this.callbacks = {};
     this.dependencies = {};
   }
 
+  /**
+   * Update the UI with new state
+   * @param {Object} state - Current application state
+   */
   update(state) {
     if (!this.elements.container) return;
     const { Utils } = this.dependencies;
@@ -160,8 +183,11 @@ window.ChidiUI = class ChidiUI {
     }
   }
 
+  /**
+   * Set up event listeners for UI interactions
+   * @private
+   */
   _setupEventListeners() {
-    // The main exit button is handled by the toolkit
     this.elements.exportBtn.addEventListener("click", this.callbacks.onExport);
     this.elements.prevBtn.addEventListener("click", this.callbacks.onPrevFile);
     this.elements.nextBtn.addEventListener("click", this.callbacks.onNextFile);
@@ -182,10 +208,19 @@ window.ChidiUI = class ChidiUI {
     );
   }
 
+  /**
+   * Show a status message
+   * @param {string} msg - Message to display
+   */
   showMessage(msg) {
     if (this.elements.messageBox) this.elements.messageBox.textContent = `֎ ${msg}`;
   }
 
+  /**
+   * Append AI-generated output to the display
+   * @param {string} title - Output section title
+   * @param {string} content - AI-generated content
+   */
   appendAiOutput(title, content) {
     const outputBlock = this.dependencies.Utils.createElement("div", {
       className: "chidi-ai-output",
@@ -198,11 +233,20 @@ window.ChidiUI = class ChidiUI {
     this.showMessage(`AI Response received for "${title}".`);
   }
 
+  /**
+   * Toggle the loading indicator
+   * @param {boolean} show - Whether to show the loader
+   */
   toggleLoader(show) {
     if (this.elements.loader)
       this.elements.loader.classList.toggle("chidi-hidden", !show);
   }
 
+  /**
+   * Package the current session as HTML for export
+   * @param {Object} state - Current application state
+   * @returns {string} HTML content for export
+   */
   packageSessionAsHTML(state) {
     const { Utils } = this.dependencies;
     const currentFile = state.loadedFiles[state.currentIndex];

@@ -87,4 +87,43 @@ window.WindowManager = class WindowManager {
             this.callbacks.onWindowFocused(windowId);
         }
     }
+
+    /**
+     * Store additional data with a window (like app instance)
+     * @param {string} windowId - The ID of the window
+     * @param {object} data - Data to store
+     */
+    setWindowData(windowId, data) {
+        const windowData = this.windows.get(windowId);
+        if (windowData) {
+            windowData.appData = { ...windowData.appData, ...data };
+        }
+    }
+
+    /**
+     * Get stored data for a window
+     * @param {string} windowId - The ID of the window
+     * @returns {object} Stored data
+     */
+    getWindowData(windowId) {
+        const windowData = this.windows.get(windowId);
+        return windowData?.appData || {};
+    }
+
+    /**
+     * Close a window (alias for destroyWindow)
+     * @param {string} windowId - The ID of the window to close
+     */
+    closeWindow(windowId) {
+        const windowData = this.windows.get(windowId);
+        if (windowData?.appData?.appInstance) {
+            // If there's an app instance, call its exit method
+            try {
+                windowData.appData.appInstance.exit();
+            } catch (e) {
+                console.warn('Error calling app exit:', e);
+            }
+        }
+        this.destroyWindow(windowId);
+    }
 }

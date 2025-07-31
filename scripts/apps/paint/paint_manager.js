@@ -12,15 +12,24 @@ window.PaintManager = class PaintManager extends App {
     if (this.isActive) return;
     this.dependencies = options.dependencies;
     this.callbacks = this._createCallbacks();
+    this.isWindowed = options.dependencies.isWindowed || false;
 
     this.state = this._createInitialState(
-        options.filePath,
-        options.fileContent
+        options.dependencies.filePath,
+        options.dependencies.fileContent
     );
     this.isActive = true;
 
     this.ui = new this.dependencies.PaintUI(this.state, this.callbacks, this.dependencies);
     this.container = this.ui.getContainer();
+    
+    // Adjust container for windowed mode
+    if (this.isWindowed) {
+      this.container.style.width = '100%';
+      this.container.style.height = '100%';
+      this.container.style.overflow = 'hidden';
+    }
+    
     appLayer.appendChild(this.container);
     this.container.focus();
   }
@@ -32,7 +41,9 @@ window.PaintManager = class PaintManager extends App {
       if (this.ui) {
         this.ui.hideAndReset();
       }
-      AppLayerManager.hide(this);
+      if (AppLayerManager) {
+        AppLayerManager.hide(this);
+      }
       this.isActive = false;
       this.state = {};
       this.ui = null;
@@ -76,6 +87,8 @@ window.PaintManager = class PaintManager extends App {
   }
 
   _createInitialState(filePath, fileContent) {
+    console.log('PaintManager: Creating initial state', { filePath, hasContent: !!fileContent, contentLength: fileContent?.length });
+    
     const initialState = {
       isActive: true,
       isLocked: false,
@@ -102,15 +115,20 @@ window.PaintManager = class PaintManager extends App {
     };
 
     if (fileContent) {
+      console.log('PaintManager: Processing file content:', fileContent.substring(0, 100));
       try {
         const parsed = JSON.parse(fileContent);
+        console.log('PaintManager: Parsed content:', parsed);
         if (parsed.dimensions && parsed.cells) {
           initialState.canvasDimensions = parsed.dimensions;
           initialState.canvasData = parsed.cells;
+          console.log('PaintManager: Loaded canvas data', { dimensions: parsed.dimensions, cellCount: parsed.cells.length });
         }
       } catch (e) {
         console.error("PaintManager: Error parsing .oopic file.", e);
       }
+    } else {
+      console.log('PaintManager: No file content, creating blank canvas');
     }
 
     if (initialState.canvasData.length === 0) {

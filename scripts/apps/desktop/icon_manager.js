@@ -5,9 +5,12 @@ window.IconManager = class IconManager {
         this.dependencies = dependencies;
         this.callbacks = callbacks;
         this.ui = new this.dependencies.IconUI({
-            onDoubleClick: (path) => this.callbacks.onIconDoubleClick(path)
+            onDoubleClick: (path) => this.callbacks.onIconDoubleClick(path),
+            onClick: (path, element) => this.callbacks.onIconClick?.(path, element),
+            onRightClick: (path, element, event) => this.callbacks.onIconRightClick?.(path, element, event)
         }, this.dependencies);
         this.icons = [];
+        this.desktopUI = null; // Will be set by desktop manager
     }
 
     async loadIcons() {
@@ -31,6 +34,14 @@ window.IconManager = class IconManager {
                 this.icons.push({ element: iconElement, data: iconData });
             });
         }
+        
+        // Hide welcome message if we have icons
+        if (this.icons.length > 0 && this.desktopUI) {
+            this.desktopUI.hideWelcomeMessage();
+        } else if (this.icons.length === 0 && this.desktopUI) {
+            this.desktopUI.showWelcomeMessage();
+        }
+        
         this.arrangeIcons();
     }
 
@@ -48,5 +59,27 @@ window.IconManager = class IconManager {
             icon.element.style.left = `${PADDING + col * ICON_WIDTH}px`;
             icon.element.style.top = `${PADDING + row * ICON_HEIGHT}px`;
         });
+    }
+
+    getIconByPath(path) {
+        return this.icons.find(icon => icon.data.path === path);
+    }
+
+    clearIcons() {
+        this.icons.forEach(icon => {
+            if (icon.element.parentNode) {
+                icon.element.parentNode.removeChild(icon.element);
+            }
+        });
+        this.icons = [];
+        
+        // Show welcome message when no icons
+        if (this.desktopUI) {
+            this.desktopUI.showWelcomeMessage();
+        }
+    }
+    
+    setDesktopUI(desktopUI) {
+        this.desktopUI = desktopUI;
     }
 }

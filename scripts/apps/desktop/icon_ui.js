@@ -18,6 +18,15 @@ window.IconUI = class IconUI {
         }, [iconImg, iconLabel]);
 
         iconDiv.addEventListener('dblclick', () => this.callbacks.onDoubleClick(fileData.path));
+        iconDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.callbacks.onClick?.(fileData.path, iconDiv);
+        });
+        iconDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.callbacks.onRightClick?.(fileData.path, iconDiv, e);
+        });
 
         // --- NEW: Dragging Logic ---
         let isDragging = false;
@@ -66,12 +75,20 @@ window.IconUI = class IconUI {
     _getIconForFile(fileName) {
         const { Utils } = this.dependencies;
         const ext = Utils.getFileExtension(fileName);
+        
+        // Check if it's a directory first
+        if (!ext || fileName.indexOf('.') === -1) {
+            return '📁'; // Folder icon
+        }
+        
         switch (ext) {
             case 'txt': case 'md': return '📄';
             case 'oopic': return '🎨';
             case 'sh': case 'js': return '📜';
             case 'json': return '{}';
-            default: return '❔';
+            case 'bas': return '💻';
+            case 'html': case 'htm': return '🌐';
+            default: return '📄';
         }
     }
 }
