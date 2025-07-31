@@ -38,6 +38,14 @@ class FileSystemManager {
                 group: 'root',
                 mode: 0o440,
                 mtime: nowISO,
+              },
+              'agenda.json': {
+                type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+                content: "[]",
+                owner: 'root',
+                group: 'root',
+                mode: 0o644,
+                mtime: nowISO,
               }
             },
             owner: "root",
@@ -121,19 +129,40 @@ class FileSystemManager {
       this.fsData = loadedData;
       // --- Migration: Ensure essential files exist ---
       const etcNode = this.fsData['/']?.children?.etc;
-      if (etcNode && etcNode.type === 'directory' && !etcNode.children['sudoers']) {
+      if (etcNode && etcNode.type === 'directory') {
         const nowISO = new Date().toISOString();
-        etcNode.children['sudoers'] = {
-          type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
-          content: "# /etc/sudoers\n#\n# This file MUST be edited with the 'visudo' command as root.\n\nroot ALL=(ALL) ALL\n%root ALL=(ALL) ALL\n",
-          owner: 'root',
-          group: 'root',
-          mode: 0o440,
-          mtime: nowISO,
-        };
-        etcNode.mtime = nowISO;
-        console.log("FileSystem Migration: Created missing /etc/sudoers file.");
-        await this.save(); // Save the updated filesystem
+        let needsSave = false;
+        
+        if (!etcNode.children['sudoers']) {
+          etcNode.children['sudoers'] = {
+            type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+            content: "# /etc/sudoers\n#\n# This file MUST be edited with the 'visudo' command as root.\n\nroot ALL=(ALL) ALL\n%root ALL=(ALL) ALL\n",
+            owner: 'root',
+            group: 'root',
+            mode: 0o440,
+            mtime: nowISO,
+          };
+          console.log("FileSystem Migration: Created missing /etc/sudoers file.");
+          needsSave = true;
+        }
+        
+        if (!etcNode.children['agenda.json']) {
+          etcNode.children['agenda.json'] = {
+            type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+            content: "[]",
+            owner: 'root',
+            group: 'root',
+            mode: 0o644,
+            mtime: nowISO,
+          };
+          console.log("FileSystem Migration: Created missing /etc/agenda.json file.");
+          needsSave = true;
+        }
+        
+        if (needsSave) {
+          etcNode.mtime = nowISO;
+          await this.save(); // Save the updated filesystem
+        }
       }
       // --- End Migration ---
     } else {
