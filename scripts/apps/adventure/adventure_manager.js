@@ -1,20 +1,41 @@
-// aedmark/oopisos-pocket/aedmark-OopisOS-Pocket-d91e0d80077fffc1759aaae04d7f4df85c8f7149/scripts/apps/adventure/adventure_manager.js
+// scripts/apps/adventure/adventure_manager.js
+
+/**
+ * Text Adventure Game Manager - Handles the execution of interactive fiction games
+ * @class AdventureManager
+ * @extends App
+ */
 window.AdventureManager = class AdventureManager extends App {
+  /**
+   * Create an adventure manager instance
+   */
   constructor() {
     super();
+    /** @type {Object} Game state including player, adventure data, and context */
     this.state = {};
+    /** @type {Object} Injected dependencies */
     this.dependencies = {};
+    /** @type {Object} Callback functions for UI interaction */
     this.callbacks = {};
+    /** @type {Object|null} Game engine logic object */
     this.engineLogic = null;
+    /** @type {Object|null} UI modal instance */
     this.ui = null;
   }
 
+  /**
+   * Enter the adventure game
+   * @param {HTMLElement} appLayer - DOM element to attach the game UI
+   * @param {Object} options - Configuration options
+   * @param {Object} options.dependencies - Required dependencies
+   * @param {Object} options.adventureData - Adventure game data
+   * @param {Object} [options.scriptingContext] - Scripting context for automated play
+   */
   async enter(appLayer, options = {}) {
     if (this.isActive) return;
 
     this.dependencies = options.dependencies;
     const { TextAdventureModal } = this.dependencies;
-    // Pass 'this' (the manager instance) to the engine logic creator
     this.engineLogic = this._createEngineLogic(this);
 
     this.callbacks = {
@@ -46,6 +67,10 @@ window.AdventureManager = class AdventureManager extends App {
     }
   }
 
+  /**
+   * Run the adventure in scripting mode
+   * @private
+   */
   async _runScript() {
     const context = this.state.scriptingContext;
     while (
@@ -61,6 +86,9 @@ window.AdventureManager = class AdventureManager extends App {
     }
   }
 
+  /**
+   * Exit the adventure game
+   */
   exit() {
     if (!this.isActive) return;
     const { AppLayerManager } = this.dependencies;
@@ -73,16 +101,32 @@ window.AdventureManager = class AdventureManager extends App {
     this.ui = null;
   }
 
+  /**
+   * Handle keyboard events
+   * @param {KeyboardEvent} event - Keyboard event
+   */
   handleKeyDown(event) {
     if (event.key === "Escape") {
       this.exit();
     }
   }
 
+  /**
+   * Process a command through the game engine
+   * @private
+   * @param {string} command - Player command
+   * @returns {Promise} Command processing result
+   */
   _processCommand(command) {
     return this.engineLogic.processCommand(command);
   }
 
+  /**
+   * Create the game engine logic object
+   * @private
+   * @param {AdventureManager} manager - Reference to the manager instance
+   * @returns {Object} Game engine with all command handlers
+   */
   _createEngineLogic(manager) {
     const defaultVerbs = {
       look: { action: "look", aliases: ["l", "examine", "x", "look at", "look in", "look inside"] },
@@ -125,6 +169,11 @@ window.AdventureManager = class AdventureManager extends App {
     };
 
     const engine = {
+      /**
+       * Initialize game state
+       * @param {Object} adventureData - Adventure game data
+       * @param {Object} [scriptingContext] - Scripting context
+       */
       initializeState: (adventureData, scriptingContext) => {
         const adventure = JSON.parse(JSON.stringify(adventureData));
         const startingRoom = adventure.rooms[adventure.startingRoomId];
@@ -141,7 +190,7 @@ window.AdventureManager = class AdventureManager extends App {
           disambiguationContext: null,
           lastReferencedItemId: null,
           lastPlayerCommand: "",
-          dialogueContext: null, // NEW: Tracks the current conversation state
+          dialogueContext: null,
         };
         manager.state.adventure.verbs = { ...defaultVerbs, ...adventure.verbs };
         manager.state.adventure.npcs = manager.state.adventure.npcs || {};
@@ -153,6 +202,11 @@ window.AdventureManager = class AdventureManager extends App {
           manager.state.adventure.rooms[roomId].visited = false;
       },
 
+      /**
+       * Get all items in a specific location
+       * @param {string} locationId - Location identifier
+       * @returns {Array} Array of item objects
+       */
       _getItemsInLocation: (locationId) => {
         const items = [];
         for (const id in manager.state.adventure.items) {
@@ -163,6 +217,11 @@ window.AdventureManager = class AdventureManager extends App {
         return items;
       },
 
+      /**
+       * Get all NPCs in a specific location
+       * @param {string} locationId - Location identifier
+       * @returns {Array} Array of NPC objects
+       */
       _getNpcsInLocation: (locationId) => {
         const npcs = [];
         for (const id in manager.state.adventure.npcs) {
@@ -173,6 +232,11 @@ window.AdventureManager = class AdventureManager extends App {
         return npcs;
       },
 
+      /**
+       * Get dynamic description based on entity state
+       * @param {Object} entity - Entity object
+       * @returns {string} Description text
+       */
       _getDynamicDescription: (entity) => {
         if (
             entity.descriptions &&
@@ -184,6 +248,10 @@ window.AdventureManager = class AdventureManager extends App {
         return entity.description;
       },
 
+      /**
+       * Check if player has a light source
+       * @returns {boolean} True if player has lit light source
+       */
       _hasLightSource: () => {
         return manager.state.player.inventory.some((itemId) => {
           const item = manager.state.adventure.items[itemId];
@@ -191,6 +259,9 @@ window.AdventureManager = class AdventureManager extends App {
         });
       },
 
+      /**
+       * Display the current room description and contents
+       */
       displayCurrentRoom: () => {
         const room =
             manager.state.adventure.rooms[manager.state.player.currentLocation];
@@ -275,10 +346,13 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Process a player command
+       * @param {string} command - Player input command
+       */
       processCommand: async (command) => {
         if (!command) return;
 
-        // NEW: Check for dialogue mode first
         if (manager.state.dialogueContext) {
           await engine._handleDialogue(command);
           return;
@@ -306,11 +380,9 @@ window.AdventureManager = class AdventureManager extends App {
         if (parsedAction.verb && !metaCommands.includes(parsedAction.verb.action)) {
           manager.state.player.moves++;
         } else if (!parsedAction.verb && commandToProcess) {
-          // Increment for unknown commands
           manager.state.player.moves++;
         }
 
-        // Always update the status line after a move is registered.
         manager.ui.updateStatusLine(
             manager.state.adventure.rooms[manager.state.player.currentLocation].name,
             manager.state.player.score,
@@ -381,7 +453,10 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
-      // NEW: Function to handle conversational input
+      /**
+       * Handle dialogue input during conversations
+       * @param {string} input - Player dialogue input
+       */
       _handleDialogue: async (input) => {
         const { npcId, nodeId } = manager.state.dialogueContext;
         const npc = manager.state.adventure.npcs[npcId];
@@ -409,23 +484,25 @@ window.AdventureManager = class AdventureManager extends App {
                 manager.ui.appendOutput(choice.prompt, "system");
               });
             } else {
-              // This is an end-node of a branch
               manager.state.dialogueContext = null;
             }
           } else {
-            // No nextNode, so the conversation ends here
             manager.state.dialogueContext = null;
           }
         } else {
-          // Player input didn't match any choices
           manager.ui.appendOutput(`'${npc.name}' doesn't seem to understand that.`, "system");
-          // Re-prompt with the available choices
           node.playerChoices.forEach(choice => {
             manager.ui.appendOutput(choice.prompt, "system");
           });
         }
       },
 
+      /**
+       * Parse a single command into verb and objects
+       * @param {string} command - Command string
+       * @param {Object} [defaultVerb] - Default verb if none found
+       * @returns {Object} Parsed command with verb, directObject, indirectObject
+       */
       _parseSingleCommand: (command, defaultVerb = null) => {
         const originalWords = command
             .toLowerCase()
@@ -521,6 +598,11 @@ window.AdventureManager = class AdventureManager extends App {
         return { verb, directObject, indirectObject };
       },
 
+      /**
+       * Parse multiple commands separated by conjunctions
+       * @param {string} command - Command string with multiple actions
+       * @returns {Array} Array of parsed command objects
+       */
       _parseMultiCommand: (command) => {
         const commands = [];
         const separator = ";;;";
@@ -551,6 +633,11 @@ window.AdventureManager = class AdventureManager extends App {
         return commands;
       },
 
+      /**
+       * Resolve a verb word to its definition
+       * @param {string} verbWord - Verb word to resolve
+       * @returns {Object|null} Verb definition or null
+       */
       _resolveVerb: (verbWord) => {
         if (!verbWord) return null;
         for (const verbKey in manager.state.adventure.verbs) {
@@ -562,6 +649,12 @@ window.AdventureManager = class AdventureManager extends App {
         return null;
       },
 
+      /**
+       * Find items matching a target string within scope
+       * @param {string} targetString - Target item description
+       * @param {Array} scope - Array of items to search
+       * @returns {Object} Object with found items and match info
+       */
       _findItem: (targetString, scope) => {
         if (!targetString) return { found: [] };
         const targetWords = new Set(
@@ -600,6 +693,10 @@ window.AdventureManager = class AdventureManager extends App {
         return { found: foundItems, exactMatch };
       },
 
+      /**
+       * Handle disambiguation when multiple items match
+       * @param {string} response - Player's clarification response
+       */
       _handleDisambiguation: (response) => {
         const { found, context } = manager.state.disambiguationContext;
         const result = engine._findItem(response, found);
@@ -615,6 +712,10 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Handle movement commands
+       * @param {string} direction - Direction to move
+       */
       _handleGo: (direction) => {
         const room =
             manager.state.adventure.rooms[manager.state.player.currentLocation];
@@ -646,6 +747,9 @@ window.AdventureManager = class AdventureManager extends App {
           manager.ui.appendOutput("You can't go that way.", "error");
         }
       },
+      /**
+       * Check if win conditions have been met
+       */
       _checkWinConditions: () => {
         const wc = manager.state.adventure.winCondition;
         if (!wc || wc.triggered) return;
@@ -677,6 +781,11 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Handle look/examine commands
+       * @param {string} target - Target to examine
+       * @param {Function} onDisambiguation - Callback for disambiguation
+       */
       _handleLook: (target, onDisambiguation) => {
         if (!target || target === "around") {
           engine.displayCurrentRoom();
@@ -716,6 +825,11 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Handle take/get commands
+       * @param {string} target - Target to take
+       * @param {Function} onDisambiguation - Callback for disambiguation
+       */
       _handleTake: (target, onDisambiguation) => {
         const scope = engine._getItemsInLocation(manager.state.player.currentLocation);
         const result = engine._findItem(target, scope);
@@ -741,11 +855,10 @@ window.AdventureManager = class AdventureManager extends App {
           manager.state.player.inventory.push(item.id);
           manager.ui.appendOutput(`You take the ${item.name}.`);
 
-          // Check for and award points
           if (item.points) {
             manager.state.player.score += item.points;
             manager.ui.appendOutput(`[Your score has gone up by ${item.points} points!]`, "system");
-            delete item.points; // Prevent scoring again
+            delete item.points;
             manager.ui.updateStatusLine(
                 manager.state.adventure.rooms[manager.state.player.currentLocation].name,
                 manager.state.player.score,
@@ -755,6 +868,11 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Handle drop commands
+       * @param {string} target - Target to drop
+       * @param {Function} onDisambiguation - Callback for disambiguation
+       */
       _handleDrop: (target, onDisambiguation) => {
         const scope = manager.state.player.inventory.map(id => manager.state.adventure.items[id]);
         const result = engine._findItem(target, scope);
@@ -778,6 +896,9 @@ window.AdventureManager = class AdventureManager extends App {
         }
       },
 
+      /**
+       * Handle inventory commands
+       */
       _handleInventory: () => {
         if (manager.state.player.inventory.length === 0) {
           manager.ui.appendOutput("You are carrying nothing.");
@@ -794,6 +915,11 @@ window.AdventureManager = class AdventureManager extends App {
       _handleSave: async (_directObject) => manager.ui.appendOutput("Saving is not yet implemented."),
       _handleLoad: async (_directObject) => manager.ui.appendOutput("Loading is not yet implemented."),
 
+      /**
+       * Handle talk commands for NPC interaction
+       * @param {string} target - NPC to talk to
+       * @param {Function} onDisambiguation - Callback for disambiguation
+       */
       _handleTalk: (target, onDisambiguation) => {
         const scope = engine._getNpcsInLocation(manager.state.player.currentLocation);
         const result = engine._findItem(target, scope);
@@ -801,7 +927,6 @@ window.AdventureManager = class AdventureManager extends App {
         if (result.found.length === 0) {
           manager.ui.appendOutput("You don't see anyone like that here.", "error");
         } else if (result.found.length > 1) {
-          // This part handles ambiguity, which is good practice!
           manager.ui.appendOutput(`Which ${target} do you want to talk to?`, "info");
           manager.state.disambiguationContext = {
             found: result.found,
@@ -822,7 +947,6 @@ window.AdventureManager = class AdventureManager extends App {
                   manager.ui.appendOutput(choice.prompt, "system");
                 });
               } else {
-                // The very first node has no choices, so the conversation ends immediately.
                 manager.state.dialogueContext = null;
               }
             } else {
