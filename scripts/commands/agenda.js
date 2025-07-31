@@ -25,7 +25,7 @@ window.AgendaCommand = class AgendaCommand extends Command {
             return ErrorHandler.createError("agenda: missing sub-command. Use 'add', 'list', or 'remove'.");
         }
 
-        // --- MODIFICATION: Check for root privileges on protected commands ---
+        // --- Check for root privileges on protected commands ---
         if (['add', 'remove'].includes(subCommand.toLowerCase()) && currentUser !== 'root') {
             return ErrorHandler.createError(`agenda: modifying the schedule requires root privileges. Try 'sudo agenda ${args.join(' ')}'.`);
         }
