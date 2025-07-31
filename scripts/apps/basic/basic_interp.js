@@ -1,22 +1,49 @@
 // scripts/apps/basic/basic_interp.js
+
+/**
+ * BASIC Language Interpreter - Executes BASIC programs with extended system functions
+ * @class Basic_interp
+ */
 window.Basic_interp = class Basic_interp {
+  /**
+   * Create a BASIC interpreter instance
+   * @param {Object} dependencies - Required dependencies for system functions
+   */
   constructor(dependencies) {
+    /** @type {Object} Injected dependencies */
     this.dependencies = dependencies;
+    /** @type {Map} Variable storage */
     this.variables = new Map();
+    /** @type {Map} Array storage */
     this.arrays = new Map();
+    /** @type {Array} GOSUB return stack */
     this.gosubStack = [];
+    /** @type {Array} FOR loop stack */
     this.forLoopStack = [];
+    /** @type {Map} Program lines storage */
     this.program = new Map();
+    /** @type {Array} DATA statement values */
     this.data = [];
+    /** @type {number} Current DATA pointer */
     this.dataPointer = 0;
+    /** @type {number|null} Current program line */
     this.programCounter = null;
+    /** @type {Function} Output callback function */
     this.outputCallback = (text) => console.log(text);
+    /** @type {Function} Input callback function */
     this.inputCallback = async () => "? ";
+    /** @type {Function} Screen poke callback function */
     this.pokeCallback = (_x, _y, _char, _color) => {};
+    /** @type {number} Last random number generated */
     this.lastRnd = Math.random();
+    /** @type {number} Random number seed */
     this.rndSeed = new Date().getTime();
   }
 
+  /**
+   * Initialize interpreter state
+   * @private
+   */
   _initializeState() {
     this.variables.clear();
     this.arrays.clear();
@@ -28,6 +55,10 @@ window.Basic_interp = class Basic_interp {
     this.programCounter = null;
   }
 
+  /**
+   * Pre-scan program for DATA statements
+   * @private
+   */
   _preScanForData() {
     this.data = [];
     const sortedLines = Array.from(this.program.keys()).sort((a, b) => a - b);
@@ -47,6 +78,11 @@ window.Basic_interp = class Basic_interp {
     }
   }
 
+  /**
+   * Parse program text into line-numbered statements
+   * @private
+   * @param {string} programText - BASIC program source code
+   */
   _parseProgram(programText) {
     const lines = programText.split("\n");
     let firstLine = Infinity;
@@ -65,6 +101,14 @@ window.Basic_interp = class Basic_interp {
     this.programCounter = firstLine === Infinity ? null : firstLine;
   }
 
+  /**
+   * Run a BASIC program
+   * @param {string} programText - BASIC program source code
+   * @param {Object} callbacks - Callback functions
+   * @param {Function} callbacks.outputCallback - Output function
+   * @param {Function} callbacks.inputCallback - Input function
+   * @param {Function} callbacks.pokeCallback - Screen poke function
+   */
   async run(programText, { outputCallback, inputCallback, pokeCallback }) {
     this._initializeState();
     this.outputCallback = outputCallback;
@@ -105,6 +149,12 @@ window.Basic_interp = class Basic_interp {
     }
   }
 
+  /**
+   * Parse function arguments from a statement
+   * @private
+   * @param {string} statement - Function call statement
+   * @returns {Array<string>} Array of argument strings
+   */
   _parseFunctionArgs(statement) {
     const openParen = statement.indexOf("(");
     const closeParen = statement.lastIndexOf(")");
@@ -129,6 +179,10 @@ window.Basic_interp = class Basic_interp {
     return args;
   }
 
+  /**
+   * Execute a single BASIC statement
+   * @param {string} statement - BASIC statement to execute
+   */
   async executeStatement(statement) {
     const { FileSystemManager, UserManager } = this.dependencies;
     const match = statement.match(/^([a-zA-Z_][a-zA-Z_0-9$]*)\s*(.*)/s);
@@ -306,6 +360,12 @@ window.Basic_interp = class Basic_interp {
     }
   }
 
+  /**
+   * Evaluate a BASIC expression
+   * @private
+   * @param {string} expression - Expression to evaluate
+   * @returns {Promise<*>} Evaluated result
+   */
   async _evaluateExpression(expression) {
     const { CommandExecutor, FileSystemManager, UserManager, NetworkManager } = this.dependencies;
     const functionMatch = expression.match(/([a-zA-Z_$]+)\((.*)\)/i);
@@ -388,6 +448,12 @@ window.Basic_interp = class Basic_interp {
     }
   }
 
+  /**
+   * Evaluate a single part of an expression
+   * @private
+   * @param {string} part - Expression part to evaluate
+   * @returns {Promise<*>} Evaluated result
+   */
   async _evaluateSinglePart(part) {
     part = part.trim();
     if (part.startsWith('"') && part.endsWith('"')) return part.substring(1, part.length - 1);
@@ -407,6 +473,12 @@ window.Basic_interp = class Basic_interp {
     return part;
   }
 
+  /**
+   * Evaluate a conditional expression
+   * @private
+   * @param {string} condition - Condition to evaluate
+   * @returns {Promise<boolean>} True if condition is met
+   */
   async _evaluateCondition(condition) {
     const operators = ["<=", ">=", "<>", "<", ">", "="];
     let operator = null;
