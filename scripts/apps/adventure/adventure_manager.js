@@ -141,6 +141,7 @@ window.AdventureManager = class AdventureManager extends App {
           disambiguationContext: null,
           lastReferencedItemId: null,
           lastPlayerCommand: "",
+          dialogueContext: null, // NEW: Tracks the current conversation state
         };
         manager.state.adventure.verbs = { ...defaultVerbs, ...adventure.verbs };
         manager.state.adventure.npcs = manager.state.adventure.npcs || {};
@@ -277,6 +278,12 @@ window.AdventureManager = class AdventureManager extends App {
       processCommand: async (command) => {
         if (!command) return;
 
+        // NEW: Check for dialogue mode first
+        if (manager.state.dialogueContext) {
+          await engine._handleDialogue(command);
+          return;
+        }
+
         if (manager.state.disambiguationContext) {
           engine._handleDisambiguation(command.toLowerCase().trim());
           return;
@@ -371,6 +378,51 @@ window.AdventureManager = class AdventureManager extends App {
               await new Promise((resolve) => setTimeout(resolve, 350));
             }
           }
+        }
+      },
+
+      // NEW: Function to handle conversational input
+      _handleDialogue: async (input) => {
+        const { npcId, nodeId } = manager.state.dialogueContext;
+        const npc = manager.state.adventure.npcs[npcId];
+        const node = npc.dialogue.nodes[nodeId];
+
+        if (!node) {
+          manager.ui.appendOutput("The conversation seems to have ended unexpectedly.", "system");
+          manager.state.dialogueContext = null;
+          return;
+        }
+
+        const inputWords = new Set(input.toLowerCase().trim().split(/\s+/));
+        const matchedChoice = node.playerChoices.find(choice =>
+            choice.keywords.some(kw => inputWords.has(kw))
+        );
+
+        if (matchedChoice) {
+          if (matchedChoice.nextNode) {
+            const nextNode = npc.dialogue.nodes[matchedChoice.nextNode];
+            manager.state.dialogueContext.nodeId = matchedChoice.nextNode;
+
+            manager.ui.appendOutput(nextNode.npcResponse, "dialogue");
+            if (nextNode.playerChoices && nextNode.playerChoices.length > 0) {
+              nextNode.playerChoices.forEach(choice => {
+                manager.ui.appendOutput(choice.prompt, "system");
+              });
+            } else {
+              // This is an end-node of a branch
+              manager.state.dialogueContext = null;
+            }
+          } else {
+            // No nextNode, so the conversation ends here
+            manager.state.dialogueContext = null;
+          }
+        } else {
+          // Player input didn't match any choices
+          manager.ui.appendOutput(`'${npc.name}' doesn't seem to understand that.`, "system");
+          // Re-prompt with the available choices
+          node.playerChoices.forEach(choice => {
+            manager.ui.appendOutput(choice.prompt, "system");
+          });
         }
       },
 
@@ -741,7 +793,50 @@ window.AdventureManager = class AdventureManager extends App {
       _handleHelp: () => manager.ui.appendOutput("Try commands like 'look', 'go north', 'take key', etc."),
       _handleSave: async (_directObject) => manager.ui.appendOutput("Saving is not yet implemented."),
       _handleLoad: async (_directObject) => manager.ui.appendOutput("Loading is not yet implemented."),
-      _handleTalk: (_directObject, _onDisambiguation) => manager.ui.appendOutput("There's no one to talk to."),
+
+      _handleTalk: (target, onDisambiguation) => {
+        const scope = engine._getNpcsInLocation(manager.state.player.currentLocation);
+        const result = engine._findItem(target, scope);
+
+        if (result.found.length === 0) {
+          manager.ui.appendOutput("You don't see anyone like that here.", "error");
+        } else if (result.found.length > 1) {
+          // This part handles ambiguity, which is good practice!
+          manager.ui.appendOutput(`Which ${target} do you want to talk to?`, "info");
+          manager.state.disambiguationContext = {
+            found: result.found,
+            context: {
+              callback: (npc) => engine._handleTalk(npc.noun, onDisambiguation)
+            }
+          };
+          onDisambiguation();
+        } else {
+          const npc = result.found[0];
+          if (npc.dialogue && npc.dialogue.startNode) {
+            const startNode = npc.dialogue.nodes[npc.dialogue.startNode];
+            if (startNode) {
+              manager.state.dialogueContext = { npcId: npc.id, nodeId: npc.dialogue.startNode };
+              manager.ui.appendOutput(startNode.npcResponse, "dialogue");
+              if (startNode.playerChoices && startNode.playerChoices.length > 0) {
+                startNode.playerChoices.forEach(choice => {
+                  manager.ui.appendOutput(choice.prompt, "system");
+                });
+              } else {
+                // The very first node has no choices, so the conversation ends immediately.
+                manager.state.dialogueContext = null;
+              }
+            } else {
+              manager.ui.appendOutput(`${npc.name} has nothing to say to you.`, "system");
+            }
+          } else if (npc.dialogue.default) {
+            manager.ui.appendOutput(npc.dialogue.default, "dialogue");
+          }
+          else {
+            manager.ui.appendOutput(`${npc.name} doesn't seem to want to talk.`, "system");
+          }
+        }
+      },
+
       _handleAsk: (_directObject, _indirectObject, _onDisambiguation) => manager.ui.appendOutput("There's no one to ask."),
       _handleGive: (_directObject, _indirectObject, _onDisambiguation) => manager.ui.appendOutput("There's no one to give that to."),
       _handleShow: (_directObject, _indirectObject, _onDisambiguation) => manager.ui.appendOutput("There's no one to show that to."),

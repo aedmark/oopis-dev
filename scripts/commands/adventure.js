@@ -1,6 +1,6 @@
-// scripts/commands/adventure.js
+// gem/scripts/commands/adventure.js
 
-// The default adventure data, restored to its rightful place!
+// The default adventure data, now with advanced dialogue!
 const defaultAdventureData = {
   title: "The Architect's Apprentice",
   startingRoomId: "test_chamber",
@@ -146,13 +146,24 @@ const defaultAdventureData = {
       location: "test_chamber",
       inventory: [],
       dialogue: {
-        default:
-            "'Welcome, apprentice,' the holographic figure says. 'This test chamber is bugged. Your task is to find the Lost Manual Page and use it to compile the room correctly. The system is yours to explore.'",
-        terminal:
-            "'The terminal is the key to compiling the environment,' the Architect explains, 'but it appears to be without power.'",
-        page: "'The Manual Page contains the final compilation script. You'll need to apply it to the terminal.'",
-        room: "'Just a sandbox,' it says, gesturing at the flickering walls. 'But a sandbox in need of a fix.'",
-        key: "'Every lock has its key. A simple principle, but effective.'",
+        startNode: "start",
+        nodes: {
+          "start": {
+            "npcResponse": "'Welcome, apprentice. This test chamber is bugged. Your task is to find the Lost Manual Page and use it to compile the room correctly. Do you understand the objective, or do you have questions about the chamber itself?'",
+            "playerChoices": [
+              { "keywords": ["understand", "objective", "yes"], "prompt": "(You could say you understand the objective.)", "nextNode": "objective_understood" },
+              { "keywords": ["chamber", "questions", "room"], "prompt": "(You could ask about the chamber.)", "nextNode": "ask_about_chamber" }
+            ]
+          },
+          "objective_understood": {
+            "npcResponse": "'Excellent. The system is yours to explore. Remember to examine everything closely. ASK me about things if you get stuck.'",
+            "playerChoices": [] // End of this branch
+          },
+          "ask_about_chamber": {
+            "npcResponse": "'Just a sandbox,' it says, gesturing at the flickering walls. 'But a sandbox in need of a fix. The terminal is the key, but it appears to be without power. Every lock has its key, of course.'",
+            "playerChoices": [] // End of this branch
+          }
+        }
       },
       onShow: {
         page: "The Architect's form stabilizes for a moment. 'Excellent! Now, use the page on the terminal to compile the room.'",

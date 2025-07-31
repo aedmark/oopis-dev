@@ -8,7 +8,8 @@ window.Adventure_create = {
     targetFilename: "",
     isDirty: false,
     commandContext: null,
-    editContext: null,
+    editContext: null, // { type: 'room'|'item'|'npc', id: 'entity_id', name: 'Entity Name' }
+    dialogueEditContext: null, // NEW: { npcId: 'npc_id', nodeId: 'node_id' }
   },
 
   dependencies: {},
@@ -25,6 +26,7 @@ window.Adventure_create = {
       isDirty: false,
       commandContext: commandContext,
       editContext: null,
+      dialogueEditContext: null, // NEW
     };
 
     this.dependencies.OutputManager.appendToOutput(
@@ -39,7 +41,10 @@ window.Adventure_create = {
     if (!this.state.isActive) return;
 
     let prompt = `(creator)> `;
-    if (this.state.editContext) {
+    if (this.state.dialogueEditContext) {
+      const npcName = this.state.adventureData.npcs[this.state.dialogueEditContext.npcId].name;
+      prompt = `(dialogue for '${npcName}' | node '${this.state.dialogueEditContext.nodeId}')> `;
+    } else if (this.state.editContext) {
       prompt = `(editing ${this.state.editContext.type} '${this.state.editContext.name}')> `;
     }
 
@@ -48,7 +53,12 @@ window.Adventure_create = {
       type: "input",
       messageLines: [prompt],
       onConfirm: async (input) => {
-        await this._processCreatorCommand(input);
+        // NEW: Check if we are in dialogue mode
+        if (this.state.dialogueEditContext) {
+          await this._processDialogueCreatorCommand(input);
+        } else {
+          await this._processCreatorCommand(input);
+        }
         if (this.state.isActive) {
           this._requestNextCommand();
         }
@@ -63,6 +73,12 @@ window.Adventure_create = {
   async _processCreatorCommand(input) {
     const [command, ...args] = input.trim().split(/\s+/);
     const joinedArgs = args.join(" ");
+
+    // NEW: Special command for dialogue editing
+    if (this.state.editContext && this.state.editContext.type === 'npc' && command.toLowerCase() === 'dialogue') {
+      await this._enterDialogueEditMode();
+      return;
+    }
 
     switch (command.toLowerCase()) {
       case "create":
@@ -99,6 +115,33 @@ window.Adventure_create = {
     }
   },
 
+  // NEW: Command processor for the dialogue editing sub-shell
+  async _processDialogueCreatorCommand(input) {
+    const [command, ...args] = input.trim().split(/\s+/);
+    const joinedArgs = args.join(" ");
+
+    switch (command.toLowerCase()) {
+      case "node":
+        await this._handleNodeCommand(args);
+        break;
+      case "choice":
+        await this._handleChoiceCommand(args);
+        break;
+      case "set":
+        await this._handleSetDialogueProperty(joinedArgs);
+        break;
+      case "exit":
+        this.state.dialogueEditContext = null;
+        await this.dependencies.OutputManager.appendToOutput("Exited dialogue editing mode.", { typeClass: 'text-info' });
+        break;
+      case "help":
+        await this._handleDialogueHelp();
+        break;
+      default:
+        await this.dependencies.OutputManager.appendToOutput(`Unknown dialogue command: '${command}'. Type 'help'.`, { typeClass: "text-error" });
+    }
+  },
+
   _generateId(name) {
     return name
         .toLowerCase()
@@ -128,10 +171,10 @@ window.Adventure_create = {
 
     let id = this._generateId(name);
     let counter = 1;
-    while (
-        this.state.adventureData[type + "s"] &&
-        this.state.adventureData[type + "s"][id]
-        ) {
+    const collectionName = type + "s";
+    this.state.adventureData[collectionName] = this.state.adventureData[collectionName] || {};
+
+    while (this.state.adventureData[collectionName][id]) {
       id = `${this._generateId(name)}_${counter++}`;
     }
 
@@ -151,7 +194,16 @@ window.Adventure_create = {
         ...newEntity,
         noun: name.split(" ").pop().toLowerCase(),
         location: "void",
-        dialogue: { default: "They have nothing to say." },
+        // NEW: Initialize with the dialogue structure
+        dialogue: {
+          startNode: "start",
+          nodes: {
+            "start": {
+              "npcResponse": "They have nothing to say.",
+              "playerChoices": []
+            }
+          }
+        }
       };
     }
 
@@ -178,6 +230,10 @@ window.Adventure_create = {
 
   async _handleEdit(argString) {
     const { OutputManager } = this.dependencies;
+    if (!argString) {
+      this.state.editContext = null;
+      return;
+    }
     const typeMatch = argString.match(/^(room|item|npc)\s+/i);
     if (!typeMatch) {
       this.state.editContext = null;
@@ -190,10 +246,11 @@ window.Adventure_create = {
 
     if (entity) {
       this.state.editContext = { type, id: entity.id, name: entity.name };
-      await OutputManager.appendToOutput(
-          `Now editing ${type} '${entity.name}'. Use 'set <prop> "<value>"'. Type 'edit' to stop editing.`,
-          { typeClass: "text-info" }
-      );
+      let editMessage = `Now editing ${type} '${entity.name}'. Use 'set <prop> "<value>"'. Type 'edit' to stop editing.`;
+      if (type === 'npc') {
+        editMessage += "\nType 'dialogue' to edit their conversation tree.";
+      }
+      await OutputManager.appendToOutput(editMessage, { typeClass: "text-info" });
     } else {
       await OutputManager.appendToOutput(
           `Error: Cannot find ${type} with name '${name}'.`,
@@ -201,6 +258,125 @@ window.Adventure_create = {
       );
     }
   },
+
+  // NEW: Handlers for dialogue creation
+  async _enterDialogueEditMode() {
+    const { OutputManager } = this.dependencies;
+    const npc = this.state.adventureData.npcs[this.state.editContext.id];
+    if (!npc.dialogue) {
+      npc.dialogue = { startNode: 'start', nodes: { 'start': { npcResponse: '...', playerChoices: [] }}};
+      this.state.isDirty = true;
+    }
+    this.state.dialogueEditContext = { npcId: npc.id, nodeId: npc.dialogue.startNode };
+    await OutputManager.appendToOutput(`Entering dialogue editor for '${npc.name}'. Type 'help' for dialogue commands.`, { typeClass: 'text-success'});
+    await this._handleNodeCommand(['view', npc.dialogue.startNode]);
+  },
+
+  async _handleNodeCommand(args) {
+    const { OutputManager } = this.dependencies;
+    const subCommand = args.shift()?.toLowerCase();
+    const name = args.join(" ").replace(/["']/g, "");
+
+    const npc = this.state.adventureData.npcs[this.state.dialogueEditContext.npcId];
+
+    switch(subCommand) {
+      case 'create':
+        if (!name) { await OutputManager.appendToOutput("Error: Node needs a name.", {typeClass: 'text-error'}); return; }
+        const nodeId = this._generateId(name);
+        if (npc.dialogue.nodes[nodeId]) { await OutputManager.appendToOutput(`Error: Node '${nodeId}' already exists.`, {typeClass: 'text-error'}); return; }
+        npc.dialogue.nodes[nodeId] = { npcResponse: `Response for ${name}`, playerChoices: [] };
+        this.state.dialogueEditContext.nodeId = nodeId;
+        this.state.isDirty = true;
+        await OutputManager.appendToOutput(`Created and switched to new node '${nodeId}'.`, {typeClass: 'text-success'});
+        break;
+      case 'goto':
+        if (!name || !npc.dialogue.nodes[name]) { await OutputManager.appendToOutput(`Error: Node '${name}' not found.`, {typeClass: 'text-error'}); return; }
+        this.state.dialogueEditContext.nodeId = name;
+        await this._handleNodeCommand(['view', name]);
+        break;
+      case 'view':
+        const nodeToViewId = name || this.state.dialogueEditContext.nodeId;
+        const node = npc.dialogue.nodes[nodeToViewId];
+        if (!node) { await OutputManager.appendToOutput(`Error: Node '${nodeToViewId}' not found.`, {typeClass: 'text-error'}); return; }
+        let output = `--- Node: ${nodeToViewId} ---\nResponse: ${node.npcResponse}\nChoices:\n`;
+        if (node.playerChoices.length > 0) {
+          node.playerChoices.forEach(c => {
+            output += `  - Keywords: [${c.keywords.join(', ')}] -> Go to node: '${c.nextNode}'\n    Prompt: ${c.prompt}\n`;
+          });
+        } else {
+          output += "  (No choices, conversation ends here)";
+        }
+        await OutputManager.appendToOutput(output);
+        break;
+      case 'list':
+        const nodeList = Object.keys(npc.dialogue.nodes).join('\n');
+        await OutputManager.appendToOutput(`Available nodes for '${npc.name}':\n${nodeList}`);
+        break;
+      default:
+        await OutputManager.appendToOutput("Unknown node command. Use 'list', 'view', 'create', or 'goto'.", {typeClass: 'text-error'});
+    }
+  },
+
+  async _handleChoiceCommand(args) {
+    const { OutputManager } = this.dependencies;
+    const subCommand = args.shift()?.toLowerCase();
+    const npc = this.state.adventureData.npcs[this.state.dialogueEditContext.npcId];
+    const node = npc.dialogue.nodes[this.state.dialogueEditContext.nodeId];
+
+    if (subCommand === 'add') {
+      const joinedArgs = args.join(' ');
+      const match = joinedArgs.match(/^(.+?)\s*->\s*(\S+)\s+"(.+)"$/);
+      if (!match) { await OutputManager.appendToOutput("Error: Invalid format. Use: choice add <keywords> -> <nodeId> \"<prompt>\"", {typeClass: 'text-error'}); return; }
+      const keywords = match[1].split(',').map(k => k.trim());
+      const nextNodeId = match[2];
+      const prompt = match[3];
+
+      if (!npc.dialogue.nodes[nextNodeId]) { await OutputManager.appendToOutput(`Error: Target node '${nextNodeId}' does not exist.`, {typeClass: 'text-error'}); return; }
+
+      node.playerChoices.push({ keywords, nextNode: nextNodeId, prompt });
+      this.state.isDirty = true;
+      await OutputManager.appendToOutput("Choice added.", {typeClass: 'text-success'});
+    } else if (subCommand === 'remove') {
+      const keywordToRemove = args[0];
+      const initialLength = node.playerChoices.length;
+      node.playerChoices = node.playerChoices.filter(c => !c.keywords.includes(keywordToRemove));
+      if (node.playerChoices.length < initialLength) {
+        this.state.isDirty = true;
+        await OutputManager.appendToOutput(`Removed choice(s) associated with keyword '${keywordToRemove}'.`, {typeClass: 'text-success'});
+      } else {
+        await OutputManager.appendToOutput("No choice found with that keyword.", {typeClass: 'text-error'});
+      }
+    } else {
+      await OutputManager.appendToOutput("Unknown choice command. Use 'add' or 'remove'.", {typeClass: 'text-error'});
+    }
+  },
+
+  async _handleSetDialogueProperty(argString) {
+    const { OutputManager } = this.dependencies;
+    const match = argString.match(/^(\w+)\s+(.*)/);
+    if (!match) { await OutputManager.appendToOutput("Invalid format. Use: set <property> \"<value>\"", {typeClass: 'text-error'}); return; }
+
+    const prop = match[1].toLowerCase();
+    const value = match[2].replace(/["']/g, "");
+
+    const npc = this.state.adventureData.npcs[this.state.dialogueEditContext.npcId];
+    const node = npc.dialogue.nodes[this.state.dialogueEditContext.nodeId];
+
+    if (prop === 'response') {
+      node.npcResponse = value;
+      this.state.isDirty = true;
+      await OutputManager.appendToOutput(`Set response for node '${this.state.dialogueEditContext.nodeId}'.`, {typeClass: 'text-success'});
+    } else if (prop === 'startnode') {
+      if (!npc.dialogue.nodes[value]) { await OutputManager.appendToOutput(`Error: Node '${value}' does not exist.`, {typeClass: 'text-error'}); return; }
+      npc.dialogue.startNode = value;
+      this.state.isDirty = true;
+      await OutputManager.appendToOutput(`Set start node to '${value}'.`, {typeClass: 'text-success'});
+    }
+    else {
+      await OutputManager.appendToOutput("Invalid property. Use 'response' or 'startnode'.", {typeClass: 'text-error'});
+    }
+  },
+
 
   async _handleSet(argString) {
     const { OutputManager } = this.dependencies;
@@ -364,13 +540,27 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
   async _handleHelp() {
     const helpText = `Adventure Creator Commands:
   create <type> "<name>"   - Create a new room, item, or npc.
-  edit <type> "<name>"     - Select an entity to modify its properties.
+  edit <type> "<name>"     - Select an entity to modify. While editing an npc, type 'dialogue' to edit their conversation.
   edit                     - Stop editing the current entity.
   set <prop> "<value>"     - Set a property on the currently edited entity.
   link "rm1" <dir> "rm2"   - Create a two-way exit between rooms.
   status                   - Show a summary of the current adventure data.
   save                     - Save your work to the file.
   exit                     - Exit the creator (will prompt if unsaved).`;
+    await this.dependencies.OutputManager.appendToOutput(helpText);
+  },
+
+  async _handleDialogueHelp() {
+    const helpText = `Dialogue Editing Commands:
+  node list                - List all dialogue nodes for this NPC.
+  node view [nodeId]       - View details for a specific node (or the current one).
+  node create "<name>"     - Create a new, empty dialogue node and switch to it.
+  node goto <nodeId>       - Switch to editing an existing dialogue node.
+  set response "<text>"    - Set the NPC's response for the current node.
+  set startnode "<nodeId>" - Set which node begins the conversation.
+  choice add <k1,k2> -> <nodeId> "<prompt>" - Add a player choice to the current node.
+  choice remove <keyword>  - Remove a player choice by its keyword.
+  exit                     - Return to the main entity editor.`;
     await this.dependencies.OutputManager.appendToOutput(helpText);
   },
 

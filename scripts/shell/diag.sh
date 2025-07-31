@@ -1,6 +1,27 @@
 echo "===== OopisOS Core Test Suite v5 Initializing ====="
 echo "This script tests all non-interactive core functionality, now with maximum paranoia."
 delay 200
+removeuser -f diagUser
+removeuser -f sudouser
+removeuser -f testuser
+removeuser -f testuser2
+removeuser -f comm_user1
+removeuser -f comm_user2
+removeuser -f limitedsudo
+removeuser -f paradoxuser
+removeuser -f recursive_test_user
+removeuser -f sudouser2
+delay 200
+rm -r -f /home/diagUser
+rm -r -f /home/sudouser
+rm -r -f /home/testuser
+rm -r -f /home/testuser2
+rm -r -f /home/comm_user1
+rm -r -f /home/comm_user2
+rm -r -f /home/limitedsudo
+rm -r -f /home/paradoxuser
+rm -r -f /home/recursive_test_user
+rm -r -f /home/sudouser2
 echo "---------------------------------------------------------------------"
 echo ""
 echo "--- Phase 1: Setting up test users/groups ---"
@@ -955,7 +976,7 @@ echo "Permission paradox test complete."
 delay 200
 logout
 delay 200
-su diagUser
+su diagUser testpass
 cd /home/diagUser/diag_workspace
 delay 400
 echo "---------------------------------------------------------------------"
@@ -1011,26 +1032,24 @@ echo "---------------------------------------------------------------------"
 echo ""
 echo "===== Phase Beta: Group Permissions & Sudo ====="
 delay 200
-
+logout
 echo "--- Test: Group Permissions ---"
 delay 200
 usermod -aG testgroup testuser
-touch group_test_file.txt
-chown diagUser group_test_file.txt
-chgrp testgroup group_test_file.txt
-chmod 664 group_test_file.txt
-logout
+touch /home/diagUser/diag_workspace/group_test_file.txt
+chown diagUser /home/diagUser/diag_workspace/group_test_file.txt
+chgrp testgroup /home/diagUser/diag_workspace/group_test_file.txt
+chmod 664 /home/diagUser/diag_workspace/group_test_file.txt
 delay 200
 su testuser testpass
 cd /home/diagUser/diag_workspace
 echo "Appending to file as group member (should succeed)..."
-echo "appended" >> group_test_file.txt
-cat group_test_file.txt
+echo "appended" >> /home/diagUser/diag_workspace/group_test_file.txt
+cat /home/diagUser/diag_workspace/group_test_file.txt
 logout
 su Guest
-cd /home/diagUser/diag_workspace
 echo "Appending to file as Guest (should fail)..."
-check_fail "echo 'appended by guest' >> group_test_file.txt"
+check_fail "echo 'appended by guest' >> /home/diagUser/diag_workspace/group_test_file.txt"
 echo "Group permissions test complete."
 delay 200
 
@@ -1165,11 +1184,24 @@ removeuser -f diagUser
 removeuser -f sudouser
 removeuser -f testuser
 removeuser -f testuser2
+removeuser -f comm_user1
+removeuser -f comm_user2
+removeuser -f limitedsudo
+removeuser -f paradoxuser
+removeuser -f recursive_test_user
+removeuser -f sudouser2
 delay 200
 rm -r -f /home/diagUser
 rm -r -f /home/sudouser
 rm -r -f /home/testuser
 rm -r -f /home/testuser2
+rm -r -f /home/comm_user1
+rm -r -f /home/comm_user2
+rm -r -f /home/limitedsudo
+rm -r -f /home/paradoxuser
+rm -r -f /home/recursive_test_user
+rm -r -f /home/sudouser2
+
 login Guest
 listusers
 delay 200
@@ -1192,9 +1224,9 @@ echo "  ======================================================"
 echo " "
 delay 400
 echo "(As usual, you've been a real pantload!)"
-beep
+beep; beep
 delay 650
 echo " "
 echo " "
 delay 200
-play E6 20n; play F6 32n; play F#6 32n; play G6 32n; play A6 64n
+play E6 20n; play F6 32n; play F#6 32n; play A6 32n; play D7 64n
