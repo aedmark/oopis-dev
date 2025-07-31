@@ -1,4 +1,4 @@
-echo "===== OopisOS Core Test Suite v5 Initializing ====="
+echo "===== OopisOS Core Test Suite v5.1 Initializing ====="
 echo "This script tests all non-interactive core functionality, now with maximum paranoia."
 delay 200
 
@@ -1306,7 +1306,7 @@ echo "Brace expansion tests complete."
 delay 400
 echo "---------------------------------------------------------------------"
 echo ""
-echo "      ===== OopisOS Core Test Suite v5 Complete ======="
+echo "      ===== OopisOS Core Test Suite v5.1 Complete ======="
 echo " "
 delay 500
 echo "  ======================================================"

@@ -1,4 +1,6 @@
-/* oos-dev/apps.css */
+/* Apps.js Style Sheet */
+/* ========================================================================== */
+
 .app-container {
     display: flex;
     flex-direction: column;

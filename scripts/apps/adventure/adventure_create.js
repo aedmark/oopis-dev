@@ -1,19 +1,42 @@
 // scripts/apps/adventure/adventure_create.js
+
 "use strict";
 
+/**
+ * Adventure Creator - Interactive tool for creating and editing text adventure games
+ * @namespace Adventure_create
+ */
 window.Adventure_create = {
+  /**
+   * Application state
+   * @type {Object}
+   * @property {boolean} isActive - Whether the creator is currently running
+   * @property {Object} adventureData - The adventure game data being edited
+   * @property {string} targetFilename - File to save the adventure to
+   * @property {boolean} isDirty - Whether there are unsaved changes
+   * @property {Object} commandContext - Command execution context
+   * @property {Object|null} editContext - Current entity being edited {type, id, name}
+   * @property {Object|null} dialogueEditContext - Current dialogue node being edited {npcId, nodeId}
+   */
   state: {
     isActive: false,
     adventureData: {},
     targetFilename: "",
     isDirty: false,
     commandContext: null,
-    editContext: null, // { type: 'room'|'item'|'npc', id: 'entity_id', name: 'Entity Name' }
-    dialogueEditContext: null, // NEW: { npcId: 'npc_id', nodeId: 'node_id' }
+    editContext: null,
+    dialogueEditContext: null,
   },
 
+  /** @type {Object} Dependencies injected from command context */
   dependencies: {},
 
+  /**
+   * Enter the adventure creator
+   * @param {string} filename - Target filename for saving
+   * @param {Object} initialData - Initial adventure data
+   * @param {Object} commandContext - Command execution context
+   */
   enter(filename, initialData, commandContext) {
     if (this.state.isActive) return;
 
@@ -37,6 +60,10 @@ window.Adventure_create = {
     this._requestNextCommand();
   },
 
+  /**
+   * Request the next command from the user
+   * @private
+   */
   _requestNextCommand() {
     if (!this.state.isActive) return;
 
@@ -53,7 +80,6 @@ window.Adventure_create = {
       type: "input",
       messageLines: [prompt],
       onConfirm: async (input) => {
-        // NEW: Check if we are in dialogue mode
         if (this.state.dialogueEditContext) {
           await this._processDialogueCreatorCommand(input);
         } else {
@@ -70,11 +96,15 @@ window.Adventure_create = {
     });
   },
 
+  /**
+   * Process a main creator command
+   * @private
+   * @param {string} input - User input command
+   */
   async _processCreatorCommand(input) {
     const [command, ...args] = input.trim().split(/\s+/);
     const joinedArgs = args.join(" ");
 
-    // NEW: Special command for dialogue editing
     if (this.state.editContext && this.state.editContext.type === 'npc' && command.toLowerCase() === 'dialogue') {
       await this._enterDialogueEditMode();
       return;
@@ -115,7 +145,11 @@ window.Adventure_create = {
     }
   },
 
-  // NEW: Command processor for the dialogue editing sub-shell
+  /**
+   * Process a dialogue editing command
+   * @private
+   * @param {string} input - User input command
+   */
   async _processDialogueCreatorCommand(input) {
     const [command, ...args] = input.trim().split(/\s+/);
     const joinedArgs = args.join(" ");
@@ -142,6 +176,12 @@ window.Adventure_create = {
     }
   },
 
+  /**
+   * Generate a valid ID from a name
+   * @private
+   * @param {string} name - Name to convert to ID
+   * @returns {string} Generated ID
+   */
   _generateId(name) {
     return name
         .toLowerCase()
@@ -149,6 +189,11 @@ window.Adventure_create = {
         .replace(/^_|_$/g, "");
   },
 
+  /**
+   * Handle the 'create' command
+   * @private
+   * @param {string[]} args - Command arguments
+   */
   async _handleCreate(args) {
     const { OutputManager } = this.dependencies;
     const type = args.shift()?.toLowerCase();
@@ -194,7 +239,6 @@ window.Adventure_create = {
         ...newEntity,
         noun: name.split(" ").pop().toLowerCase(),
         location: "void",
-        // NEW: Initialize with the dialogue structure
         dialogue: {
           startNode: "start",
           nodes: {
@@ -215,6 +259,13 @@ window.Adventure_create = {
     await this._handleEdit(`${type} "${name}"`);
   },
 
+  /**
+   * Find an entity by type and name
+   * @private
+   * @param {string} type - Entity type (room, item, npc)
+   * @param {string} name - Entity name or ID
+   * @returns {Object|null} Found entity or null
+   */
   _findEntity(type, name) {
     const collection = this.state.adventureData[type + "s"];
     if (!collection) return null;
@@ -228,6 +279,11 @@ window.Adventure_create = {
     return null;
   },
 
+  /**
+   * Handle the 'edit' command
+   * @private
+   * @param {string} argString - Command arguments as string
+   */
   async _handleEdit(argString) {
     const { OutputManager } = this.dependencies;
     if (!argString) {
@@ -259,7 +315,10 @@ window.Adventure_create = {
     }
   },
 
-  // NEW: Handlers for dialogue creation
+  /**
+   * Enter dialogue editing mode for an NPC
+   * @private
+   */
   async _enterDialogueEditMode() {
     const { OutputManager } = this.dependencies;
     const npc = this.state.adventureData.npcs[this.state.editContext.id];
@@ -272,6 +331,11 @@ window.Adventure_create = {
     await this._handleNodeCommand(['view', npc.dialogue.startNode]);
   },
 
+  /**
+   * Handle dialogue node commands
+   * @private
+   * @param {string[]} args - Command arguments
+   */
   async _handleNodeCommand(args) {
     const { OutputManager } = this.dependencies;
     const subCommand = args.shift()?.toLowerCase();
@@ -317,6 +381,11 @@ window.Adventure_create = {
     }
   },
 
+  /**
+   * Handle dialogue choice commands
+   * @private
+   * @param {string[]} args - Command arguments
+   */
   async _handleChoiceCommand(args) {
     const { OutputManager } = this.dependencies;
     const subCommand = args.shift()?.toLowerCase();
@@ -351,6 +420,11 @@ window.Adventure_create = {
     }
   },
 
+  /**
+   * Handle setting dialogue properties
+   * @private
+   * @param {string} argString - Property and value string
+   */
   async _handleSetDialogueProperty(argString) {
     const { OutputManager } = this.dependencies;
     const match = argString.match(/^(\w+)\s+(.*)/);
@@ -378,6 +452,11 @@ window.Adventure_create = {
   },
 
 
+  /**
+   * Handle the 'set' command for entity properties
+   * @private
+   * @param {string} argString - Property and value string
+   */
   async _handleSet(argString) {
     const { OutputManager } = this.dependencies;
     if (!this.state.editContext) {
@@ -432,6 +511,11 @@ window.Adventure_create = {
     }
   },
 
+  /**
+   * Handle the 'link' command for connecting rooms
+   * @private
+   * @param {string[]} args - Command arguments
+   */
   async _handleLink(args) {
     const { OutputManager } = this.dependencies;
     if (args.length < 3) {
@@ -483,6 +567,10 @@ window.Adventure_create = {
     );
   },
 
+  /**
+   * Handle the 'status' command
+   * @private
+   */
   async _handleStatus() {
     const rooms = Object.keys(this.state.adventureData.rooms || {}).length;
     const items = Object.keys(this.state.adventureData.items || {}).length;
@@ -495,6 +583,10 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
     await this.dependencies.OutputManager.appendToOutput(status);
   },
 
+  /**
+   * Handle the 'save' command
+   * @private
+   */
   async _handleSave() {
     const { OutputManager, UserManager, FileSystemManager } = this.dependencies;
     const jsonContent = JSON.stringify(this.state.adventureData, null, 2);
@@ -537,6 +629,10 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
     }
   },
 
+  /**
+   * Handle the 'help' command
+   * @private
+   */
   async _handleHelp() {
     const helpText = `Adventure Creator Commands:
   create <type> "<name>"   - Create a new room, item, or npc.
@@ -550,6 +646,10 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
     await this.dependencies.OutputManager.appendToOutput(helpText);
   },
 
+  /**
+   * Handle the dialogue 'help' command
+   * @private
+   */
   async _handleDialogueHelp() {
     const helpText = `Dialogue Editing Commands:
   node list                - List all dialogue nodes for this NPC.
@@ -564,6 +664,9 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
     await this.dependencies.OutputManager.appendToOutput(helpText);
   },
 
+  /**
+   * Exit the adventure creator
+   */
   async exit() {
     const { ModalManager, OutputManager } = this.dependencies;
     if (this.state.isDirty) {
@@ -604,5 +707,9 @@ File: ${this.state.targetFilename} (${this.state.isDirty ? "UNSAVED CHANGES" : "
     });
   },
 
+  /**
+   * Check if the creator is currently active
+   * @returns {boolean} True if active
+   */
   isActive: () => this.state.isActive,
 };

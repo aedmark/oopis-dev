@@ -1,4 +1,6 @@
-/* oos-dev/scripts/apps/explorer/explorer.css */
+/* Explorer Style Sheet */
+/* ========================================================================== */
+
 .explorer__tree-pane,
 .explorer__main-pane {
     padding: var(--spacing-sm);

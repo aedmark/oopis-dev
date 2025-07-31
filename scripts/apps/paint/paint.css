@@ -1,7 +1,6 @@
-/* OopisOS v5.0 Paint Style Sheet (Refactored) */
+/* Oopis Paint Style Sheet */
 /* ========================================================================== */
 
-/* The new main area is now a flex column to stack the toolbar and canvas */
 #oopis-paint-app-container .app-main {
     display: flex;
     flex-direction: column;
