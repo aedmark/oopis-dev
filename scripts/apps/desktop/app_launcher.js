@@ -1,4 +1,5 @@
 // gem/scripts/apps/desktop/app_launcher.js
+
 window.AppLauncher = class AppLauncher {
     constructor(windowManager, dependencies) {
         this.windowManager = windowManager;
@@ -13,7 +14,6 @@ window.AppLauncher = class AppLauncher {
             'css': { manager: 'EditorManager', files: ['apps/editor/editor_manager.js', 'apps/editor/editor_ui.js'] },
             'bas': { manager: 'BasicManager', files: ['apps/basic/basic_manager.js', 'apps/basic/basic_ui.js', 'apps/basic/basic_interp.js'] },
             'oopic': { manager: 'PaintManager', files: ['apps/paint/paint_manager.js', 'apps/paint/paint_ui.js'] },
-            // We can add more file associations here!
         };
     }
 
@@ -24,13 +24,10 @@ window.AppLauncher = class AppLauncher {
 
         if (!appInfo) {
             console.warn(`No application registered for extension: ${extension}`);
-            // For unknown files, try to determine if it's a directory
             const pathInfo = FileSystemManager.validatePath(filePath, { allowMissing: false });
             if (pathInfo.success && pathInfo.data.node.type === 'directory') {
-                // Launch file explorer for directories
                 await CommandExecutor.processSingleCommand(`explore "${filePath}"`, { isInteractive: true });
             } else {
-                // Fallback to the 'edit' command for unknown text files
                 await CommandExecutor.processSingleCommand(`edit "${filePath}"`, { isInteractive: true });
             }
             return;
@@ -38,7 +35,6 @@ window.AppLauncher = class AppLauncher {
 
         console.log(`Launching ${appInfo.manager} for file: ${filePath}`);
         
-        // Load the necessary application scripts
         for (const file of appInfo.files) {
             console.log(`Loading script: ${file}`);
             await CommandExecutor._loadScript(file);
@@ -50,7 +46,6 @@ window.AppLauncher = class AppLauncher {
             return;
         }
         
-        // Make UI classes available in dependencies
         const uiClassName = appInfo.manager.replace('Manager', 'UI');
         const UIClass = window[uiClassName];
         if (!UIClass) {
@@ -67,7 +62,6 @@ window.AppLauncher = class AppLauncher {
         console.log(`File content length: ${pathInfo.data.node.content?.length || 0}`);
         console.log(`File content preview: "${pathInfo.data.node.content?.substring(0, 50)}..."`);
 
-        // Create the window first
         const contentContainer = Utils.createElement('div', { className: 'app-content-container' });
         const fileName = filePath.split('/').pop();
         const windowId = this.windowManager.createWindow({
@@ -77,31 +71,27 @@ window.AppLauncher = class AppLauncher {
             height: 600
         });
 
-        // Create a windowed app layer manager that handles window closing
         const windowedAppLayerManager = {
             hide: (app) => {
                 this.windowManager.closeWindow(windowId);
             }
         };
 
-        // Instantiate and launch the app *inside* the window's content area
         const appInstance = new AppManagerClass();
         const launchOptions = {
             ...this.dependencies,
-            [uiClassName]: UIClass, // Add the UI class to dependencies
-            AppLayerManager: windowedAppLayerManager, // Override with windowed version
+            [uiClassName]: UIClass,
+            AppLayerManager: windowedAppLayerManager,
             filePath: filePath,
             fileContent: pathInfo.data.node.content,
-            isWindowed: true // Flag to indicate windowed mode
+            isWindowed: true
         };
         
         console.log(`Launching app with options:`, { filePath, contentLength: pathInfo.data.node.content?.length });
         
-        // Store app instance for cleanup
         this.windowManager.setWindowData(windowId, { appInstance });
         
         try {
-            // Pass file data directly for windowed apps, not nested in dependencies
             const appOptions = {
                 dependencies: launchOptions,
                 filePath: filePath,
