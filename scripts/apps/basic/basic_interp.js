@@ -412,7 +412,7 @@ window.Basic_interp = class Basic_interp {
           if (netSendArgs.length !== 2) throw new Error("SYS_NET_SEND requires 2 arguments: targetId$, message$");
           const targetId = await this._evaluateExpression(netSendArgs[0]);
           const message = await this._evaluateExpression(netSendArgs[1]);
-          NetworkManager.sendMessage(targetId, 'direct_message', message);
+          await NetworkManager.sendMessage(targetId, 'direct_message', message);
           return 0; // Return 0 for success
       }
     }

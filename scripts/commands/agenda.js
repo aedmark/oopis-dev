@@ -210,7 +210,7 @@ class AgendaDaemon {
                 break;
             case 'REMOVE_JOB':
                 this.schedule = this.schedule.filter(job => job.id !== message.payload.jobId);
-                this._saveSchedule();
+                await this._saveSchedule();
                 break;
         }
     }
@@ -221,16 +221,32 @@ class AgendaDaemon {
         console.log("AgendaDaemon: Starting up.");
         await this._loadSchedule();
         this.dependencies.MessageBusManager.registerJob('agenda-daemon');
+        await this._runDaemonLoop();
+    }
 
+    async _runDaemonLoop() {
         while (true) {
-            const now = new Date();
-            const messages = this.dependencies.MessageBusManager.getMessages('agenda-daemon');
-            for (const msg of messages) {
-                await this._handleMessage(msg);
+            try {
+                const now = new Date();
+                await this._processMessages();
+                this._checkSchedule(now);
+                await this._waitUntilNextMinute(now);
+            } catch (error) {
+                console.error("AgendaDaemon: Encountered an error in the main loop, but I'm doing my best!", error);
+                await new Promise(resolve => setTimeout(resolve, 5000));
             }
-            this._checkSchedule(now);
-            const secondsUntilNextMinute = 60 - now.getSeconds();
-            await new Promise(resolve => setTimeout(resolve, secondsUntilNextMinute * 1000));
         }
+    }
+
+    async _processMessages() {
+        const messages = this.dependencies.MessageBusManager.getMessages('agenda-daemon');
+        for (const msg of messages) {
+            await this._handleMessage(msg);
+        }
+    }
+
+    async _waitUntilNextMinute(currentTime) {
+        const secondsUntilNextMinute = 60 - currentTime.getSeconds();
+        await new Promise(resolve => setTimeout(resolve, secondsUntilNextMinute * 1000));
     }
 }

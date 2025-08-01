@@ -219,7 +219,7 @@ window.EditorManager = class EditorManager extends App {
           await this.callbacks.onSaveRequest();
           break;
         case "o":
-          this.exit();
+          await this.exit();
           break;
         case "p":
           this.callbacks.onTogglePreview();
@@ -237,7 +237,7 @@ window.EditorManager = class EditorManager extends App {
       if (handled) event.preventDefault();
     } else if (event.key === "Escape") {
       event.preventDefault();
-      this.exit();
+      await this.exit();
     }
   }
 

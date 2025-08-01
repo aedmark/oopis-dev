@@ -1,4 +1,4 @@
-// scripts/commands/upload.js
+// gem/scripts/commands/upload.js
 
 window.UploadCommand = class UploadCommand extends Command {
     constructor() {
@@ -42,11 +42,32 @@ window.UploadCommand = class UploadCommand extends Command {
         }
 
         const input = Utils.createElement("input", { type: "file", multiple: true });
+        input.style.display = 'none';
         document.body.appendChild(input);
 
         return new Promise((resolve) => {
+            let fileSelected = false;
+
+            const cleanup = () => {
+                window.removeEventListener('focus', handleFocus);
+                if (document.body.contains(input)) {
+                    document.body.removeChild(input);
+                }
+            };
+
+            const handleFocus = () => {
+                setTimeout(() => {
+                    if (!fileSelected) {
+                        cleanup();
+                        resolve(ErrorHandler.createSuccess(Config.MESSAGES.UPLOAD_NO_FILE));
+                    }
+                }, 500);
+            };
+
+            window.addEventListener('focus', handleFocus, { once: true });
+
             input.onchange = async (e) => {
-                const cleanup = () => document.body.contains(input) && document.body.removeChild(input);
+                fileSelected = true;
                 const files = e.target.files;
 
                 if (!files || files.length === 0) {

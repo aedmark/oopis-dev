@@ -13,12 +13,6 @@ class ErrorHandler {
     };
   }
 
-  /**
-   * Creates a standardized success object.
-   * @param {*} [data=null] - The payload to return on success.
-   * @param {object} [options={}] - Additional options for the success object.
-   * @returns {{success: true, data: *, ...options}}
-   */
   static createSuccess(data = null, options = {}) {
     return {
       success: true,

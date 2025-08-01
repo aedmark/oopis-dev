@@ -252,6 +252,13 @@ window.onload = async () => {
     sessionManager.initializeStack();
     sessionManager.loadAutomaticState(configManager.USER.DEFAULT_NAME);
 
+    // After loading state, clear the screen and show a fresh welcome message for a clean boot experience.
+    outputManager.clearOutput();
+    await outputManager.appendToOutput(
+        `${configManager.MESSAGES.WELCOME_PREFIX} ${userManager.getCurrentUser().name}${configManager.MESSAGES.WELCOME_SUFFIX}`
+    );
+
+
     const guestHome = `/home/${configManager.USER.DEFAULT_NAME}`;
     if (!fsManager.getNodeByPath(fsManager.getCurrentPath())) {
       fsManager.setCurrentPath(

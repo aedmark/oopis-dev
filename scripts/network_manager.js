@@ -70,9 +70,9 @@ class NetworkManager {
                             this.websocket.send(JSON.stringify(presencePayload));
                         }
                         break;
-                    case 'offer': this._handleOffer(payload); break;
-                    case 'answer': this._handleAnswer(payload); break;
-                    case 'candidate': this._handleCandidate(payload); break;
+                    case 'offer': await this._handleOffer(payload); break;
+                    case 'answer': await this._handleAnswer(payload); break;
+                    case 'candidate': await this._handleCandidate(payload); break;
                     case 'ping': case 'pong': case 'direct_message':
                         this._processIncomingMessage(payload);
                         break;

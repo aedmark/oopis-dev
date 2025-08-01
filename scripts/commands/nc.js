@@ -43,7 +43,7 @@ window.NcCommand = class NcCommand extends Command {
             }
 
             const mode = flags.exec ? 'execute' : 'print';
-            dependencies.OutputManager.appendToOutput(`Listening for messages on instance ${NetworkManager.getInstanceId()} in '${mode}' mode... (Press Ctrl+C to stop)`);
+            await dependencies.OutputManager.appendToOutput(`Listening for messages on instance ${NetworkManager.getInstanceId()} in '${mode}' mode... (Press Ctrl+C to stop)`);
 
             NetworkManager.setListenCallback((payload) => {
                 const { sourceId, data } = payload;
@@ -65,7 +65,7 @@ window.NcCommand = class NcCommand extends Command {
         const targetId = args[0];
         const message = args[1];
 
-        NetworkManager.sendMessage(targetId, 'direct_message', message);
+        await NetworkManager.sendMessage(targetId, 'direct_message', message);
         return ErrorHandler.createSuccess();
     }
 };

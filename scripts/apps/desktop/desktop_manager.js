@@ -61,7 +61,7 @@ window.DesktopManager = class DesktopManager extends App {
         this._setupKeyboardShortcuts();
 
         await this._createWelcomeFiles();
-        this.iconManager.loadIcons();
+        await this.iconManager.loadIcons();
 
         console.log("OopisX is online.");
     }

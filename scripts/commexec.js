@@ -593,40 +593,47 @@ class CommandExecutor {
   }
 
   _expandBraces(commandString) {
-    // Handle sequence expansion {a..z} or {1..10}
-    commandString = commandString.replace(/\{([^,}]+)\.\.([^,}]+)\}/g, (match, start, end) => {
-      const startNum = parseInt(start);
-      const endNum = parseInt(end);
-      
-      if (!isNaN(startNum) && !isNaN(endNum)) {
-        const result = [];
-        const step = startNum <= endNum ? 1 : -1;
-        for (let i = startNum; step > 0 ? i <= endNum : i >= endNum; i += step) {
-          result.push(i);
+    const braceExpansionRegex = /(\S*?)\{([^}]+)\}(\S*)/g;
+
+    const expander = (match, prefix, content, suffix) => {
+      if (content.includes('..')) { // Handle sequence expansion like {1..5} or {a..z}
+        const [start, end] = content.split('..');
+        const startNum = parseInt(start, 10);
+        const endNum = parseInt(end, 10);
+
+        if (!isNaN(startNum) && !isNaN(endNum)) { // Numeric sequence
+          const result = [];
+          const step = startNum <= endNum ? 1 : -1;
+          for (let i = startNum; step > 0 ? i <= endNum : i >= endNum; i += step) {
+            result.push(`${prefix}${i}${suffix}`);
+          }
+          return result.join(' ');
+        } else if (start.length === 1 && end.length === 1) { // Character sequence
+          const startCode = start.charCodeAt(0);
+          const endCode = end.charCodeAt(0);
+          const result = [];
+          const step = startCode <= endCode ? 1 : -1;
+          for (let i = startCode; step > 0 ? i <= endCode : i >= endCode; i += step) {
+            result.push(`${prefix}${String.fromCharCode(i)}${suffix}`);
+          }
+          return result.join(' ');
         }
-        return result.join(' ');
-      } else if (start.length === 1 && end.length === 1) {
-        const startCode = start.charCodeAt(0);
-        const endCode = end.charCodeAt(0);
-        const result = [];
-        const step = startCode <= endCode ? 1 : -1;
-        for (let i = startCode; step > 0 ? i <= endCode : i >= endCode; i += step) {
-          result.push(String.fromCharCode(i));
-        }
-        return result.join(' ');
+      } else if (content.includes(',')) { // Handle comma expansion like {a,b,c}
+        return content.split(',')
+            .map(part => `${prefix}${part}${suffix}`)
+            .join(' ');
       }
       return match;
-    });
-    
-    // Handle comma expansion {a,b,c} - need to handle empty strings
-    commandString = commandString.replace(/\{([^}]*)\}/g, (match, content) => {
-      if (content.includes(',')) {
-        return content.split(',').join(' ');
-      }
-      return match;
-    });
-    
-    return commandString;
+    };
+
+    let expandedString = commandString;
+    let previousString;
+    do {
+      previousString = expandedString;
+      expandedString = expandedString.replace(braceExpansionRegex, expander);
+    } while (expandedString !== previousString);
+
+    return expandedString;
   }
 
   async _preprocessCommandString(rawCommandText, scriptingContext = null) {
