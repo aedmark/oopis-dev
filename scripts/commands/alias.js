@@ -1,4 +1,5 @@
 // scripts/commands/alias.js
+
 window.AliasCommand = class AliasCommand extends Command {
   constructor() {
     super({
@@ -56,7 +57,6 @@ EXAMPLES
     const { name, value } = Utils.parseKeyValue(args);
 
     if (value !== null) {
-      // A value was provided, so we are setting an alias
       if (!name) {
         return ErrorHandler.createError(
             "alias: invalid format. Missing name."
@@ -67,7 +67,6 @@ EXAMPLES
       }
       return ErrorHandler.createError("alias: failed to set alias.");
     } else {
-      // No value, so we are displaying an existing alias
       const aliasValue = AliasManager.getAlias(name);
       if (aliasValue) {
         return ErrorHandler.createSuccess(`alias ${name}='${aliasValue}'`);

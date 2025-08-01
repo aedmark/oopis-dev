@@ -1,4 +1,5 @@
 // scripts/commands/backup.js
+
 window.BackupCommand = class BackupCommand extends Command {
   constructor() {
     super({

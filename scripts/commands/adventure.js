@@ -1,6 +1,5 @@
-// gem/scripts/commands/adventure.js
+// /scripts/commands/adventure.js
 
-// The default adventure data, now with advanced dialogue!
 const defaultAdventureData = {
   title: "The Architect's Apprentice",
   startingRoomId: "test_chamber",
@@ -157,11 +156,11 @@ const defaultAdventureData = {
           },
           "objective_understood": {
             "npcResponse": "'Excellent. The system is yours to explore. Remember to examine everything closely. ASK me about things if you get stuck.'",
-            "playerChoices": [] // End of this branch
+            "playerChoices": []
           },
           "ask_about_chamber": {
             "npcResponse": "'Just a sandbox,' it says, gesturing at the flickering walls. 'But a sandbox in need of a fix. The terminal is the key, but it appears to be without power. Every lock has its key, of course.'",
-            "playerChoices": [] // End of this branch
+            "playerChoices": []
           }
         }
       },

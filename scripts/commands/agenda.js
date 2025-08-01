@@ -1,4 +1,5 @@
-// gem/scripts/commands/agenda.js
+// /scripts/commands/agenda.js
+
 window.AgendaCommand = class AgendaCommand extends Command {
     constructor() {
         super({
@@ -25,7 +26,6 @@ window.AgendaCommand = class AgendaCommand extends Command {
             return ErrorHandler.createError("agenda: missing sub-command. Use 'add', 'list', or 'remove'.");
         }
 
-        // --- Check for root privileges on protected commands ---
         if (['add', 'remove'].includes(subCommand.toLowerCase()) && currentUser !== 'root') {
             return ErrorHandler.createError(`agenda: modifying the schedule requires root privileges. Try 'sudo agenda ${args.join(' ')}'.`);
         }
@@ -41,7 +41,6 @@ window.AgendaCommand = class AgendaCommand extends Command {
 
         if (!isDaemonRunning) {
             await OutputManager.appendToOutput("Starting agenda daemon for the first time...");
-            // If started by a sudo command, this will correctly run the daemon as root
             await CommandExecutor.processSingleCommand("agenda --daemon-start &", { isInteractive: false });
             await new Promise(resolve => setTimeout(resolve, 500));
         }
@@ -77,7 +76,6 @@ window.AgendaCommand = class AgendaCommand extends Command {
             payload: { cronString, command }
         });
 
-        // Give the daemon a moment to process the message before returning
         await new Promise(resolve => setTimeout(resolve, 1000));
         return ErrorHandler.createSuccess("Job submitted to the agenda.");
     }
@@ -125,7 +123,6 @@ window.AgendaCommand = class AgendaCommand extends Command {
             payload: { jobId }
         });
 
-        // Give the daemon a moment to process the message before returning
         await new Promise(resolve => setTimeout(resolve, 100));
         return ErrorHandler.createSuccess(`Sent request to remove job ${jobId}.`);
     }

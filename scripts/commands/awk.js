@@ -1,4 +1,5 @@
 // scripts/commands/awk.js
+
 window.AwkCommand = class AwkCommand extends Command {
   constructor() {
     super({
@@ -100,7 +101,6 @@ EXAMPLES
       argsStr = argsStr.replace(/NR/g, vars.NR);
       argsStr = argsStr.replace(/NF/g, vars.NF);
 
-      // Replace commas with spaces for multi-argument print
       return argsStr.replace(/,/g, " ").replace(/"/g, ""); // Also strip quotes
     }
     return null;
@@ -110,8 +110,6 @@ EXAMPLES
     const { flags, args, inputItems, inputError, dependencies } = context;
     const { ErrorHandler } = dependencies;
 
-    // The 'args' array from context now correctly contains only non-flag arguments.
-    // The program is the first argument, and any subsequent arguments are files.
     if (args.length === 0) {
       return ErrorHandler.createError("awk: missing program");
     }
@@ -122,7 +120,7 @@ EXAMPLES
       );
     }
 
-    const programString = args[0]; // The program is now always the first argument
+    const programString = args[0];
     const program = this._parseProgram(programString);
     if (program.error) {
       return ErrorHandler.createError(
@@ -130,8 +128,6 @@ EXAMPLES
       );
     }
 
-    // The inputItems are now correctly populated by the base class logic,
-    // whether from a pipe or from the file arguments.
     if (!inputItems || inputItems.length === 0) {
       return ErrorHandler.createSuccess("");
     }

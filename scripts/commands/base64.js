@@ -1,4 +1,5 @@
 // scripts/commands/base64.js
+
 window.Base64Command = class Base64Command extends Command {
   constructor() {
     super({
@@ -50,22 +51,18 @@ EXAMPLES
 
     try {
       if (flags.decode) {
-        // The 'atob' function in browsers correctly handles whitespace.
         const decodedData = atob(inputData);
         return ErrorHandler.createSuccess(decodedData);
       } else {
         const encodedData = btoa(inputData);
-        // Standard base64 output is often wrapped at 76 characters, but 64 is also common.
         return ErrorHandler.createSuccess(
             encodedData.replace(/(.{64})/g, "$1\n")
         );
       }
     } catch (e) {
-      // This specifically catches errors from atob() on invalid input.
       if (e instanceof DOMException && e.name === "InvalidCharacterError") {
         return ErrorHandler.createError("base64: invalid input");
       }
-      // Re-throw any other unexpected errors.
       throw e;
     }
   }

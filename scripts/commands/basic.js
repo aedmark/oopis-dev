@@ -1,4 +1,5 @@
 // scripts/commands/basic.js
+
 window.BasicCommand = class BasicCommand extends Command {
   constructor() {
     super({
@@ -107,7 +108,6 @@ window.BasicCommand = class BasicCommand extends Command {
           filePath = pathValidation.resolvedPath;
           fileContent = pathValidation.node.content;
         } else {
-          // File doesn't exist, which is fine for creation.
           filePath = pathValidation.resolvedPath;
           fileContent = "";
         }
