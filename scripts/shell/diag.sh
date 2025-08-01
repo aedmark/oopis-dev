@@ -412,9 +412,13 @@ echo "xor tests complete."
 delay 200
 echo "--- Test: ocrypt (secure encrypt/decrypt) ---"
 echo "A truly secure message." > ocrypt_test.txt
-ocrypt diag_secure_pass ocrypt_test.txt
-ocrypt -d diag_secure_pass ocrypt_test.txt | grep "A truly secure message."
-rm ocrypt_test.txt
+echo "Encrypting with correct key..."
+ocrypt diag_secure_pass ocrypt_test.txt ocrypt_encrypted.txt
+echo "Verifying successful decryption with correct key..."
+ocrypt -d diag_secure_pass ocrypt_encrypted.txt | grep "A truly secure message."
+echo "Verifying decryption failure with WRONG key (this should succeed)..."
+check_fail "ocrypt -d wrong_password ocrypt_encrypted.txt"
+rm ocrypt_test.txt ocrypt_encrypted.txt
 echo "ocrypt secure tests complete."
 delay 200
 echo "--- Test: cksum and sync ---"
@@ -503,10 +507,10 @@ echo ""
 echo "===== Phase 14: Testing Network & System Documentation Commands ====="
 delay 200
 echo "--- Test: wget and curl ---"
-wget -O wget.txt https://raw.githubusercontent.com/aedmark/Oopis-OS/refs/heads/master/docs/LICENSE.txt
+wget -O wget.txt https://raw.githubusercontent.com/aedmark/Oopis-OS/refs/heads/master/README.md
 cat wget.txt
 rm wget.txt
-curl https://raw.githubusercontent.com/aedmark/Oopis-OS/refs/heads/master/docs/LICENSE.txt > oopis_curl.txt
+curl https://raw.githubusercontent.com/aedmark/Oopis-OS/refs/heads/master/README.md > oopis_curl.txt
 cat oopis_curl.txt
 rm oopis_curl.txt
 echo "--- Test: ping - Pinging a known-good host ---"
@@ -1284,7 +1288,7 @@ rm -r -f /overwrite_dir
 rm -r -f /recursive_test
 rm -r -f /zip_test
 rm -r -f /tmp/*
-rm -r -f /home/Guest/recursive_test_user
+rm -r -f /home/Guest/recursive_chown_test
 rm -f /awk_test.csv
 rm -f /interactive_test.txt
 rm -f /link_a
