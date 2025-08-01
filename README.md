@@ -14,7 +14,7 @@
                     |__/  A Browser-Based OS Simulation
 ```
 
-# OopisOS v5.0 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
+# OopisOS v5.1 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
 
 Welcome, friend, to OopisOS! You're about to embark on an incredible journey into a world of productivity, creativity, and cutting-edge technology, all running right here in your browser. This guide is your trusted companion, your roadmap to becoming an OopisOS power-user. Let's dive in!
 ## Recent Changes
@@ -23,6 +23,7 @@ Welcome, friend, to OopisOS! You're about to embark on an incredible journey int
 - **JSDoc Documentation:** Added comprehensive JSDoc comments to multiple OopisOS application files for better code documentation
 - **Modal Apps in Desktop Environment:** Fixed integration issues to allow modal apps (Paint, Editor, Basic) to run properly inside desktop windows
 - **File Content Loading Fix:** Resolved issue where files opened in desktop environment showed blank content due to incorrect data passing
+
 ## Chapter 1: What is OopisOS?
 
 OopisOS is a complete, simulated operating system designed for the modern web. It's a love letter to the classic command-line interfaces of Unix-like systems, supercharged with a suite of powerful graphical applications and groundbreaking AI tools. Whether you're here to learn the ropes of the command line, write code, create art, play games, or collaborate on a project, OopisOS has something for you.
