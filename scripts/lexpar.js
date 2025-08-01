@@ -1,12 +1,12 @@
-// lexpar.js - OopisOS Lexer/Parser Logic (Corrected)
+// /scripts/lexpar.js
 
 const TokenType = {
   WORD: "WORD",
   STRING_DQ: "STRING_DQ",
   STRING_SQ: "STRING_SQ",
-  OPERATOR_GT: "OPERATOR_GT", // >
-  OPERATOR_GTGT: "OPERATOR_GTGT", // >>
-  OPERATOR_LT: "OPERATOR_LT", // <
+  OPERATOR_GT: "OPERATOR_GT",
+  OPERATOR_GTGT: "OPERATOR_GTGT",
+  OPERATOR_LT: "OPERATOR_LT",
   OPERATOR_PIPE: "OPERATOR_PIPE",
   OPERATOR_SEMICOLON: "OPERATOR_SEMICOLON",
   OPERATOR_BG: "OPERATOR_BG",
@@ -145,42 +145,35 @@ class Lexer {
   _tokenizeString(quoteChar) {
     const startPos = this.position;
     let value = "";
-    this.position++; // Consume the opening quote
+    this.position++;
 
     while (this.position < this.input.length) {
       let char = this.input[this.position];
 
-      // If an escape character is found...
       if (char === "\\") {
-        // Check if it's escaping the closing quote or another backslash
         const nextChar = this.input[this.position + 1];
         if (nextChar === quoteChar || nextChar === "\\") {
-          value += nextChar; // Add the escaped character to the value
-          this.position += 2; // and advance past both
+          value += nextChar;
+          this.position += 2;
         } else {
-          // Otherwise, treat it as a literal backslash
           value += char;
           this.position++;
         }
       }
-      // If a non-escaped closing quote is found...
       else if (char === quoteChar) {
-        this.position++; // Consume the closing quote
-        // Return a SINGLE token containing the entire string
+        this.position++;
         return new Token(
             quoteChar === '"' ? TokenType.STRING_DQ : TokenType.STRING_SQ,
             value,
             startPos
         );
       }
-      // For any other character...
       else {
-        value += char; // Append it to the string value
+        value += char;
         this.position++;
       }
     }
 
-    // If the loop finishes without finding a closing quote, it's an error.
     throw new Error(
         `Lexer Error: Unclosed string literal starting at position ${startPos}. Expected closing ${quoteChar}.`
     );
@@ -258,7 +251,6 @@ class Parser {
       if (argToken.type === TokenType.WORD) {
         const globPattern = argToken.value;
         const { FileSystemManager, Utils } = this.dependencies;
-        // Check for glob characters ONLY in WORD tokens (not strings)
         if (globPattern.includes("*") || globPattern.includes("?")) {
           const lastSlashIndex = globPattern.lastIndexOf("/");
           const pathPrefix =
@@ -292,19 +284,15 @@ class Parser {
                     )
                 );
               } else {
-                // No match found, push the original glob pattern
                 args.push(globPattern);
               }
             } else {
-              // Invalid glob pattern, treat as literal
               args.push(globPattern);
             }
           } else {
-            // Path doesn't exist or isn't a directory, pass the literal glob pattern
             args.push(globPattern);
           }
         } else {
-          // Not a glob pattern, just a regular word
           args.push(globPattern);
         }
         this._nextToken();
@@ -312,7 +300,7 @@ class Parser {
           argToken.type === TokenType.STRING_DQ ||
           argToken.type === TokenType.STRING_SQ
       ) {
-        args.push(argToken.value); // Push string literals directly
+        args.push(argToken.value);
         this._nextToken();
       } else {
         throw new Error(
@@ -327,7 +315,7 @@ class Parser {
     const pipeline = new ParsedPipeline();
 
     if (this._currentToken().type === TokenType.OPERATOR_LT) {
-      this._nextToken(); // consume '<'
+      this._nextToken();
       const fileToken =
           this._expectAndConsume(TokenType.WORD, true) ||
           this._expectAndConsume(TokenType.STRING_DQ, true) ||

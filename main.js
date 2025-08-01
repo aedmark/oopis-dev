@@ -1,6 +1,6 @@
 // scripts/main.js
+
 function initializeTerminalEventListeners(domElements, commandExecutor, dependencies) {
-  // Destructure dependencies needed in this function
   const { AppLayerManager, ModalManager, TerminalUI, TabCompletionManager, HistoryManager, SoundManager } = dependencies;
 
   if (!domElements.terminalDiv || !domElements.editableInputDiv) {
@@ -35,12 +35,10 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
             TerminalUI.getCurrentInputValue()
         );
       } else if (TerminalUI.isObscured()) {
-        // Prevent the default action for character keys to stop them from appearing.
         if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           TerminalUI.updateInputForObscure(e.key);
         } else if (e.key === "Backspace" || e.key === "Delete") {
-          // Also handle backspace and delete manually.
           e.preventDefault();
           TerminalUI.updateInputForObscure(e.key);
         }
@@ -174,13 +172,12 @@ window.onload = async () => {
   const soundManager = new SoundManager();
   const storageHAL = new IndexedDBStorageHAL();
 
-  // The dependencies object now gets created early.
   const dependencies = {
     Config: configManager,
     StorageManager: storageManager,
     IndexedDBManager: indexedDBManager,
     FileSystemManager: fsManager,
-    UserManager: null, // We'll create this one after its own dependencies are set.
+    UserManager: null,
     SessionManager: sessionManager,
     CommandExecutor: commandExecutor,
     SudoManager: sudoManager,
@@ -211,12 +208,11 @@ window.onload = async () => {
   };
 
   const userManager = new UserManager(dependencies);
-  dependencies.UserManager = userManager; // Now add the created userManager to the dependencies.
+  dependencies.UserManager = userManager;
 
   const pagerManager = new PagerManager(dependencies);
   dependencies.PagerManager = pagerManager;
 
-  // Set dependencies for all managers that need them
   configManager.setDependencies(dependencies);
   storageManager.setDependencies(dependencies);
   indexedDBManager.setDependencies(dependencies);
@@ -240,8 +236,7 @@ window.onload = async () => {
   storageHAL.setDependencies(dependencies);
 
   try {
-    // Initialization sequence
-    outputManager.initialize(domElements); // Initialize with DOM elements first
+    outputManager.initialize(domElements);
     terminalUI.initialize(domElements);
     modalManager.initialize(domElements);
     appLayerManager.initialize(domElements);

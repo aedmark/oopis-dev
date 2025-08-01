@@ -1,21 +1,15 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 
-// Determine if we are running in a packaged app or in development
-// The 'isPackaged' property is the correct one, not 'ispackaged'.
 const isPackaged = app.isPackaged;
 
-// Define the root directory of the application
 const rootDir = isPackaged
   ? path.dirname(app.getPath("exe"))
   : app.getAppPath();
 
-// Unconditionally set the user data path to be a 'data' folder
-// right next to our executable. This enforces portable mode.
 const portableDataPath = path.join(rootDir, "data");
 app.setPath("userData", portableDataPath);
 
-// Log the enforced portable mode status.
 console.log(
   "OopisOS is running in Portable Mode. Data will be stored at:",
   portableDataPath
@@ -27,7 +21,7 @@ function createWindow() {
     width: 1280,
     height: 960,
     resizable: true,
-    autoHideMenuBar: true, // This will hide the menu bar by default.
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname),
       contextIsolation: true,
@@ -39,18 +33,15 @@ function createWindow() {
       .loadFile(path.join(app.getAppPath(), "index.html"))
       .catch((err) => console.error("Failed to load index.html", err));
 
-  // For debugging, you can uncomment the next line
-  // mainWindow.webContents.openDevTools();
+   mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
-  // IPC handler for the backup command
   ipcMain.handle("dialog:showSaveDialog", async (event, options) => {
     const { filePath } = await dialog.showSaveDialog(options);
     return filePath;
   });
 
-  // IPC handler for the restore command
   ipcMain.handle("dialog:showOpenDialog", async (event, options) => {
     const { filePaths } = await dialog.showOpenDialog(options);
     return filePaths && filePaths.length > 0 ? filePaths[0] : null;

@@ -1,4 +1,5 @@
 // scripts/pager.js
+
 class PagerUI {
   constructor(dependencies) {
     this.elements = {};

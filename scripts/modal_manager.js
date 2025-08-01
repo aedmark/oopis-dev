@@ -1,4 +1,5 @@
 // scripts/modal_manager.js
+
 class ModalManager {
   constructor() {
     this.isAwaitingTerminalInput = false;
@@ -160,7 +161,6 @@ class ModalManager {
     };
     const { context, type } = finalOptions;
 
-    // Scripting / Non-interactive handling
     if (
         finalOptions.options?.scriptingContext?.isScripting ||
         finalOptions.options?.stdinContent
@@ -210,12 +210,10 @@ class ModalManager {
             if (finalOptions.onCancel) finalOptions.onCancel(finalOptions.data);
           }
         } else {
-          // type === 'input'
           if (finalOptions.onConfirm)
             finalOptions.onConfirm(inputLine, finalOptions.data);
         }
       } else {
-        // No more lines in script
         if (finalOptions.onCancel) finalOptions.onCancel(finalOptions.data);
       }
       return;
@@ -224,7 +222,6 @@ class ModalManager {
     if (context === "graphical") {
       this._createModalDOM(finalOptions);
     } else {
-      // context === 'terminal'
       this._renderTerminalPrompt(finalOptions);
     }
   }
@@ -241,7 +238,7 @@ class ModalManager {
 
     this.isAwaitingTerminalInput = false;
     this.activeModalContext = null;
-    TerminalUI.setInputState(true, false); // Reset obscured mode
+    TerminalUI.setInputState(true, false);
     TerminalUI.clearInput();
 
     if (type === "confirm") {
@@ -258,7 +255,6 @@ class ModalManager {
         }
       }
     } else {
-      // type === 'input'
       if (onConfirm) await onConfirm(input, data);
     }
 

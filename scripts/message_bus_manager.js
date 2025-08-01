@@ -1,4 +1,5 @@
 // /scripts/message_bus_manager.js
+
 class MessageBusManager {
   constructor() {
     this.jobQueues = new Map();

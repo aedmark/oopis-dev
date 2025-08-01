@@ -244,16 +244,13 @@ class UserManager {
     const { salt, hash } = userEntry?.passwordData || {};
 
     if (salt && hash) {
-      // Password is required for this user
       if (providedPassword !== null) {
-        // Password was given on the command line
         if (await this._verifyPasswordWithSalt(providedPassword, salt, hash)) {
           return await successCallback(username);
         } else {
           return ErrorHandler.createError(this.config.MESSAGES.INVALID_PASSWORD);
         }
       } else {
-        // No password on command line, so we must prompt
         return new Promise((resolve) => {
           this.modalManager.request({
             context: "terminal",
@@ -278,7 +275,6 @@ class UserManager {
         });
       }
     } else {
-      // No password is set for this user
       if (providedPassword !== null) {
         return ErrorHandler.createError(
             "This account does not require a password."
@@ -287,7 +283,6 @@ class UserManager {
       return await successCallback(username);
     }
   }
-
 
   async login(username, providedPassword, options = {}) {
     const currentUserName = this.getCurrentUser().name;
@@ -406,7 +401,6 @@ class UserManager {
         passwordData: await this._secureHashPassword(randomPassword),
         primaryGroup: "root",
       };
-      // Display the one-time password to the user in the console.
       setTimeout(() => {
         OutputManager.appendToOutput(
             `IMPORTANT: Your one-time root password is: ${randomPassword}`,

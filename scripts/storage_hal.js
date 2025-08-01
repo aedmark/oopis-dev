@@ -129,5 +129,4 @@ class IndexedDBStorageHAL extends StorageHAL {
     }
 }
 
-// Make the new class available to the OS
 window.IndexedDBStorageHAL = IndexedDBStorageHAL;

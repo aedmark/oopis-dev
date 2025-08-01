@@ -1,18 +1,18 @@
 // scripts/network_manager.js
+
 class NetworkManager {
     constructor() {
         this.instanceId = `oos-${Date.now()}-${Math.floor(Math.random() * 100)}`;
         this.channel = new BroadcastChannel('oopisos-network');
         this.dependencies = {};
         this.listenCallback = null;
-        this.messageQueue = []; // For BASIC integration
-        this.pingCallbacks = new Map(); // For the ping command
+        this.messageQueue = [];
+        this.pingCallbacks = new Map();
 
-        // --- WebRTC Properties ---
-        this.signalingServerUrl = 'ws://localhost:8080'; // Swapped to a more reliable service!
+        this.signalingServerUrl = 'ws://localhost:8080';
         this.websocket = null;
-        this.peers = new Map(); // Stores RTCPeerConnection objects
-        this.remoteInstances = new Set(); // Stores IDs of discovered remote instances
+        this.peers = new Map();
+        this.remoteInstances = new Set();
 
         this.channel.onmessage = this._handleBroadcastMessage.bind(this);
         this._initializeSignaling();
@@ -40,12 +40,10 @@ class NetworkManager {
         this.listenCallback = callback;
     }
 
-    // --- BroadcastChannel (Local) Methods ---
     _handleBroadcastMessage(event) {
         this._processIncomingMessage(event.data);
     }
 
-    // --- Signaling Server (WebRTC) Methods ---
     _initializeSignaling() {
         this.websocket = new WebSocket(this.signalingServerUrl);
 
@@ -58,7 +56,6 @@ class NetworkManager {
         this.websocket.onmessage = async (event) => {
             try {
                 let messageData = event.data;
-                // If the data is a Blob, we need to read it as text first.
                 if (messageData instanceof Blob) {
                     messageData = await messageData.text();
                 }
@@ -99,7 +96,6 @@ class NetworkManager {
         }
     }
 
-    // --- WebRTC Peer Connection Logic ---
     async _createPeerConnection(targetId) {
         if (this.peers.has(targetId)) return this.peers.get(targetId);
 
@@ -148,7 +144,6 @@ class NetworkManager {
         }
     }
 
-    // --- Message Sending & Processing ---
     async sendMessage(targetId, type, data) {
         const payload = { sourceId: this.instanceId, targetId, type, data, timestamp: Date.now() };
 

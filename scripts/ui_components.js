@@ -1,4 +1,5 @@
 // scripts/ui_components.js
+
 class UIComponents {
   constructor() {
     this.dependencies = {};
@@ -8,7 +9,6 @@ class UIComponents {
     this.dependencies = dependencies;
   }
 
-  // Method moved to the UIComponents class
   createWindowComponent(title, contentElement, callbacks = {}) {
     const { onFocus, onClose } = callbacks;
     const { Utils } = this.dependencies;
@@ -19,7 +19,6 @@ class UIComponents {
     const content = Utils.createElement('div', { className: 'window-content' }, [contentElement]);
     const windowDiv = Utils.createElement('div', { className: 'app-window' }, [header, content]);
 
-    // --- Dragging Logic ---
     let isDragging = false;
     let offsetX, offsetY;
 
@@ -28,7 +27,6 @@ class UIComponents {
       offsetX = e.clientX - windowDiv.offsetLeft;
       offsetY = e.clientY - windowDiv.offsetTop;
       if (onFocus) onFocus();
-      // Prevent text selection while dragging
       e.preventDefault();
     });
 
@@ -66,7 +64,7 @@ class UIComponents {
 
     const container = Utils.createElement('div', {
       id: `${title.toLowerCase().replace(/\s+/g, '-')}-app-container`,
-      className: 'app-container' // A new, standard class for all apps
+      className: 'app-container'
     }, [header, main, footer]);
 
     return { container, header, main, footer };

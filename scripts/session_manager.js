@@ -1,4 +1,5 @@
 // scripts/session_manager.js
+
 class EnvironmentManager {
   constructor() {
     this.envStack = [{}];
@@ -38,7 +39,6 @@ class EnvironmentManager {
     baseEnv["HOME"] = `/home/${currentUser}`;
     baseEnv["HOST"] = this.config.OS.DEFAULT_HOST_NAME;
     baseEnv["PATH"] = "/bin:/usr/bin";
-    // Reset the stack with the new base environment
     this.envStack = [baseEnv];
   }
 
@@ -244,7 +244,7 @@ class SessionManager {
   constructor() {
     this.userSessionStack = [];
     this.elements = {};
-    this.dependencies = {}; // Initialize dependencies object
+    this.dependencies = {};
     this.config = null;
     this.fsManager = null;
     this.userManager = null;
@@ -256,7 +256,6 @@ class SessionManager {
 
   setDependencies(dependencies) {
     this.dependencies = dependencies;
-    // Set individual properties from the dependencies object for convenience
     this.config = dependencies.Config;
     this.fsManager = dependencies.FileSystemManager;
     this.userManager = dependencies.UserManager;

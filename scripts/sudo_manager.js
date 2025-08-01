@@ -1,4 +1,5 @@
 // scripts/sudo_manager.js
+
 class SudoManager {
   constructor() {
     this.sudoersConfig = null;
@@ -23,7 +24,7 @@ class SudoManager {
         users: {},
         groups: {},
         timeout: this.config.SUDO.DEFAULT_TIMEOUT,
-      }; // Default fallback
+      };
       return;
     }
 
@@ -68,7 +69,7 @@ class SudoManager {
   }
 
   _getSudoersConfig() {
-    this._parseSudoers(); // Always re-parse to get the latest rules.
+    this._parseSudoers();
     return this.sudoersConfig;
   }
 
@@ -127,7 +128,6 @@ class SudoManager {
       }
     }
 
-    // Return false if no permissions match after checking all possibilities.
     return false;
   }
 }

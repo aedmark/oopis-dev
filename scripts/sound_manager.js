@@ -1,4 +1,5 @@
 // scripts/managers/sound_manager.js
+
 window.SoundManager = class SoundManager {
     constructor(dependencies) {
         this.dependencies = dependencies;
@@ -21,7 +22,6 @@ window.SoundManager = class SoundManager {
 
     getSynth() {
         if (!this.isInitialized) {
-            // This is a fallback, but initialization should be handled by the command.
             this.initialize();
         }
         return this.synth;
@@ -33,14 +33,12 @@ window.SoundManager = class SoundManager {
             return;
         }
         try {
-            // A high-pitched, short note for a classic terminal beep.
             this.synth.triggerAttackRelease("G5", "32n", Tone.now());
         } catch (e) {
             console.error("Error playing beep:", e);
         }
     }
 
-    // Updated to handle both single notes and arrays (chords)
     playNote(notes, duration) {
         if (!this.isInitialized || !this.synth) {
             console.error("SoundManager not initialized. Cannot play note.");

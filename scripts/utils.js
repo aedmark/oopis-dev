@@ -1,4 +1,5 @@
 // scripts/utils.js
+
 class Utils {
   static extractComments(content, fileExtension) {
     let comments = [];
@@ -12,20 +13,18 @@ class Utils {
         regex = /(^|\s)#.*$/gm;
         break;
       default:
-        return ""; // Return empty for unsupported types
+        return "";
     }
 
     const matches = content.match(regex);
     if (matches) {
       comments = matches.map((comment) => {
         if (comment.startsWith("/*")) {
-          // Clean up multi-line comment markers
           return comment
               .replace(/^\/\*+/, "")
               .replace(/\*\/$/, "")
               .trim();
         } else {
-          // Clean up single-line comment markers
           return comment.replace(/^\/\//, "").replace(/^#/, "").trim();
         }
       });
@@ -89,14 +88,12 @@ class Utils {
     const eqIndex = combined.indexOf("=");
 
     if (eqIndex === -1) {
-      // No '=' found, treat the whole thing as the name
       return { name: combined.trim(), value: null };
     }
 
     const name = combined.substring(0, eqIndex).trim();
     let value = combined.substring(eqIndex + 1).trim();
 
-    // Strip quotes from the value
     if (
         (value.startsWith("'") && value.endsWith("'")) ||
         (value.startsWith('"') && value.endsWith('"'))

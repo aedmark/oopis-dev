@@ -1,4 +1,5 @@
 // scripts/terminal_ui.js
+
 class TerminalUI {
   constructor() {
     this.isNavigatingHistory = false;
@@ -515,7 +516,7 @@ class TabCompletionManager {
         });
         TerminalUI.scrollOutputToEnd();
 
-        this.cycleIndex = 0; // Start cycle immediately
+        this.cycleIndex = 0;
         const firstSuggestion = this.suggestionsCache[this.cycleIndex];
         const completedNode = FileSystemManager.getNodeByPath(
             FileSystemManager.getAbsolutePath(firstSuggestion)
@@ -531,7 +532,7 @@ class TabCompletionManager {
         completionText += (isDirectory ? "/" : " ");
         let newText = textBefore + completionText + textAfter;
 
-        this.lastCompletionInput = newText; // Set this so the next tab press cycles correctly
+        this.lastCompletionInput = newText;
         return {
           textToInsert: newText,
           newCursorPos: (textBefore + completionText).length,
