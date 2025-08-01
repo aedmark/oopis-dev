@@ -1,4 +1,5 @@
 // scripts/commands/mxml2sh.js
+
 window.Mxml2shCommand = class Mxml2shCommand extends Command {
     constructor() {
         super({
@@ -144,4 +145,5 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         return "64n";
     }
 }
+
 window.CommandRegistry.register(new Mxml2shCommand());

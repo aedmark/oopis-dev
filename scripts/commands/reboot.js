@@ -1,4 +1,5 @@
 // scripts/commands/reboot.js
+
 window.RebootCommand = class RebootCommand extends Command {
     constructor() {
         super({
@@ -36,4 +37,5 @@ window.RebootCommand = class RebootCommand extends Command {
         );
     }
 }
+
 window.CommandRegistry.register(new RebootCommand());

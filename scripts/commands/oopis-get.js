@@ -1,4 +1,5 @@
 // scripts/commands/oopis-get.js
+
 window.OopisGetCommand = class OopisGetCommand extends Command {
     constructor() {
         super({
@@ -14,7 +15,6 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         remove <pkg_name>  Deletes a package from the system.`,
         });
 
-        // The central, trusted source for all our wonderful community add-ons!
         this.REPO_URL = "https://raw.githubusercontent.com/aedmark/OopisOS-Packages/refs/heads/main/";
         this.MANIFEST_FILE = "packages.json";
         this.TEMP_MANIFEST_PATH = "/tmp/packages.json";
@@ -29,7 +29,6 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             return ErrorHandler.createError("oopis-get: missing sub-command. See 'help oopis-get'.");
         }
 
-        // Before any operation, let's make sure our temporary workspace exists.
         await CommandExecutor.processSingleCommand("mkdir -p /tmp", { isInteractive: false });
 
         switch (subCommand.toLowerCase()) {
@@ -118,7 +117,6 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             return ErrorHandler.createError(`Failed to update package manifest: ${saveResult.error}`);
         }
     }
-
 
     async _handleList(context) {
         const { dependencies } = context;
@@ -222,4 +220,5 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         return ErrorHandler.createSuccess(`Successfully removed '${packageName}'. Please reboot for the change to take effect.`);
     }
 };
+
 window.CommandRegistry.register(new OopisGetCommand());

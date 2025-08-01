@@ -1,4 +1,5 @@
 // scripts/commands/xargs.js
+
 window.XargsCommand = class XargsCommand extends Command {
   constructor() {
     super({
@@ -53,7 +54,6 @@ window.XargsCommand = class XargsCommand extends Command {
     }
 
     if (flags.replace) {
-      // Logic for -I flag (this part is already correct)
       const placeholder = flags.replace;
       for (const item of itemsFromInput) {
         const commandWithReplacement = baseCommandParts
@@ -72,17 +72,13 @@ window.XargsCommand = class XargsCommand extends Command {
         }
       }
     } else {
-      // Instead of creating one giant command, we create one command per input item.
-      // This is safer and avoids the validation issue in `rm`.
       const baseCommand = baseCommandParts.join(" ");
       for (const item of itemsFromInput) {
-        // Construct the command safely, quoting the item if it contains spaces.
         const quotedItem = /\s/.test(item) ? `"${item}"` : item;
         const fullCommand = `${baseCommand} ${quotedItem}`;
 
         const result = await CommandExecutor.processSingleCommand(fullCommand, options);
         if (!result.success) {
-          // Stop on the first error, which is the expected behavior.
           return ErrorHandler.createError(result.error);
         }
       }
@@ -91,4 +87,5 @@ window.XargsCommand = class XargsCommand extends Command {
     return ErrorHandler.createSuccess("");
   }
 };
+
 window.CommandRegistry.register(new XargsCommand());

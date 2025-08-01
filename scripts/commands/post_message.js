@@ -1,4 +1,5 @@
 // scripts/commands/post_message.js
+
 window.PostMessageCommand = class PostMessageCommand extends Command {
     constructor() {
         super({
@@ -58,4 +59,5 @@ window.PostMessageCommand = class PostMessageCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new PostMessageCommand());

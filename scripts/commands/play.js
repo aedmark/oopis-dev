@@ -1,4 +1,5 @@
 // scripts/commands/play.js
+
 window.PlayCommand = class PlayCommand extends Command {
     constructor() {
         super({
@@ -35,7 +36,6 @@ window.PlayCommand = class PlayCommand extends Command {
             }
         }
 
-        // Split the string by spaces to handle single notes and chords
         const notes = notesString.split(' ');
 
         SoundManager.playNote(notes, duration);
@@ -48,4 +48,5 @@ window.PlayCommand = class PlayCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+
 window.CommandRegistry.register(new PlayCommand());

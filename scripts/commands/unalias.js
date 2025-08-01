@@ -1,4 +1,5 @@
 // scripts/commands/unalias.js
+
 window.UnaliasCommand = class UnaliasCommand extends Command {
     constructor() {
         super({
@@ -46,4 +47,5 @@ window.UnaliasCommand = class UnaliasCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new UnaliasCommand());

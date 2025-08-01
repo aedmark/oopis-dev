@@ -1,4 +1,5 @@
 // scripts/commands/removeuser.js
+
 window.RemoveuserCommand = class RemoveuserCommand extends Command {
     constructor() {
         super({
@@ -158,4 +159,5 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new RemoveuserCommand());

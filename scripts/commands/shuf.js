@@ -1,4 +1,5 @@
 // scripts/commands/shuf.js
+
 function fisherYatesShuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -124,4 +125,6 @@ window.ShufCommand = class ShufCommand extends Command {
         return ErrorHandler.createSuccess(finalOutput.join("\n"));
     }
 }
+
 window.CommandRegistry.register(new ShufCommand());
+

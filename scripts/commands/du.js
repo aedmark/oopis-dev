@@ -1,4 +1,5 @@
 // scripts/commands/du.js
+
 window.DuCommand = class DuCommand extends Command {
   constructor() {
     super({
@@ -86,4 +87,5 @@ window.DuCommand = class DuCommand extends Command {
     return ErrorHandler.createSuccess(outputLines.join("\n"));
   }
 }
+
 window.CommandRegistry.register(new DuCommand());

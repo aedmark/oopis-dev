@@ -1,4 +1,5 @@
 // scripts/commands/ocrypt.js
+
 function _transpose(matrix) {
   return matrix[0].map((_, colIndex) => matrix.map((row) => row[colIndex]));
 }
@@ -130,4 +131,5 @@ window.OcryptCommand = class OcryptCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new OcryptCommand());

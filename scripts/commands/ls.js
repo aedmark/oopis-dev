@@ -1,4 +1,5 @@
 // scripts/commands/ls.js
+
 function getItemDetails(itemName, itemNode, itemPath, dependencies) {
   const { FileSystemManager, Utils } = dependencies;
   if (!itemNode) return null;
@@ -379,4 +380,5 @@ window.LsCommand = class LsCommand extends Command {
     return ErrorHandler.createSuccess(outputBlocks.join("\n"));
   }
 }
+
 window.CommandRegistry.register(new LsCommand());

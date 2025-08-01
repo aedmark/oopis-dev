@@ -1,4 +1,5 @@
 // scripts/commands/mkdir.js
+
 window.MkdirCommand = class MkdirCommand extends Command {
   constructor() {
     super({
@@ -117,7 +118,6 @@ window.MkdirCommand = class MkdirCommand extends Command {
           );
           allSuccess = false;
         } else if (existingItem.type === "directory" && !flags.parents) {
-          // This is not an error, just do nothing.
         }
       } else {
         parentNodeToCreateIn.children[dirName] =
@@ -136,4 +136,5 @@ window.MkdirCommand = class MkdirCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: changesMade });
   }
 }
+
 window.CommandRegistry.register(new MkdirCommand());

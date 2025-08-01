@@ -1,4 +1,5 @@
 // scripts/commands/unzip.js
+
 async function _restoreNode(name, nodeData, parentPath, dependencies, currentUser) {
     const { FileSystemManager, UserManager } = dependencies;
     const fullPath = FileSystemManager.getAbsolutePath(name, parentPath);
@@ -16,7 +17,7 @@ async function _restoreNode(name, nodeData, parentPath, dependencies, currentUse
     } else if (nodeData.type === 'directory') {
         const mkdirResult = await FileSystemManager.createOrUpdateFile(
             fullPath,
-            null, // No content for a directory
+            null,
             {
                 isDirectory: true,
                 currentUser: currentUser,
@@ -119,4 +120,5 @@ window.UnzipCommand = class UnzipCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new UnzipCommand());

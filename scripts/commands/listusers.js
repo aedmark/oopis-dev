@@ -1,4 +1,5 @@
 // scripts/commands/listusers.js
+
 window.ListusersCommand = class ListusersCommand extends Command {
     constructor() {
         super({
@@ -47,4 +48,5 @@ window.ListusersCommand = class ListusersCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+
 window.CommandRegistry.register(new ListusersCommand());

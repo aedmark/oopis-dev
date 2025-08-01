@@ -1,4 +1,5 @@
 // scripts/commands/groups.js
+
 window.GroupsCommand = class GroupsCommand extends Command {
     constructor() {
         super({
@@ -44,4 +45,5 @@ window.GroupsCommand = class GroupsCommand extends Command {
         return ErrorHandler.createSuccess(userGroups.join(" "));
     }
 }
+
 window.CommandRegistry.register(new GroupsCommand());

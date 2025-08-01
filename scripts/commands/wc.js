@@ -1,4 +1,5 @@
 // scripts/commands/wc.js
+
 window.WcCommand = class WcCommand extends Command {
     constructor() {
         super({
@@ -99,13 +100,12 @@ window.WcCommand = class WcCommand extends Command {
             context.inputFileCount === 1 &&
             inputItems[0].sourceName !== "stdin"
         ) {
-            // No total line needed, already displayed the single file
         } else {
-            // This handles the case for single file input (no filename display) or stdin
             outputLines.push(formatOutput(totalCounts));
         }
 
         return ErrorHandler.createSuccess(outputLines.join("\n"));
     }
 }
+
 window.CommandRegistry.register(new WcCommand());

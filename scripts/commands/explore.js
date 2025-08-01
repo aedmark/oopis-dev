@@ -1,4 +1,5 @@
 // scripts/commands/explore.js
+
 window.ExploreCommand = class ExploreCommand extends Command {
     constructor() {
         super({
@@ -55,4 +56,5 @@ window.ExploreCommand = class ExploreCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new ExploreCommand());

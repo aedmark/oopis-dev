@@ -1,4 +1,5 @@
 // scripts/commands/upload.js
+
 window.UploadCommand = class UploadCommand extends Command {
     constructor() {
         super({
@@ -110,7 +111,6 @@ window.UploadCommand = class UploadCommand extends Command {
                             fileResolve(false);
                         };
 
-                        // Check the file extension and read as ArrayBuffer for binary types
                         const binaryExtensions = ['mxl'];
                         const extension = file.name.split('.').pop().toLowerCase();
                         if (binaryExtensions.includes(extension)) {
@@ -135,4 +135,5 @@ window.UploadCommand = class UploadCommand extends Command {
         });
     }
 }
+
 window.CommandRegistry.register(new UploadCommand());

@@ -1,4 +1,5 @@
 // gem/scripts/commands/diff.js
+
 window.DiffCommand = class DiffCommand extends Command {
   constructor() {
     super({
@@ -57,12 +58,11 @@ window.DiffCommand = class DiffCommand extends Command {
    * @param {string} fileName2 - Name of the new file.
    * @returns {string} The formatted unified diff string.
    */
+
   _createUnifiedDiff(text1, text2, fileName1, fileName2) {
     const lines1 = text1.split('\n');
     const lines2 = text2.split('\n');
 
-    // A simplified implementation of the Longest Common Subsequence algorithm.
-    // This helps us find which lines are common, added, or removed.
     const matrix = Array(lines1.length + 1).fill(null).map(() => Array(lines2.length + 1).fill(0));
     for (let i = 1; i <= lines1.length; i++) {
       for (let j = 1; j <= lines2.length; j++) {
@@ -74,7 +74,6 @@ window.DiffCommand = class DiffCommand extends Command {
       }
     }
 
-    // Now, we backtrack through the matrix to build the actual diff.
     let i = lines1.length, j = lines2.length;
     const diff = [];
     while (i > 0 || j > 0) {
@@ -90,7 +89,6 @@ window.DiffCommand = class DiffCommand extends Command {
       }
     }
 
-    // Now we group the changes into "hunks" with context lines.
     const hunks = [];
     const CONTEXT_SIZE = 3;
     let hunk = null;
@@ -99,7 +97,6 @@ window.DiffCommand = class DiffCommand extends Command {
       const item = diff[k];
       if (item.type !== 'common') {
         if (hunk === null) {
-          // Start a new hunk, grabbing a few context lines from before.
           hunk = {
             oldStart: 0, newStart: 0,
             oldLines: 0, newLines: 0,
@@ -113,7 +110,6 @@ window.DiffCommand = class DiffCommand extends Command {
         hunk.items.push(item);
       } else if (hunk !== null) {
         hunk.items.push(item);
-        // If we've seen enough context lines, we can close the hunk.
         const isLastChangeInHunk = hunk.items.slice(-CONTEXT_SIZE - 1).every(h => h.type === 'common');
         if (k - hunk.items.findIndex(h => h !== 'common') > CONTEXT_SIZE && isLastChangeInHunk) {
           hunk.items.splice(-CONTEXT_SIZE);
@@ -122,11 +118,10 @@ window.DiffCommand = class DiffCommand extends Command {
         }
       }
     }
-    if (hunk !== null) hunks.push(hunk); // Add the last hunk if it exists.
+    if (hunk !== null) hunks.push(hunk);
 
-    if (hunks.length === 0) return ""; // No differences!
+    if (hunks.length === 0) return "";
 
-    // Finally, we format the hunks into the official string format.
     let oldLineNum = 1, newLineNum = 1;
     let output = [`--- ${fileName1}`, `+++ ${fileName2}`];
 
@@ -186,4 +181,5 @@ window.DiffCommand = class DiffCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new DiffCommand());

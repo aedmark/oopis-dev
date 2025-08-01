@@ -1,4 +1,5 @@
 // scripts/commands/groupdel.js
+
 window.GroupdelCommand = class GroupdelCommand extends Command {
     constructor() {
         super({
@@ -45,4 +46,5 @@ window.GroupdelCommand = class GroupdelCommand extends Command {
         return ErrorHandler.createSuccess(`Group '${groupName}' deleted.`);
     }
 }
+
 window.CommandRegistry.register(new GroupdelCommand());

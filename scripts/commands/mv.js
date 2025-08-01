@@ -1,4 +1,5 @@
 // scripts/commands/mv.js
+
 window.MvCommand = class MvCommand extends Command {
     constructor() {
         super({
@@ -108,4 +109,5 @@ window.MvCommand = class MvCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: changesMade });
     }
 }
+
 window.CommandRegistry.register(new MvCommand());

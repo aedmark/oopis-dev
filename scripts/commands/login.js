@@ -1,4 +1,5 @@
 // scripts/commands/login.js
+
 window.LoginCommand = class LoginCommand extends Command {
     constructor() {
         super({
@@ -58,4 +59,5 @@ window.LoginCommand = class LoginCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new LoginCommand());

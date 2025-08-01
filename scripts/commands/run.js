@@ -1,4 +1,5 @@
 // scripts/commands/run.js
+
 window.RunCommand = class RunCommand extends Command {
   constructor() {
     super({
@@ -50,4 +51,6 @@ window.RunCommand = class RunCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new RunCommand());
+

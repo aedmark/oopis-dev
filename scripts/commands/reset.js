@@ -1,4 +1,5 @@
 // scripts/commands/reset.js
+
 window.ResetCommand = class ResetCommand extends Command {
     constructor() {
         super({
@@ -82,4 +83,5 @@ window.ResetCommand = class ResetCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new ResetCommand());

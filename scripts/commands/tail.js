@@ -1,4 +1,5 @@
 // scripts/commands/tail.js
+
 window.TailCommand = class TailCommand extends Command {
     constructor() {
         super({
@@ -102,7 +103,6 @@ window.TailCommand = class TailCommand extends Command {
                         void OutputManager.appendToOutput(appendedContent.trim());
                         lastContent = newContent;
                     } else if (newContent.length < lastContent.length) {
-                        // File was truncated or replaced
                         void OutputManager.appendToOutput(
                             Config.MESSAGES.FILE_TRUNCATED_PREFIX +
                             filePath +
@@ -112,13 +112,12 @@ window.TailCommand = class TailCommand extends Command {
                         void OutputManager.appendToOutput(newLines.join("\n"));
                         lastContent = newContent;
                     }
-                }, 1000); // Check for changes every second
+                }, 1000);
             });
 
             return await followPromise;
         }
 
-        // Default behavior (no -f flag)
         if (!inputItems || inputItems.length === 0) {
             return ErrorHandler.createSuccess("");
         }
@@ -128,4 +127,5 @@ window.TailCommand = class TailCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+
 window.CommandRegistry.register(new TailCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/printscreen.js
+
 window.PrintscreenCommand = class PrintscreenCommand extends Command {
     constructor() {
         super({
@@ -30,7 +31,6 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
         const { Utils, OutputManager, ErrorHandler, Config, FileSystemManager, UserManager } = dependencies;
         const outputFilename = args[0];
 
-        // Non-interactive mode for testing
         if (!options.isInteractive || outputFilename) {
             if (!outputFilename) {
                 return ErrorHandler.createError("printscreen: output file is required in non-interactive mode.");
@@ -38,11 +38,10 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
             const terminalElement = document.getElementById("terminal");
             const screenText = terminalElement ? terminalElement.innerText || "" : "Error: Could not find terminal element.";
 
-            // Resolve the output path to an absolute path
             const absolutePath = FileSystemManager.getAbsolutePath(outputFilename);
 
             const saveResult = await FileSystemManager.createOrUpdateFile(
-                absolutePath, // Use the resolved absolute path
+                absolutePath,
                 screenText,
                 {
                     currentUser: currentUser,
@@ -58,7 +57,6 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
             }
         }
 
-        // Interactive mode (original functionality)
         try {
             const terminalElement = document.getElementById("terminal");
             if (terminalElement) {
@@ -104,4 +102,5 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new PrintscreenCommand());

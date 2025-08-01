@@ -1,4 +1,5 @@
 // scripts/commands/uniq.js
+
 window.UniqCommand = class UniqCommand extends Command {
     constructor() {
         super({
@@ -102,4 +103,5 @@ window.UniqCommand = class UniqCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join("\n"));
     }
 }
+
 window.CommandRegistry.register(new UniqCommand());

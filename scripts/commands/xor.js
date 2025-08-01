@@ -1,4 +1,5 @@
 // scripts/commands/xor.js
+
 window.XorCommand = class XorCommand extends Command {
     constructor() {
         super({
@@ -60,9 +61,9 @@ window.XorCommand = class XorCommand extends Command {
             }
             return ErrorHandler.createSuccess("", { stateModified: true });
         } else {
-            // If no output file, print to standard output
             return ErrorHandler.createSuccess(outputContent);
         }
     }
 }
+
 window.CommandRegistry.register(new XorCommand());

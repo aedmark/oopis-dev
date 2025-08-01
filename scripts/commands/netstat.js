@@ -1,4 +1,5 @@
 // scripts/commands/netstat.js
+
 window.NetstatCommand = class NetstatCommand extends Command {
     constructor() {
         super({
@@ -42,4 +43,5 @@ window.NetstatCommand = class NetstatCommand extends Command {
         return ErrorHandler.createSuccess(output.join('\n'));
     }
 };
+
 window.CommandRegistry.register(new NetstatCommand());

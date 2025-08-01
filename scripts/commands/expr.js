@@ -1,4 +1,5 @@
 // scripts/commands/expr.js
+
 window.ExprCommand = class ExprCommand extends Command {
     constructor() {
         super({
@@ -28,7 +29,6 @@ window.ExprCommand = class ExprCommand extends Command {
         const expression = args.join(" ");
 
         try {
-            // A simple and relatively safe way to evaluate mathematical expressions
             const result = new Function(`return ${expression}`)();
             if (typeof result !== 'number' || !isFinite(result)) {
                 return ErrorHandler.createError(`expr: invalid expression`);
@@ -39,4 +39,5 @@ window.ExprCommand = class ExprCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new ExprCommand());

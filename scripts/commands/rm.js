@@ -1,4 +1,5 @@
 // scripts/commands/rm.js
+
 window.RmCommand = class RmCommand extends Command {
   constructor() {
     super({
@@ -122,4 +123,5 @@ window.RmCommand = class RmCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
   }
 }
+
 window.CommandRegistry.register(new RmCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/jobs.js
+
 window.JobsCommand = class JobsCommand extends Command {
     constructor() {
         super({
@@ -35,4 +36,5 @@ window.JobsCommand = class JobsCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join("\n"));
     }
 }
+
 window.CommandRegistry.register(new JobsCommand());

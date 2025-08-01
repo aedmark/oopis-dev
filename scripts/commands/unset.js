@@ -1,4 +1,5 @@
 // scripts/commands/unset.js
+
 window.UnsetCommand = class UnsetCommand extends Command {
     constructor() {
         super({
@@ -34,4 +35,5 @@ window.UnsetCommand = class UnsetCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new UnsetCommand());

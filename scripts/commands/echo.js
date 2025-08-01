@@ -1,4 +1,5 @@
 // scripts/commands/echo.js
+
 window.EchoCommand = class EchoCommand extends Command {
     constructor() {
         super({
@@ -56,8 +57,8 @@ window.EchoCommand = class EchoCommand extends Command {
                 .replace(/\\\\/g, "\\");
         }
 
-        // The final newline is now handled by the executor, so we just return the processed string.
         return ErrorHandler.createSuccess(output, { suppressNewline });
     }
 }
+
 window.CommandRegistry.register(new EchoCommand());

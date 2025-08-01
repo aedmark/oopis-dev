@@ -1,4 +1,5 @@
 // scripts/commands/nl.js
+
 window.NlCommand = class NlCommand extends Command {
     constructor() {
         super({
@@ -46,4 +47,5 @@ window.NlCommand = class NlCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join('\n'));
     }
 };
+
 window.CommandRegistry.register(new NlCommand());

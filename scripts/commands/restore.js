@@ -1,4 +1,5 @@
 // scripts/commands/restore.js
+
 window.RestoreCommand = class RestoreCommand extends Command {
     constructor() {
         super({
@@ -101,7 +102,6 @@ window.RestoreCommand = class RestoreCommand extends Command {
 
         await OutputManager.appendToOutput("Restoring system... Please wait.");
 
-        // Clear existing storage
         const allKeys = StorageManager.getAllLocalStorageKeys();
         const OS_KEY_PREFIX = "oopisOs";
         allKeys.forEach((key) => {
@@ -111,7 +111,6 @@ window.RestoreCommand = class RestoreCommand extends Command {
         });
         await FileSystemManager.clearAllFS();
 
-        // Restore data from backup
         StorageManager.saveItem(
             Config.STORAGE_KEYS.USER_CREDENTIALS,
             backupData.userCredentials,
@@ -138,4 +137,5 @@ window.RestoreCommand = class RestoreCommand extends Command {
         );
     }
 }
+
 window.CommandRegistry.register(new RestoreCommand());

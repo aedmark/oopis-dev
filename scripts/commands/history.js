@@ -1,4 +1,5 @@
 // scripts/commands/history.js
+
 window.HistoryCommand = class HistoryCommand extends Command {
     constructor() {
         super({
@@ -44,4 +45,5 @@ window.HistoryCommand = class HistoryCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+
 window.CommandRegistry.register(new HistoryCommand());

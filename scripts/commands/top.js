@@ -1,4 +1,5 @@
 // scripts/commands/top.js
+
 window.TopCommand = class TopCommand extends Command {
     constructor() {
         super({
@@ -39,16 +40,12 @@ window.TopCommand = class TopCommand extends Command {
         }
 
         if (options.isInteractive) {
-            // If we're interactive, show the beautiful UI!
             AppLayerManager.show(new TopManager(), { dependencies });
             return ErrorHandler.createSuccess("");
         } else {
-            // If we're NOT interactive (like in a script), we need to wait patiently.
-            // This promise will keep the process alive until it's stopped by a signal (like 'kill').
             return new Promise((_resolve, reject) => {
                 if (signal) {
                     signal.addEventListener('abort', () => {
-                        // The 'kill' command has spoken! Time to go.
                         reject(new Error(`Operation cancelled. (Reason: ${signal.reason})`));
                     });
                 }
@@ -56,4 +53,5 @@ window.TopCommand = class TopCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new TopCommand());

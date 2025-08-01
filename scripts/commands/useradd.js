@@ -1,4 +1,5 @@
 // scripts/commands/useradd.js
+
 window.UseraddCommand = class UseraddCommand extends Command {
     constructor() {
         super({
@@ -100,4 +101,5 @@ window.UseraddCommand = class UseraddCommand extends Command {
         });
     }
 }
+
 window.CommandRegistry.register(new UseraddCommand());

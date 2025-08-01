@@ -1,4 +1,5 @@
 // scripts/commands/wget.js
+
 window.WgetCommand = class WgetCommand extends Command {
   constructor() {
     super({
@@ -133,4 +134,5 @@ window.WgetCommand = class WgetCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new WgetCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/head.js
+
 window.HeadCommand = class HeadCommand extends Command {
     constructor() {
         super({
@@ -88,4 +89,5 @@ window.HeadCommand = class HeadCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+
 window.CommandRegistry.register(new HeadCommand());

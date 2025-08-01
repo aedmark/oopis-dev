@@ -1,4 +1,5 @@
 // scripts/commands/log.js
+
 window.LogCommand = class LogCommand extends Command {
   constructor() {
     super({
@@ -53,12 +54,11 @@ window.LogCommand = class LogCommand extends Command {
         );
       }
 
-      // Instantiate the manager to access its methods
       const logManager = new LogManager();
-      logManager.dependencies = dependencies; // Manually inject dependencies
+      logManager.dependencies = dependencies;
 
       if (args.length > 0) {
-        const entryText = args.join(" "); // Join args in case they weren't quoted
+        const entryText = args.join(" ");
         const result = await logManager.quickAdd(entryText, currentUser);
         if (result.success) {
           return ErrorHandler.createSuccess(result.message, {
@@ -70,7 +70,6 @@ window.LogCommand = class LogCommand extends Command {
         }
       }
 
-      // Launch the full application using the AppLayerManager
       AppLayerManager.show(logManager, { dependencies });
 
       return ErrorHandler.createSuccess("");
@@ -82,4 +81,5 @@ window.LogCommand = class LogCommand extends Command {
 
   }
 }
+
 window.CommandRegistry.register(new LogCommand());

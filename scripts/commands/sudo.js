@@ -1,4 +1,5 @@
 // scripts/commands/sudo.js
+
 window.SudoCommand = class SudoCommand extends Command {
   constructor() {
     super({
@@ -89,4 +90,5 @@ window.SudoCommand = class SudoCommand extends Command {
     });
   }
 }
+
 window.CommandRegistry.register(new SudoCommand());

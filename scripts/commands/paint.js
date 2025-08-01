@@ -1,4 +1,5 @@
 // scripts/commands/paint.js
+
 window.PaintCommand = class PaintCommand extends Command {
   constructor() {
     super({
@@ -90,4 +91,5 @@ window.PaintCommand = class PaintCommand extends Command {
 
   }
 }
+
 window.CommandRegistry.register(new PaintCommand());

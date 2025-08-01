@@ -1,4 +1,5 @@
 // scripts/commands/passwd.js
+
 window.PasswdCommand = class PasswdCommand extends Command {
     constructor() {
         super({
@@ -130,4 +131,5 @@ window.PasswdCommand = class PasswdCommand extends Command {
         });
     }
 }
+
 window.CommandRegistry.register(new PasswdCommand());

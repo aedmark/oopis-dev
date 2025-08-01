@@ -1,4 +1,5 @@
 // scripts/commands/logout.js
+
 window.LogoutCommand = class LogoutCommand extends Command {
   constructor() {
     super({
@@ -49,4 +50,5 @@ window.LogoutCommand = class LogoutCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new LogoutCommand());

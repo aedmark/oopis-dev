@@ -1,4 +1,5 @@
 // scripts/commands/tr.js
+
 window.TrCommand = class TrCommand extends Command {
     constructor() {
         super({
@@ -145,4 +146,5 @@ window.TrCommand = class TrCommand extends Command {
         return ErrorHandler.createSuccess(processedContent);
     }
 }
+
 window.CommandRegistry.register(new TrCommand());

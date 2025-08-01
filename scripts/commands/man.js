@@ -1,4 +1,5 @@
 // scripts/commands/man.js
+
 function formatManPage(commandName, commandData) {
   if (!commandData) {
     return `No manual entry for ${commandName}`;
@@ -100,4 +101,5 @@ window.ManCommand = class ManCommand extends Command {
     return ErrorHandler.createSuccess(manPage);
   }
 }
+
 window.CommandRegistry.register(new ManCommand());

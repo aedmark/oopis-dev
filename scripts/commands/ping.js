@@ -1,4 +1,5 @@
 // scripts/commands/ping.js
+
 window.PingCommand = class PingCommand extends Command {
     constructor() {
         super({
@@ -31,7 +32,6 @@ window.PingCommand = class PingCommand extends Command {
         const { ErrorHandler, OutputManager, Config, NetworkManager } = dependencies;
         const target = args[0];
 
-        // Check if it's an OopisOS instance ID
         if (target.startsWith('oos-')) {
             await OutputManager.appendToOutput(`Pinging OopisOS instance ${target}...`);
             try {
@@ -45,7 +45,6 @@ window.PingCommand = class PingCommand extends Command {
             }
         }
 
-        // Existing logic for web hosts
         let host = target;
         if (!host.startsWith('http://') && !host.startsWith('https://')) {
             host = 'https://' + host;
@@ -76,4 +75,5 @@ window.PingCommand = class PingCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new PingCommand());

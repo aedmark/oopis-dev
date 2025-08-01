@@ -1,4 +1,5 @@
 // scripts/commands/gemini.js
+
 window.GeminiCommand = class GeminiCommand extends Command {
     constructor() {
         super({
@@ -106,7 +107,6 @@ window.GeminiCommand = class GeminiCommand extends Command {
         const userPrompt = args.join(" ");
 
         if (flags.new) {
-            // This is a local variable now, needs to be handled inside the command logic or a session state
             let conversationHistory = [];
             if (options.isInteractive) {
                 await OutputManager.appendToOutput("Starting a new conversation.", {
@@ -127,8 +127,7 @@ window.GeminiCommand = class GeminiCommand extends Command {
             } :
             null;
 
-        // This part needs to manage its own history if it's not global
-        let conversationHistory = []; // Or retrieve from a session manager
+        let conversationHistory = [];
 
         const agentResult = await AIManager.performAgenticSearch(
             userPrompt,
@@ -158,4 +157,5 @@ window.GeminiCommand = class GeminiCommand extends Command {
 
     }
 }
+
 window.CommandRegistry.register(new GeminiCommand());

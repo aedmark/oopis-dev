@@ -1,4 +1,5 @@
 // scripts/commands/fg.js
+
 window.FgCommand = class FgCommand extends Command {
     constructor() {
         super({
@@ -32,7 +33,6 @@ window.FgCommand = class FgCommand extends Command {
             const result = CommandExecutor.sendSignalToJob(jobId, 'CONT');
             return result.success ? ErrorHandler.createSuccess() : ErrorHandler.createError(result.error);
         } else {
-            // Logic to bring the most recent job to the foreground
             const jobs = CommandExecutor.getActiveJobs();
             const jobIds = Object.keys(jobs);
             if (jobIds.length > 0) {
@@ -45,4 +45,5 @@ window.FgCommand = class FgCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new FgCommand());

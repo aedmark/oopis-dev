@@ -1,4 +1,5 @@
 // scripts/commands/edit.js
+
 window.EditCommand = class EditCommand extends Command {
     constructor() {
         super({
@@ -51,7 +52,6 @@ window.EditCommand = class EditCommand extends Command {
             );
         }
 
-        // Ensure Editor modules are loaded before using them
         if (typeof EditorManager === 'undefined' || typeof EditorUI === 'undefined' || typeof App === 'undefined') {
             return ErrorHandler.createError(
                 "edit: The editor application modules are not loaded."
@@ -64,7 +64,6 @@ window.EditCommand = class EditCommand extends Command {
 
         const fileContent = node ? node.content || "" : "";
 
-        // Launch the Editor application
         AppLayerManager.show(new EditorManager(), {
             filePath: filePath,
             fileContent,
@@ -74,4 +73,5 @@ window.EditCommand = class EditCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new EditCommand());

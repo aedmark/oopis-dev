@@ -1,4 +1,5 @@
 // scripts/commands/help.js
+
 window.HelpCommand = class HelpCommand extends Command {
   constructor() {
     super({
@@ -30,7 +31,6 @@ window.HelpCommand = class HelpCommand extends Command {
         let output = "OopisOS Help\n\nAvailable commands:\n";
         allCommandNames.forEach((cmdName) => {
           const commandInstance = loadedCommands[cmdName];
-          // Access the definition property of the command instance
           const description = commandInstance?.definition?.description || "";
           output += `  ${cmdName.padEnd(15)} ${description}\n`;
         });
@@ -49,7 +49,6 @@ window.HelpCommand = class HelpCommand extends Command {
 
         let output = "";
 
-        // Access the definition property on the instance
         if (commandInstance?.definition?.helpText) {
           const helpLines = commandInstance.definition.helpText.split("\n");
           const usageLine = helpLines.find((line) =>
@@ -75,4 +74,5 @@ window.HelpCommand = class HelpCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new HelpCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/pwd.js
+
 window.PwdCommand = class PwdCommand extends Command {
   constructor() {
     super({
@@ -23,4 +24,5 @@ window.PwdCommand = class PwdCommand extends Command {
     return ErrorHandler.createSuccess(FileSystemManager.getCurrentPath());
   }
 }
+
 window.CommandRegistry.register(new PwdCommand());

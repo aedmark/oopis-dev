@@ -1,4 +1,5 @@
 // scripts/commands/df.js
+
 window.DfCommand = class DfCommand extends Command {
     constructor() {
         super({
@@ -62,4 +63,5 @@ window.DfCommand = class DfCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 }
+
 window.CommandRegistry.register(new DfCommand());

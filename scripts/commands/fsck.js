@@ -1,4 +1,5 @@
 // oos-dev/scripts/commands/fsck.js
+
 window.FsckCommand = class FsckCommand extends Command {
     constructor() {
         super({
@@ -53,7 +54,6 @@ window.FsckCommand = class FsckCommand extends Command {
 
         await OutputManager.appendToOutput(`Starting filesystem check at '${startPath}'...`);
 
-        // --- Phase 1: Structural Integrity Audit ---
         const structuralAudit = async () => {
             const auditIssues = [];
             const traverse = (path, node) => {
@@ -93,7 +93,6 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
-        // --- Phase 2: Ownership and Permissions Review ---
         const ownershipAudit = async () => {
             const auditIssues = [];
             const allUsers = StorageManager.loadItem(Config.STORAGE_KEYS.USER_CREDENTIALS, "User list", {});
@@ -124,7 +123,6 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
-        // --- Phase 3: User Homestead Inspection ---
         const homeDirectoryAudit = async () => {
             const auditIssues = [];
             const allUsers = StorageManager.loadItem(Config.STORAGE_KEYS.USER_CREDENTIALS, "User list", {});
@@ -151,7 +149,6 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
-        // --- Phase 4: Interactive Repair ---
         const performRepairs = async () => {
             output.push("\n--- Phase 4: Interactive Repair ---");
             let quitRepair = false;
@@ -247,4 +244,5 @@ window.FsckCommand = class FsckCommand extends Command {
         return ErrorHandler.createSuccess(output.join('\n'));
     }
 }
+
 window.CommandRegistry.register(new FsckCommand());

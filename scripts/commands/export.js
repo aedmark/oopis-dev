@@ -1,4 +1,5 @@
 // scripts/commands/export.js
+
 window.ExportCommand = class ExportCommand extends Command {
     constructor() {
         super({
@@ -61,4 +62,5 @@ window.ExportCommand = class ExportCommand extends Command {
         );
     }
 }
+
 window.CommandRegistry.register(new ExportCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/ps.js
+
 window.PsCommand = class PsCommand extends Command {
     constructor() {
         super({
@@ -35,9 +36,9 @@ window.PsCommand = class PsCommand extends Command {
         for (const pid in jobs) {
             const job = jobs[pid];
             const command = job.command;
-            let status = 'R'; // Default to Running
+            let status = 'R';
             if (job.status === 'paused') {
-                status = 'T'; // Stopped (Terminated)
+                status = 'T';
             }
 
             output += `  ${String(pid).padEnd(4)} ${status.padEnd(5)} ${command}\n`;
@@ -46,4 +47,5 @@ window.PsCommand = class PsCommand extends Command {
         return ErrorHandler.createSuccess(output.trim());
     }
 }
+
 window.CommandRegistry.register(new PsCommand());

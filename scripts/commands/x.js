@@ -1,4 +1,5 @@
 // scripts/commands/x.js
+
 window.XCommand = class XCommand extends Command {
     constructor() {
         super({
@@ -6,17 +7,17 @@ window.XCommand = class XCommand extends Command {
             dependencies: [
                 "apps/desktop/desktop_ui.js",
                 "apps/desktop/taskbar_ui.js",
-                "apps/desktop/icon_ui.js", // <-- ADDED
+                "apps/desktop/icon_ui.js",
                 "apps/desktop/desktop_manager.js",
                 "apps/desktop/taskbar_manager.js",
                 "apps/desktop/window_manager.js",
-                "apps/desktop/icon_manager.js", // <-- ADDED
-                "apps/desktop/app_launcher.js", // <-- ADDED
+                "apps/desktop/icon_manager.js",
+                "apps/desktop/app_launcher.js",
             ],
             applicationModules: [
-                "DesktopUI", "TaskbarUI", "IconUI", // <-- ADDED IconUI
+                "DesktopUI", "TaskbarUI", "IconUI",
                 "TaskbarManager", "DesktopManager", "WindowManager",
-                "IconManager", "AppLauncher", "App" // <-- ADDED IconManager & AppLauncher
+                "IconManager", "AppLauncher", "App"
             ],
             description: "Initializes the OopisX Graphical Desktop Environment.",
             helpText: `Usage: x
@@ -38,7 +39,6 @@ window.XCommand = class XCommand extends Command {
             return ErrorHandler.createError("x: Desktop application module is not loaded.");
         }
 
-        // Inject all necessary modules
         const desktopDependencies = {
             ...dependencies,
             DesktopUI: dependencies.DesktopUI,
@@ -55,4 +55,5 @@ window.XCommand = class XCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new XCommand());

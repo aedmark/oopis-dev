@@ -1,4 +1,5 @@
 // scripts/commands/sed.js
+
 window.SedCommand = class SedCommand extends Command {
     constructor() {
         super({
@@ -53,4 +54,5 @@ window.SedCommand = class SedCommand extends Command {
         return ErrorHandler.createSuccess(transformedLines.join('\n'));
     }
 };
+
 window.CommandRegistry.register(new SedCommand());

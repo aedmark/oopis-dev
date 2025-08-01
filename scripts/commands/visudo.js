@@ -1,4 +1,5 @@
 // scripts/commands/visudo.js
+
 window.VisudoCommand = class VisudoCommand extends Command {
     constructor() {
         super({
@@ -57,15 +58,11 @@ window.VisudoCommand = class VisudoCommand extends Command {
             originalContent = sudoersNode.content || "";
         }
 
-        // A special hook for the EditorManager to call after saving.
         options.postSaveHook = async (newContent) => {
             const { isValid, error } = SudoManager.parseSudoers(newContent);
             if (isValid) {
                 return { success: true, message: "sudoers file updated." };
             } else {
-                // Revert content in the editor to the original state.
-                // This part is tricky as we need to communicate back to the editor instance.
-                // We can pass a callback that the editor manager will use.
                 const reEditCallback = async (editorInstance) => {
                     editorInstance.setContent(originalContent);
                     editorInstance.ui.showToast(
@@ -86,4 +83,5 @@ window.VisudoCommand = class VisudoCommand extends Command {
         return CommandExecutor.processSingleCommand(`edit ${sudoersPath}`, options);
     }
 }
+
 window.CommandRegistry.register(new VisudoCommand());

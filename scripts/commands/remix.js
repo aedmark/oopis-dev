@@ -1,4 +1,5 @@
 // scripts/commands/remix.js
+
 window.RemixCommand = class RemixCommand extends Command {
     constructor() {
         super({
@@ -121,4 +122,5 @@ ${file2Content}
         }
     }
 }
+
 window.CommandRegistry.register(new RemixCommand());

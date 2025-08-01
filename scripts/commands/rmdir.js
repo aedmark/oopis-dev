@@ -1,4 +1,5 @@
 // scripts/commands/rmdir.js
+
 window.RmdirCommand = class RmdirCommand extends Command {
   constructor() {
     super({
@@ -77,4 +78,5 @@ window.RmdirCommand = class RmdirCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
   }
 }
+
 window.CommandRegistry.register(new RmdirCommand());

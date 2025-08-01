@@ -1,4 +1,5 @@
 // scripts/commands/less.js
+
 window.LessCommand = class LessCommand extends Command {
     constructor() {
         super({
@@ -49,4 +50,6 @@ window.LessCommand = class LessCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new LessCommand());
+

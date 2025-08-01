@@ -1,4 +1,5 @@
 // scripts/commands/read_messages.js
+
 window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
     constructor() {
         super({
@@ -53,4 +54,5 @@ window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new ReadMessagesCommand());

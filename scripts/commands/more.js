@@ -1,4 +1,5 @@
 // scripts/commands/more.js
+
 window.MoreCommand = class MoreCommand extends Command {
     constructor() {
         super({
@@ -44,11 +45,10 @@ window.MoreCommand = class MoreCommand extends Command {
             return ErrorHandler.createSuccess(content);
         }
 
-        // Enter the pager and wait for it to exit
         await PagerManager.enter(content, { mode: "more" });
 
-        // Pager has exited, return success
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new MoreCommand());

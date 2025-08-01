@@ -1,4 +1,5 @@
 // scripts/commands/groupadd.js
+
 window.GroupaddCommand = class GroupaddCommand extends Command {
     constructor() {
         super({
@@ -49,4 +50,5 @@ window.GroupaddCommand = class GroupaddCommand extends Command {
         return ErrorHandler.createSuccess(`Group '${groupName}' created.`);
     }
 }
+
 window.CommandRegistry.register(new GroupaddCommand());

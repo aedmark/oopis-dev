@@ -1,4 +1,5 @@
 // scripts/commands/sync.js
+
 window.SyncCommand = class SyncCommand extends Command {
   constructor() {
     super({
@@ -37,4 +38,5 @@ window.SyncCommand = class SyncCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new SyncCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/touch.js
+
 window.TouchCommand = class TouchCommand extends Command {
   constructor() {
     super({
@@ -121,4 +122,5 @@ window.TouchCommand = class TouchCommand extends Command {
     return ErrorHandler.createSuccess("", { stateModified: changesMade });
   }
 }
+
 window.CommandRegistry.register(new TouchCommand());

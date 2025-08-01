@@ -1,4 +1,5 @@
 // scripts/commands/su.js
+
 window.SuCommand = class SuCommand extends Command {
     constructor() {
         super({
@@ -55,4 +56,5 @@ window.SuCommand = class SuCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new SuCommand());

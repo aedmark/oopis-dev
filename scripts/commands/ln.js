@@ -1,4 +1,5 @@
 // scripts/commands/ln.js
+
 window.LnCommand = class LnCommand extends Command {
     constructor() {
         super({
@@ -55,4 +56,5 @@ window.LnCommand = class LnCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: true });
     }
 }
+
 window.CommandRegistry.register(new LnCommand());

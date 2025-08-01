@@ -1,4 +1,5 @@
 // scripts/commands/nc.js
+
 window.NcCommand = class NcCommand extends Command {
     constructor() {
         super({
@@ -68,4 +69,5 @@ window.NcCommand = class NcCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+
 window.CommandRegistry.register(new NcCommand());

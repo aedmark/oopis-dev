@@ -1,4 +1,5 @@
 // scripts/commands/whoami.js
+
 window.WhoamiCommand = class WhoamiCommand extends Command {
   constructor() {
     super({
@@ -21,4 +22,5 @@ window.WhoamiCommand = class WhoamiCommand extends Command {
     return ErrorHandler.createSuccess(UserManager.getCurrentUser().name);
   }
 }
+
 window.CommandRegistry.register(new WhoamiCommand());

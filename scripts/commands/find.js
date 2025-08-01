@@ -1,4 +1,5 @@
 // scripts/commands/find.js
+
 window.FindCommand = class FindCommand extends Command {
   constructor() {
     super({
@@ -312,4 +313,5 @@ window.FindCommand = class FindCommand extends Command {
     });
   }
 }
+
 window.CommandRegistry.register(new FindCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/kill.js
+
 window.KillCommand = class KillCommand extends Command {
   constructor() {
     super({
@@ -44,7 +45,7 @@ window.KillCommand = class KillCommand extends Command {
     const { args, flags, dependencies } = context;
     const { ErrorHandler, CommandExecutor, Utils } = dependencies;
 
-    let signal = "TERM"; // Default signal
+    let signal = "TERM";
     const signalFlags = ["STOP", "CONT", "KILL", "TERM"];
     let signalsProvided = [];
 
@@ -86,4 +87,5 @@ window.KillCommand = class KillCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new KillCommand());

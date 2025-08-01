@@ -1,4 +1,5 @@
 // scripts/commands/usermod.js
+
 window.UsermodCommand = class UsermodCommand extends Command {
     constructor() {
         super({
@@ -79,4 +80,5 @@ window.UsermodCommand = class UsermodCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new UsermodCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/zip.js
+
 async function _archiveNode(node, dependencies) {
     const { Config } = dependencies;
     if (node.type === Config.FILESYSTEM.DEFAULT_FILE_TYPE) {
@@ -122,4 +123,5 @@ window.ZipCommand = class ZipCommand extends Command {
         );
     }
 }
+
 window.CommandRegistry.register(new ZipCommand());
