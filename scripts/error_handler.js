@@ -1,4 +1,5 @@
 // scripts/error_handler.js
+
 class ErrorHandler {
   /**
    * Creates a standardized error object.

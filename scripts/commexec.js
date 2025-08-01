@@ -36,13 +36,11 @@ class CommandExecutor {
     const { Config, OutputManager, CommandRegistry, FileSystemManager } = this.dependencies;
     if (!commandName || typeof commandName !== "string") return null;
 
-    // --- Step 1: Check if the command is already registered and ready to go. ---
     const existingCommand = CommandRegistry.getCommands()[commandName];
     if (existingCommand) {
       return existingCommand;
     }
 
-    // --- Step 2: Check if it's a BUILT-IN command listed in the main manifest. ---
     if (Config.COMMANDS_MANIFEST.includes(commandName)) {
       const commandScriptPath = `commands/${commandName}.js`;
       try {
@@ -65,7 +63,6 @@ class CommandExecutor {
         }
         return commandInstance;
       } catch (error) {
-        // --- Step 3: It's not a built-in, so let's check if it's an INSTALLED package in the VFS. ---
         const vfsPath = `/bin/${commandName}`;
         const packageNode = FileSystemManager.getNodeByPath(vfsPath);
 
@@ -74,9 +71,8 @@ class CommandExecutor {
             const scriptElement = document.createElement('script');
             scriptElement.textContent = packageNode.content;
             document.head.appendChild(scriptElement);
-            document.head.removeChild(scriptElement); // Clean up after execution================================================================
+            document.head.removeChild(scriptElement);
 
-            // The script should have registered itself, so we check the registry again.
             const commandInstance = CommandRegistry.getCommands()[commandName];
             if (!commandInstance) {
               await OutputManager.appendToOutput(
@@ -102,8 +98,6 @@ class CommandExecutor {
         }
       }
     }
-
-    // --- Step 4: If we've reached this point, the command truly doesn't exist. ---
     return null;
   }
 
@@ -194,17 +188,13 @@ class CommandExecutor {
         }
       }
 
-      // Create a new, temporary context for this specific command execution.
       const commandDependencies = { ...this.dependencies };
 
-      // After dynamic loading, inject the application modules if they are declared in the command definition.
       if (definition.applicationModules && Array.isArray(definition.applicationModules)) {
         for (const moduleName of definition.applicationModules) {
           if (window[moduleName]) {
-            // Add the dynamically loaded module (e.g., EditorManager) to the temporary dependency object.
             commandDependencies[moduleName] = window[moduleName];
           } else {
-            // This is a crucial safety check.
             console.error(`Command '${definition.commandName}' declared a dependency on '${moduleName}', but it was not found on the window object after loading.`);
           }
         }
@@ -254,7 +244,6 @@ class CommandExecutor {
   async executeScript(lines, options = {}) {
     const { ErrorHandler, EnvironmentManager, Config } = this.dependencies;
 
-    // Create a new, sandboxed environment for the script
     EnvironmentManager.push();
 
     const scriptingContext = {
@@ -280,20 +269,13 @@ class CommandExecutor {
             ...options,
             scriptingContext,
           });
-
-          // Sync the loop counter with the script context, in case of jumps
           i = scriptingContext.currentLineIndex;
-
           if (!result.success) {
-            // If a command fails in the script, we throw an error.
-            // This will be caught by the try...catch in the 'run' command's coreLogic.
             throw new Error(`Error on line ${i + 1}: ${result.error || 'Unknown error'}`);
           }
         }
       }
     } finally {
-      // This 'finally' block ensures that the script's environment is ALWAYS
-      // discarded, even if an error occurs during execution.
       EnvironmentManager.pop();
     }
 
@@ -394,7 +376,7 @@ class CommandExecutor {
       if (pipeline.isBackground) {
         const job = this.activeJobs[pipeline.jobId];
         while (job && job.status === 'paused') {
-          await new Promise(resolve => setTimeout(resolve, 500)); // check every 500ms
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
         execOptions.jobId = pipeline.jobId;
       }
@@ -453,7 +435,6 @@ class CommandExecutor {
     if (pipeline.redirection && lastResult.success) {
       const { type: redirType, file: redirFile } = pipeline.redirection;
 
-      // Determine the final string to write, adding a newline unless the command suppressed it.
       let outputToWrite = lastResult.data || "";
       if (!lastResult.suppressNewline) {
         outputToWrite += "\n";
@@ -540,9 +521,8 @@ class CommandExecutor {
       let finalFileContent;
       if (redirType === "append" && existingNode) {
         const existingContent = existingNode.content || "";
-        // Use the newline-adjusted string here
         finalFileContent = existingContent + outputToWrite;
-      } else { // 'overwrite'
+      } else {
         finalFileContent = outputToWrite;
       }
 
@@ -604,7 +584,6 @@ class CommandExecutor {
           if (typeof lastResult.data === "string") {
             lastResult.data = lastResult.data.replace(/\\n/g, "\n");
           }
-          // Pass ALL options from the result to the Output Manager
           const { data, success, ...outputOptions } = lastResult;
           await OutputManager.appendToOutput(data, outputOptions);
         }
@@ -614,13 +593,11 @@ class CommandExecutor {
   }
 
   _expandBraces(commandString) {
-    // Handle sequence expansion {1..10} or {a..z}
     commandString = commandString.replace(/\{(\w+)\.\.(\w+)\}/g, (match, start, end) => {
       const startNum = parseInt(start);
       const endNum = parseInt(end);
       
       if (!isNaN(startNum) && !isNaN(endNum)) {
-        // Numeric sequence
         const result = [];
         const step = startNum <= endNum ? 1 : -1;
         for (let i = startNum; step > 0 ? i <= endNum : i >= endNum; i += step) {
@@ -628,7 +605,6 @@ class CommandExecutor {
         }
         return result.join(' ');
       } else if (start.length === 1 && end.length === 1) {
-        // Character sequence
         const startCode = start.charCodeAt(0);
         const endCode = end.charCodeAt(0);
         const result = [];
@@ -638,15 +614,14 @@ class CommandExecutor {
         }
         return result.join(' ');
       }
-      return match; // No expansion
+      return match;
     });
     
-    // Handle comma expansion {item1,item2,item3}
     commandString = commandString.replace(/\{([^}]+)\}/g, (match, content) => {
       if (content.includes(',')) {
         return content.split(',').map(item => item.trim()).join(' ');
       }
-      return match; // No expansion
+      return match;
     });
     
     return commandString;
@@ -656,10 +631,8 @@ class CommandExecutor {
     const { EnvironmentManager, AliasManager } = this.dependencies;
     let commandToProcess = rawCommandText.trim();
     
-    // Handle brace expansion
     commandToProcess = this._expandBraces(commandToProcess);
 
-    // Handle `VAR=$(...)` style command substitution and assignment
     const assignmentSubstitutionRegex = /^([a-zA-Z_][a-zA-Z0-9_]*)=\$\(([^)]+)\)$/;
     const assignmentMatch = commandToProcess.match(assignmentSubstitutionRegex);
 
@@ -669,10 +642,9 @@ class CommandExecutor {
       const result = await this.processSingleCommand(subCommand, { isInteractive: false, suppressOutput: true });
       const output = result.success ? (result.output || '').trim().replace(/\n/g, ' ') : '';
       EnvironmentManager.set(varName, output);
-      return ""; // Return an empty string to prevent further execution
+      return "";
     }
 
-    // Handle general command substitution (inline)
     const commandSubstitutionRegex = /\$\(([^)]+)\)/g;
     let inlineMatch;
     while ((inlineMatch = commandSubstitutionRegex.exec(commandToProcess)) !== null) {
@@ -690,14 +662,14 @@ class CommandExecutor {
 
       if (inQuote) {
         if (char === inQuote) {
-          inQuote = null; // Exit quote
+          inQuote = null;
         }
       } else {
         if (char === '"' || char === "'") {
-          inQuote = char; // Enter quote
+          inQuote = char;
         } else if (char === '#' && (i === 0 || /\s/.test(commandToProcess[i-1]))) {
           commentIndex = i;
-          break; // Found comment start, no need to look further
+          break;
         }
       }
     }
@@ -861,7 +833,6 @@ class CommandExecutor {
         MessageBusManager.registerJob(jobId);
         const abortController = new AbortController();
 
-        // Create the job object synchronously
         const job = {
           id: jobId,
           command: cmdToEcho,

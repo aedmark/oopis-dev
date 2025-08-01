@@ -1,3 +1,5 @@
+// scripts/fs_manager.js
+
 class FileSystemManager {
   constructor(config) {
     this.config = config;
@@ -64,7 +66,7 @@ class FileSystemManager {
                     content: "# OopisOS Town Bulletin\n",
                     owner: "root",
                     group: "towncrier",
-                    mode: 0o666, // Writable by owner, group, and others
+                    mode: 0o666,
                     mtime: nowISO,
                   }
                 },
@@ -161,10 +163,9 @@ class FileSystemManager {
         
         if (needsSave) {
           etcNode.mtime = nowISO;
-          await this.save(); // Save the updated filesystem
+          await this.save();
         }
       }
-      // --- End Migration ---
     } else {
       await OutputManager.appendToOutput(
           "No file system found. Initializing new one.",
@@ -225,7 +226,6 @@ class FileSystemManager {
       if (segment === this.config.FILESYSTEM.PARENT_DIR_SYMBOL) {
         if (resolvedSegments.length > 0) resolvedSegments.pop();
       } else {
-        // Sanitize each segment to remove potentially malicious characters
         const sanitizedSegment = segment.replace(/[\\/&<>"']/g, '');
         if (sanitizedSegment) {
           resolvedSegments.push(sanitizedSegment);
@@ -581,7 +581,6 @@ class FileSystemManager {
       return ErrorHandler.createError(permError);
     }
     
-    // Handle symbolic links - just delete them without following
     if (node.type === this.config.FILESYSTEM.SYMBOLIC_LINK_TYPE) {
       delete parentNode.children[itemName];
       parentNode.mtime = nowISO;
@@ -589,7 +588,6 @@ class FileSystemManager {
       return ErrorHandler.createSuccess({ messages, anyChangeMade });
     }
     
-    // Handle directories - recursively delete contents
     if (node.type === this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
       if (node.children && typeof node.children === "object") {
         const childrenNames = Object.keys(node.children);
@@ -609,7 +607,6 @@ class FileSystemManager {
       }
     }
     
-    // Delete the node itself (files, empty directories, etc.)
     delete parentNode.children[itemName];
     parentNode.mtime = nowISO;
     anyChangeMade = true;
@@ -659,7 +656,6 @@ class FileSystemManager {
     } = context;
     const nowISO = new Date().toISOString();
 
-    // Handle directory creation as a special case first.
     if (isDirectory) {
       const parentDirResult = this.createParentDirectoriesIfNeeded(absolutePath);
       if (!parentDirResult.success) {
@@ -676,7 +672,6 @@ class FileSystemManager {
       }
       return ErrorHandler.createSuccess();
     }
-
 
     const existingNode = this.getNodeByPath(absolutePath);
     const changeInBytes = (content || "").length - (existingNode?.content?.length || 0);

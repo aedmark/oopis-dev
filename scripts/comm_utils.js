@@ -1,4 +1,5 @@
-// gem/scripts/comm_utils.js
+// scripts/comm_utils.js
+
 class TimestampParser {
   static parseDateString(dateStr) {
     if (typeof dateStr !== "string") return null;
@@ -158,8 +159,6 @@ class TimestampParser {
 
 class DiffUtils {
   static compare(textA, textB) {
-    // If the files are identical, there's no need to do a complex comparison.
-    // Just return an empty string, which is the correct behavior.
     if (textA === textB) {
       return "";
     }
@@ -167,7 +166,6 @@ class DiffUtils {
     const a = textA.split("\n");
     const b = textB.split("\n");
 
-    // Handle trailing newlines, which split creates an empty string for.
     if (a.length > 0 && a[a.length - 1] === '') {
       a.pop();
     }
@@ -278,18 +276,17 @@ class PatchUtils {
 
   static applyPatch(originalContent, hunks) {
     if (!hunks || hunks.length === 0) {
-      return originalContent; // No changes to apply
+      return originalContent;
     }
 
     const lines = originalContent.split('\n');
-    let offset = 0; // Tracks the line number shift from additions/deletions
+    let offset = 0;
 
     for (const hunk of hunks) {
       const insertLines = [];
       const removeLines = [];
       let contextLinesCount = 0;
 
-      // Separate the lines in the hunk into what to add and what to remove
       for(const line of hunk.lines){
         if(line.startsWith('+')){
           insertLines.push(line.substring(1));
@@ -300,21 +297,13 @@ class PatchUtils {
         }
       }
 
-      // The actual starting line in the current state of the file
       const startIndex = hunk.oldStart - 1 + offset;
-
-      // Verify that the context lines match what's in the file
       const linesToRemove = lines.slice(startIndex, startIndex + removeLines.length + contextLinesCount);
-
-      // Remove the old lines
       lines.splice(startIndex, removeLines.length);
-
-      // Add the new lines
       for (let i = 0; i < insertLines.length; i++) {
         lines.splice(startIndex + i, 0, insertLines[i]);
       }
 
-      // Update the offset for subsequent hunks
       offset += (insertLines.length - removeLines.length);
     }
 

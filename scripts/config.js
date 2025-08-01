@@ -1,4 +1,5 @@
 // scripts/config.js
+
 class ConfigManager {
   constructor() {
     this.dependencies = {};
@@ -50,7 +51,7 @@ class ConfigManager {
         PARENT_DIR_SYMBOL: "..",
         DEFAULT_DIRECTORY_TYPE: "directory",
         DEFAULT_FILE_TYPE: "file",
-        SYMBOLIC_LINK_TYPE: 'symlink', // Added for symlink support
+        SYMBOLIC_LINK_TYPE: 'symlink',
         PATH_SEPARATOR: "/",
         DEFAULT_FILE_MODE: 0o644,
         DEFAULT_DIR_MODE: 0o755,
@@ -87,10 +88,6 @@ class ConfigManager {
         COPIED_PREFIX: "Copied '",
         COPIED_TO: "' to '",
         COPIED_SUFFIX: "'.",
-        SESSION_SAVED_FOR_PREFIX: "Session manually saved for ",
-        SESSION_LOADED_MSG: "Session loaded from manual save.",
-        LOAD_STATE_CANCELLED: "Load state cancelled.",
-        NO_MANUAL_SAVE_FOUND_PREFIX: "No manually saved state found for ",
         WELCOME_PREFIX: "Greetings and Salutations,",
         WELCOME_SUFFIX: "! Type 'help' for commands.",
         EXPORTING_PREFIX: "Exporting '",
@@ -159,7 +156,6 @@ class ConfigManager {
       ],
     };
 
-    // Assign all properties of defaultConfig to this instance
     Object.assign(this, defaultConfig);
 
     this.CSS_CLASSES = Object.freeze({

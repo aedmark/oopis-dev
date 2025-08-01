@@ -1,3 +1,5 @@
+// scripts/group_manager.js
+
 class GroupManager {
   constructor() {
     this.groups = {};

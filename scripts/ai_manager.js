@@ -128,7 +128,6 @@ ${setResult.output || "(none)"}`;
       apiKey,
       systemPrompt = null
   ) {
-    // The 'dependencies' object is now correctly accessed via 'this'
     const {Config} = this.dependencies;
     const providerConfig =
         typeof Config !== "undefined" ? Config.API.LLM_PROVIDERS[provider] : null;
@@ -283,7 +282,6 @@ ${setResult.output || "(none)"}`;
     const {verboseCallback, isInteractive} = options;
     const {ErrorHandler, StorageManager, Config} = this.dependencies;
 
-    // New system prompt for classifying user intent
     const INTENT_CLASSIFIER_PROMPT = `You are an intent classification agent for a command-line OS. Your task is to determine if the user's prompt is a general knowledge question/statement or if it is a query related to the local file system.
 
 Respond with ONLY ONE of the following classifications:
@@ -292,14 +290,12 @@ Respond with ONLY ONE of the following classifications:
 
 User Prompt: "{{prompt}}"`;
 
-    // --- Step 1: Get API Key ---
     const apiKeyResult = await this.getApiKey(provider, {isInteractive, dependencies: this.dependencies});
     if (!apiKeyResult.success) {
       return ErrorHandler.createError(`AIManager: ${apiKeyResult.error}`);
     }
     let apiKey = apiKeyResult.data.key;
 
-    // --- Step 2: Pre-planning - Classify User Intent ---
     const intentPrompt = INTENT_CLASSIFIER_PROMPT.replace("{{prompt}}", prompt);
     if (verboseCallback) {
       verboseCallback("AI is determining user intent...", "text-subtle");
@@ -310,10 +306,9 @@ User Prompt: "{{prompt}}"`;
         model,
         [{role: "user", parts: [{text: intentPrompt}]}],
         apiKey,
-        null // No complex system prompt needed for this simple classification
+        null
     );
 
-    // Fallback logic if the primary provider fails
     if (!intentResult.success && intentResult.error === "LOCAL_PROVIDER_UNAVAILABLE" && provider !== "gemini") {
       if (verboseCallback) verboseCallback(`Could not connect to '${provider}'. Falling back to Google Gemini for intent classification.`, "text-warning");
       provider = "gemini";
@@ -326,14 +321,12 @@ User Prompt: "{{prompt}}"`;
       }], apiKey, null);
     }
 
-    const intent = intentResult.success ? intentResult.answer.trim().toLowerCase() : 'filesystem_query'; // Default to filesystem on failure
+    const intent = intentResult.success ? intentResult.answer.trim().toLowerCase() : 'filesystem_query';
     if (verboseCallback) {
       verboseCallback(`Intent classified as: ${intent}`, "text-subtle");
     }
 
-    // --- Step 3: Execute based on intent ---
     if (intent.includes('general_query')) {
-      // --- Path A: General Query ---
       if (verboseCallback) verboseCallback("Engaging general knowledge module...", "text-subtle");
       const generalPrompt = `You are a helpful assistant.`;
       const generalConversation = [...history, {role: "user", parts: [{text: prompt}]}];
@@ -346,7 +339,6 @@ User Prompt: "{{prompt}}"`;
       }
 
     } else {
-      // --- Path B: Filesystem Query (Original Logic) ---
       if (verboseCallback) verboseCallback("Engaging filesystem tool-use module...", "text-subtle");
       const plannerContext = await this.getTerminalContext();
       const plannerPrompt = `User Prompt: "${prompt}"\n\n${plannerContext}`;
@@ -382,7 +374,6 @@ User Prompt: "{{prompt}}"`;
           .filter((line) => {
             if (!line) return false;
             const commandName = line.split(" ")[0];
-            // Ensure the command exists and is in the whitelist.
             return this.COMMAND_WHITELIST.includes(commandName);
           });
 
