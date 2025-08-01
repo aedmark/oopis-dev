@@ -1,4 +1,5 @@
 // scripts/commands/date.js
+
 window.DateCommand = class DateCommand extends Command {
   constructor() {
     super({
@@ -22,4 +23,5 @@ window.DateCommand = class DateCommand extends Command {
     return ErrorHandler.createSuccess(new Date().toString());
   }
 }
+
 window.CommandRegistry.register(new DateCommand());

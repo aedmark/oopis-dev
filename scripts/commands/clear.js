@@ -1,4 +1,5 @@
 // scripts/commands/clear.js
+
 window.ClearCommand = class ClearCommand extends Command {
     constructor() {
         super({
@@ -29,4 +30,5 @@ window.ClearCommand = class ClearCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new ClearCommand());

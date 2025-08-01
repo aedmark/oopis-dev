@@ -1,4 +1,5 @@
 // scripts/commands/clearfs.js
+
 window.ClearfsCommand = class ClearfsCommand extends Command {
     constructor() {
         super({
@@ -61,4 +62,5 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
         return ErrorHandler.createError("clearfs: Could not find home directory to clear.");
     }
 }
+
 window.CommandRegistry.register(new ClearfsCommand());

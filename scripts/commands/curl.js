@@ -1,4 +1,5 @@
 // scripts/commands/curl.js
+
 window.CurlCommand = class CurlCommand extends Command {
   constructor() {
     super({
@@ -154,4 +155,5 @@ window.CurlCommand = class CurlCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new CurlCommand());

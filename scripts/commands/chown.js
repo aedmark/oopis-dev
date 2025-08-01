@@ -1,4 +1,5 @@
 // scripts/commands/chown.js
+
 window.ChownCommand = class ChownCommand extends Command {
     constructor() {
         super({
@@ -78,4 +79,5 @@ window.ChownCommand = class ChownCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: changesMade });
     }
 }
+
 window.CommandRegistry.register(new ChownCommand());

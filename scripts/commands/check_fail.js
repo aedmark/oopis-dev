@@ -1,4 +1,5 @@
 // scripts/commands/check_fail.js
+
 window.CheckFailCommand = class CheckFailCommand extends Command {
   constructor() {
     super({
@@ -72,4 +73,5 @@ window.CheckFailCommand = class CheckFailCommand extends Command {
     }
   }
 }
+
 window.CommandRegistry.register(new CheckFailCommand());

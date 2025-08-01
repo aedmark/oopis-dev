@@ -1,4 +1,5 @@
 // scripts/commands/comm.js
+
 window.CommCommand = class CommCommand extends Command {
     constructor() {
         super({
@@ -24,7 +25,7 @@ window.CommCommand = class CommCommand extends Command {
 
       comm -12 sorted_a.txt sorted_b.txt
       Displays only the lines that appear in both files.`,
-            isInputStream: false, // This command specifically takes two file arguments
+            isInputStream: false,
             completionType: "paths",
             flagDefinitions: [
                 { name: "suppressCol1", short: "-1" },
@@ -99,4 +100,5 @@ window.CommCommand = class CommCommand extends Command {
         return ErrorHandler.createSuccess(outputLines.join('\n'));
     }
 }
+
 window.CommandRegistry.register(new CommCommand());

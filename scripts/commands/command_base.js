@@ -1,4 +1,5 @@
 // scripts/commands/command_base.js
+
 class Command {
     constructor(definition) {
         if (!definition || !definition.commandName) {
@@ -101,7 +102,6 @@ class Command {
             const firstFileArgIndex = this.definition.firstFileArgIndex || 0;
             const fileArgsForStream = remainingArgs.slice(firstFileArgIndex);
 
-            // The generator now only receives the arguments that are actual file paths.
             for await (const item of this._generateInputContent(context, fileArgsForStream)) {
                 fileCount++;
                 if (firstSourceName === null) firstSourceName = item.sourceName;

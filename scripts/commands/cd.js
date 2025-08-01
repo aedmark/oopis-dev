@@ -1,4 +1,5 @@
 // scripts/commands/cd.js
+
 window.CdCommand = class CdCommand extends Command {
     constructor() {
         super({
@@ -52,4 +53,5 @@ window.CdCommand = class CdCommand extends Command {
         return ErrorHandler.createSuccess("");
     }
 }
+
 window.CommandRegistry.register(new CdCommand());

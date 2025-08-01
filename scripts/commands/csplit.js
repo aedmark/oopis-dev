@@ -1,4 +1,5 @@
 // scripts/commands/csplit.js
+
 window.CsplitCommand = class CsplitCommand extends Command {
     constructor() {
         super({
@@ -152,4 +153,5 @@ window.CsplitCommand = class CsplitCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
     }
 }
+
 window.CommandRegistry.register(new CsplitCommand());

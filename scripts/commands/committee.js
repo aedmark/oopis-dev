@@ -1,4 +1,5 @@
 // scripts/commands/committee.js
+
 window.CommitteeCommand = class CommitteeCommand extends Command {
     constructor() {
         super({
@@ -31,7 +32,6 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         const { flags, currentUser, dependencies } = context;
         const { UserManager, GroupManager, FileSystemManager, ErrorHandler, Config } = dependencies;
 
-        // 1. --- VALIDATION ---
         if (currentUser !== "root") {
             return ErrorHandler.createError("committee: only root can create a committee.");
         }
@@ -44,14 +44,12 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         const members = flags.members.split(',');
         const projectPath = `/home/project_${committeeName}`;
 
-        // Verify all users exist before making any changes
         for (const member of members) {
             if (!(await UserManager.userExists(member))) {
                 return ErrorHandler.createError(`committee: user '${member}' does not exist.`);
             }
         }
 
-        // Check for existing group or directory to prevent conflicts
         if (GroupManager.groupExists(committeeName)) {
             return ErrorHandler.createError(`committee: group '${committeeName}' already exists.`);
         }
@@ -59,29 +57,23 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
             return ErrorHandler.createError(`committee: directory '${projectPath}' already exists.`);
         }
 
-        // 2. --- EXECUTION ---
-        // Create the group
         GroupManager.createGroup(committeeName);
 
-        // Create the directory
         const mkdirResult = await FileSystemManager.createOrUpdateFile(
             projectPath,
             null,
             { isDirectory: true, currentUser: 'root', primaryGroup: 'root' }
         );
         if (!mkdirResult.success) {
-            // Cleanup: remove the group if directory creation fails
             GroupManager.deleteGroup(committeeName);
             return ErrorHandler.createError(`committee: failed to create directory: ${mkdirResult.error}`);
         }
 
         const projectNode = FileSystemManager.getNodeByPath(projectPath);
 
-        // Set group ownership and permissions
         projectNode.group = committeeName;
-        projectNode.mode = 0o770; // rwxrwx---
+        projectNode.mode = 0o770;
 
-        // Add members to the group
         for (const member of members) {
             GroupManager.addUserToGroup(member, committeeName);
         }
@@ -95,4 +87,5 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         );
     }
 };
+
 window.CommandRegistry.register(new CommitteeCommand());

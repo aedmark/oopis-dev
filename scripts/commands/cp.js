@@ -1,4 +1,5 @@
 // scripts/commands/cp.js
+
 window.CpCommand = class CpCommand extends Command {
     constructor() {
         super({
@@ -100,7 +101,7 @@ window.CpCommand = class CpCommand extends Command {
                     });
                 });
                 if (!confirmed) {
-                    continue; // Skip this operation
+                    continue;
                 }
             }
 
@@ -116,7 +117,7 @@ window.CpCommand = class CpCommand extends Command {
                 destParentFullPath
             );
             if (!copyResult.success) {
-                return copyResult; // Propagate error
+                return copyResult;
             }
             if (copyResult.data.changed) {
                 anyChangesMade = true;
@@ -193,4 +194,5 @@ window.CpCommand = class CpCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new CpCommand());

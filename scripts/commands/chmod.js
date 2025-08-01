@@ -1,4 +1,5 @@
 // scripts/commands/chmod.js
+
 window.ChmodCommand = class ChmodCommand extends Command {
     constructor() {
         super({
@@ -69,4 +70,5 @@ window.ChmodCommand = class ChmodCommand extends Command {
         return ErrorHandler.createSuccess("", { stateModified: true });
     }
 }
+
 window.CommandRegistry.register(new ChmodCommand());

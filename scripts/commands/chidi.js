@@ -1,4 +1,5 @@
 // scripts/commands/chidi.js
+
 async function _getFilesForAnalysis(startPath, startNode, currentUser, FileSystemManager, Utils) {
   const files = [];
   const visited = new Set();
@@ -231,4 +232,5 @@ window.ChidiCommand = class ChidiCommand extends Command {
 
   }
 }
+
 window.CommandRegistry.register(new ChidiCommand());

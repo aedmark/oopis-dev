@@ -1,4 +1,5 @@
 // scripts/commands/cksum.js
+
 window.CksumCommand = class CksumCommand extends Command {
     constructor() {
         super({
@@ -75,4 +76,5 @@ EXAMPLES
 
     }
 }
+
 window.CommandRegistry.register(new CksumCommand());
