@@ -115,7 +115,6 @@ window.WindowManager = class WindowManager {
     closeWindow(windowId) {
         const windowData = this.windows.get(windowId);
         if (windowData?.appData?.appInstance) {
-            // If there's an app instance, call its exit method
             try {
                 windowData.appData.appInstance.exit();
             } catch (e) {

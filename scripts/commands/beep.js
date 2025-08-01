@@ -1,4 +1,5 @@
 // scripts/commands/beep.js
+
 window.BeepCommand = class BeepCommand extends Command {
     constructor() {
         super({
@@ -22,7 +23,6 @@ window.BeepCommand = class BeepCommand extends Command {
         const { SoundManager, ErrorHandler } = dependencies;
 
         if (!SoundManager.isInitialized) {
-            // Attempt to initialize on first use if not already done
             await SoundManager.initialize();
             if (!SoundManager.isInitialized) {
                 return ErrorHandler.createError(
@@ -35,4 +35,5 @@ window.BeepCommand = class BeepCommand extends Command {
         return ErrorHandler.createSuccess();
     }
 };
+
 window.CommandRegistry.register(new BeepCommand());

@@ -1,4 +1,5 @@
 // scripts/commands/cat.js
+
 window.CatCommand = class CatCommand extends Command {
     constructor() {
         super({
@@ -60,4 +61,5 @@ window.CatCommand = class CatCommand extends Command {
         return ErrorHandler.createSuccess(content);
     }
 }
+
 window.CommandRegistry.register(new CatCommand());

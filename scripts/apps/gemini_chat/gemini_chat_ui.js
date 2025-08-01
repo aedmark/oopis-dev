@@ -17,13 +17,11 @@ window.GeminiChatUI = class GeminiChatUI {
   _buildLayout() {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Use the UI toolkit to create the main app window
     const appWindow = UIComponents.createAppWindow('Gemini Chat', this.managerCallbacks.onExit);
     this.elements.container = appWindow.container;
     this.elements.main = appWindow.main;
     this.elements.footer = appWindow.footer;
 
-    // App-specific elements
     this.elements.messageDisplay = Utils.createElement("div", {
       className: "gemini-chat-messages",
     });
@@ -37,10 +35,8 @@ window.GeminiChatUI = class GeminiChatUI {
         ]
     );
 
-    // Add message display and loader to the main content area
     this.elements.main.append(this.elements.messageDisplay, this.elements.loader);
 
-    // Create the input form
     this.elements.input = Utils.createElement("input", {
       type: "text",
       placeholder: "Type your message...",
@@ -56,10 +52,8 @@ window.GeminiChatUI = class GeminiChatUI {
         [this.elements.input, sendBtn]
     );
 
-    // Put the form in the footer
     this.elements.footer.appendChild(form);
 
-    // Add event listeners
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       await this.managerCallbacks.onSendMessage(this.elements.input.value);

@@ -319,4 +319,5 @@ window.AdventureCommand = class AdventureCommand extends Command {
 
   }
 }
+
 window.CommandRegistry.register(new AdventureCommand());

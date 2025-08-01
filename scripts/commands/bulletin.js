@@ -1,4 +1,5 @@
 // /scripts/commands/bulletin.js
+
 window.BulletinCommand = class BulletinCommand extends Command {
     constructor() {
         super({
@@ -51,7 +52,6 @@ window.BulletinCommand = class BulletinCommand extends Command {
         const { FileSystemManager, UserManager } = dependencies;
         const bulletinPath = this._getBulletinPath(dependencies);
 
-        // First, ensure /var/log exists. This is a crucial piece of city planning!
         const logDirPath = "/var/log";
         const logDirNode = FileSystemManager.getNodeByPath(logDirPath);
         if (!logDirNode) {
@@ -125,7 +125,6 @@ ${message}
         const ensureResult = await this._ensureBulletinExists(context);
         if (!ensureResult.success) return ensureResult;
 
-        // We will just 'cat' the file. This is the OopisOS way! Teamwork!
         return await dependencies.CommandExecutor.processSingleCommand(
             `cat ${this._getBulletinPath(dependencies)}`,
             { isInteractive: false }
@@ -155,4 +154,5 @@ ${message}
         }
     }
 };
+
 window.CommandRegistry.register(new BulletinCommand());

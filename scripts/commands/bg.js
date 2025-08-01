@@ -1,4 +1,5 @@
 // scripts/commands/bg.js
+
 window.BgCommand = class BgCommand extends Command {
     constructor() {
         super({
@@ -30,7 +31,6 @@ window.BgCommand = class BgCommand extends Command {
             const result = CommandExecutor.sendSignalToJob(jobId, 'CONT');
             return result.success ? ErrorHandler.createSuccess() : ErrorHandler.createError(result.error);
         } else {
-            // Logic to resume the most recent stopped job in the background
             const jobs = CommandExecutor.getActiveJobs();
             const jobIds = Object.keys(jobs);
             if (jobIds.length > 0) {
@@ -43,4 +43,5 @@ window.BgCommand = class BgCommand extends Command {
         }
     }
 }
+
 window.CommandRegistry.register(new BgCommand());

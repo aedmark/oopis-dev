@@ -1,4 +1,5 @@
 // scripts/commands/bc.js
+
 window.BcCommand = class BcCommand extends Command {
   constructor() {
     super({
@@ -134,4 +135,5 @@ EXAMPLES
     }
   }
 }
+
 window.CommandRegistry.register(new BcCommand());

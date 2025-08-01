@@ -1,4 +1,5 @@
 // gem/scripts/commands/binder.js
+
 window.BinderCommand = class BinderCommand extends Command {
     constructor() {
         super({
@@ -108,13 +109,11 @@ window.BinderCommand = class BinderCommand extends Command {
         const pathToAdd = args[2];
         const section = flags.section || 'general';
 
-        // Validate binder file
         const binderValidation = FileSystemManager.validatePath(binderPath, { expectedType: 'file', permissions: ['read', 'write'] });
         if (!binderValidation.success) {
             return ErrorHandler.createError(`binder: ${binderValidation.error}`);
         }
 
-        // Validate path to add
         const pathToAddValidation = FileSystemManager.validatePath(pathToAdd, { allowMissing: false });
         if (!pathToAddValidation.success) {
             return ErrorHandler.createError(`binder: cannot add path '${pathToAdd}': ${pathToAddValidation.error}`);
@@ -317,4 +316,5 @@ window.BinderCommand = class BinderCommand extends Command {
         return ErrorHandler.createSuccess("Binder 'exec' completed.");
     }
 };
+
 window.CommandRegistry.register(new BinderCommand());

@@ -109,4 +109,5 @@ DESCRIPTION
     }
   }
 }
+
 window.CommandRegistry.register(new BackupCommand());

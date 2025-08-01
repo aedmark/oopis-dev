@@ -128,4 +128,5 @@ window.BasicCommand = class BasicCommand extends Command {
 
   }
 }
+
 window.CommandRegistry.register(new BasicCommand());
