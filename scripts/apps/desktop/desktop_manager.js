@@ -1,5 +1,13 @@
 // gem/scripts/apps/desktop/desktop_manager.js
+
+/**
+ * Main desktop environment manager for OopisX GUI
+ * @extends App
+ */
 window.DesktopManager = class DesktopManager extends App {
+    /**
+     * Initialize desktop manager with required components
+     */
     constructor() {
         super();
         this.dependencies = {};
@@ -8,9 +16,16 @@ window.DesktopManager = class DesktopManager extends App {
         this.iconManager = null;
         this.appLauncher = null;
         this.contextMenu = null;
+        /** @type {Set<string>} Currently selected icon paths */
         this.selectedIcons = new Set();
     }
 
+    /**
+     * Initialize and start the desktop environment
+     * @param {HTMLElement} appLayer - Container element for the desktop
+     * @param {Object} options - Configuration options with dependencies
+     * @returns {Promise<void>}
+     */
     async enter(appLayer, options = {}) {
         if (this.isActive) return;
         this.isActive = true;
@@ -18,14 +33,12 @@ window.DesktopManager = class DesktopManager extends App {
 
         const { WindowManager, DesktopUI, TaskbarManager, AppLauncher, IconManager } = this.dependencies;
 
-        // 1. Create the Desktop UI and Taskbar
         this.ui = new DesktopUI({}, this.dependencies);
         this.container = this.ui.getContainer();
         appLayer.innerHTML = '';
         appLayer.appendChild(this.container);
         this.taskbarManager = new TaskbarManager(this.container, null, this.dependencies);
 
-        // 2. Setup the Window Manager with callbacks for the Taskbar
         const windowEventCallbacks = {
             onWindowCreated: (id, title) => this.taskbarManager.addWindow(id, title),
             onWindowDestroyed: (id) => this.taskbarManager.removeWindow(id),
@@ -34,10 +47,8 @@ window.DesktopManager = class DesktopManager extends App {
         this.windowManager = new WindowManager(this.container, this.dependencies, windowEventCallbacks);
         this.taskbarManager.windowManager = this.windowManager;
 
-        // 3. Initialize the App Launcher service
         this.appLauncher = new AppLauncher(this.windowManager, this.dependencies);
 
-        // 4. Initialize the Icon Manager and load icons
         this.iconManager = new IconManager(this.container, this.dependencies, {
             onIconDoubleClick: (path) => this.appLauncher.launch(path),
             onIconClick: (path, element) => this._handleIconClick(path, element),
@@ -45,19 +56,20 @@ window.DesktopManager = class DesktopManager extends App {
         });
         this.iconManager.setDesktopUI(this.ui);
 
-        // 5. Setup desktop context menu
         this._setupDesktopContextMenu();
 
-        // 6. Setup keyboard shortcuts
         this._setupKeyboardShortcuts();
 
-        // FIX: Ensure welcome files are created *before* loading icons
         await this._createWelcomeFiles();
-        this.iconManager.loadIcons(); // Now this will find the files
+        this.iconManager.loadIcons();
 
-        console.log("OopisX Desktop Environment with Icon support is now online.");
+        console.log("OopisX is online.");
     }
 
+    /**
+     * Set up right-click context menu for desktop
+     * @private
+     */
     _setupDesktopContextMenu() {
         this.container.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -74,6 +86,10 @@ window.DesktopManager = class DesktopManager extends App {
         });
     }
 
+    /**
+     * Set up keyboard shortcuts for desktop operations
+     * @private
+     */
     _setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
             if (!this.isActive) return;
@@ -92,6 +108,12 @@ window.DesktopManager = class DesktopManager extends App {
         });
     }
 
+    /**
+     * Handle icon click events for selection
+     * @param {string} path - File path of clicked icon
+     * @param {HTMLElement} element - Icon DOM element
+     * @private
+     */
     _handleIconClick(path, element) {
         if (!window.event || !window.event.ctrlKey) {
             this._clearSelection();
@@ -157,6 +179,13 @@ window.DesktopManager = class DesktopManager extends App {
         this._showContextMenu(menuItems, x, y);
     }
 
+    /**
+     * Display context menu at specified coordinates
+     * @param {Array<Object>} items - Menu items with label and action properties
+     * @param {number} x - X coordinate
+     * @param {number} y - Y coordinate
+     * @private
+     */
     _showContextMenu(items, x, y) {
         this._hideContextMenu();
         const { Utils } = this.dependencies;
@@ -186,7 +215,6 @@ window.DesktopManager = class DesktopManager extends App {
 
         document.body.appendChild(this.contextMenu);
         
-        // Hide menu when clicking elsewhere
         setTimeout(() => {
             document.addEventListener('click', this._hideContextMenu.bind(this), { once: true });
         }, 0);
@@ -199,6 +227,11 @@ window.DesktopManager = class DesktopManager extends App {
         }
     }
 
+    /**
+     * Create new folder on desktop
+     * @private
+     * @returns {Promise<void>}
+     */
     async _createNewFolder() {
         const { ModalManager } = this.dependencies;
         const name = await this._promptForName('New Folder', 'New Folder');
@@ -208,6 +241,12 @@ window.DesktopManager = class DesktopManager extends App {
         }
     }
 
+    /**
+     * Create new file with specified extension
+     * @param {string} extension - File extension
+     * @private
+     * @returns {Promise<void>}
+     */
     async _createNewFile(extension) {
         const { ModalManager } = this.dependencies;
         const name = await this._promptForName('New File', `New File.${extension}`);
@@ -254,7 +293,6 @@ window.DesktopManager = class DesktopManager extends App {
     }
 
     _copyFiles() {
-        // Store selected files in a simple clipboard
         this.clipboard = { action: 'copy', files: Array.from(this.selectedIcons) };
     }
 
@@ -320,21 +358,37 @@ window.DesktopManager = class DesktopManager extends App {
 
     async _createWelcomeFiles() {
         const { FileSystemManager, UserManager, CommandExecutor } = this.dependencies;
-        const currentUser = UserManager.getCurrentUser().name;
-        const desktopPath = `/home/${currentUser}/Desktop`;
+        const currentUser = UserManager.getCurrentUser();
+        const desktopPath = `/home/${currentUser.name}/Desktop`;
 
+        // Ensure Desktop directory exists
+        await CommandExecutor.processSingleCommand(`mkdir -p "${desktopPath}"`, { isInteractive: false });
+        
         const desktopNode = FileSystemManager.getNodeByPath(desktopPath);
         if (desktopNode && Object.keys(desktopNode.children).length === 0) {
-            // Desktop is empty, let's create some files!
-            const welcomeContent = `Welcome to OopisX, the graphical user interface for OopisOS!\n\n- You can drag these icons around.\n- Double-click them to open applications.\n- Right-click the desktop to create new files or folders.\n- Use Ctrl+A to select all, Delete to delete, F2 to rename.`;
-            const welcomePath = `${desktopPath}/Welcome.txt`;
-            await CommandExecutor.processSingleCommand(`echo "${welcomeContent}" > "${welcomePath}"`, { isInteractive: false });
+            const welcomeContent = `Welcome to OopisX, the graphical user interface for OopisOS!
 
-            const paintPath = `${desktopPath}/My Drawing.oopic`;
-            await CommandExecutor.processSingleCommand(`touch "${paintPath}"`, { isInteractive: false });
+- You can drag these icons around.
+- Double-click them to open applications.
+- Right-click the desktop to create new files or folders.
+- Use Ctrl+A to select all, Delete to delete, F2 to rename.`;
+            
+            const context = {
+                currentUser: currentUser.name,
+                primaryGroup: currentUser.name
+            };
+            
+            // Create welcome file
+            await FileSystemManager.createOrUpdateFile(`${desktopPath}/Welcome.txt`, welcomeContent, context);
+            
+            // Create drawing file
+            await FileSystemManager.createOrUpdateFile(`${desktopPath}/My Drawing.oopic`, '', context);
         }
     }
 
+    /**
+     * Exit desktop environment and clean up resources
+     */
     exit() {
         if (!this.isActive) return;
         this.isActive = false;

@@ -1,5 +1,14 @@
 // gem/scripts/apps/desktop/icon_manager.js
+
+/**
+ * Manages desktop icons and their layout
+ */
 window.IconManager = class IconManager {
+    /**
+     * @param {HTMLElement} desktopContainer - Desktop container element
+     * @param {Object} dependencies - System dependencies
+     * @param {Object} callbacks - Icon event callbacks
+     */
     constructor(desktopContainer, dependencies, callbacks) {
         this.desktopContainer = desktopContainer;
         this.dependencies = dependencies;
@@ -9,16 +18,20 @@ window.IconManager = class IconManager {
             onClick: (path, element) => this.callbacks.onIconClick?.(path, element),
             onRightClick: (path, element, event) => this.callbacks.onIconRightClick?.(path, element, event)
         }, this.dependencies);
+        /** @type {Array<{element: HTMLElement, data: Object}>} Array of icon objects */
         this.icons = [];
-        this.desktopUI = null; // Will be set by desktop manager
+        this.desktopUI = null;
     }
 
+    /**
+     * Load and display icons from the desktop directory
+     * @returns {Promise<void>}
+     */
     async loadIcons() {
         const { FileSystemManager, UserManager } = this.dependencies;
         const currentUser = UserManager.getCurrentUser().name;
         const desktopPath = `/home/${currentUser}/Desktop`;
 
-        // Ensure the Desktop directory exists
         const pathInfo = FileSystemManager.validatePath(desktopPath, { allowMissing: true });
         if (!pathInfo.data.node) {
             await this.dependencies.CommandExecutor.processSingleCommand(`mkdir -p ${desktopPath}`, { isInteractive: false });
@@ -35,7 +48,6 @@ window.IconManager = class IconManager {
             });
         }
         
-        // Hide welcome message if we have icons
         if (this.icons.length > 0 && this.desktopUI) {
             this.desktopUI.hideWelcomeMessage();
         } else if (this.icons.length === 0 && this.desktopUI) {
@@ -45,8 +57,10 @@ window.IconManager = class IconManager {
         this.arrangeIcons();
     }
 
+    /**
+     * Arrange icons in a grid layout on the desktop
+     */
     arrangeIcons() {
-        // Simple grid layout for now
         const PADDING = 20;
         const ICON_WIDTH = 80;
         const ICON_HEIGHT = 90;
@@ -61,10 +75,18 @@ window.IconManager = class IconManager {
         });
     }
 
+    /**
+     * Find icon by file path
+     * @param {string} path - File path to search for
+     * @returns {Object|undefined} Icon object or undefined if not found
+     */
     getIconByPath(path) {
         return this.icons.find(icon => icon.data.path === path);
     }
 
+    /**
+     * Remove all icons from the desktop
+     */
     clearIcons() {
         this.icons.forEach(icon => {
             if (icon.element.parentNode) {
@@ -73,12 +95,15 @@ window.IconManager = class IconManager {
         });
         this.icons = [];
         
-        // Show welcome message when no icons
         if (this.desktopUI) {
             this.desktopUI.showWelcomeMessage();
         }
     }
     
+    /**
+     * Set reference to desktop UI for welcome message control
+     * @param {Object} desktopUI - Desktop UI instance
+     */
     setDesktopUI(desktopUI) {
         this.desktopUI = desktopUI;
     }

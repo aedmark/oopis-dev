@@ -8,7 +8,6 @@ window.WindowManager = class WindowManager {
         this.activeWindowId = null;
         this.highestZIndex = 100;
         this.windowCounter = 0;
-        // FIXED: This now correctly uses the passed-in parameter.
         this.callbacks = {
             onWindowCreated: eventCallbacks.onWindowCreated || (() => {}),
             onWindowDestroyed: eventCallbacks.onWindowDestroyed || (() => {}),
@@ -34,7 +33,6 @@ window.WindowManager = class WindowManager {
             }
         );
 
-        // Set initial position and size
         windowComponent.style.width = width ? `${width}px` : '400px';
         windowComponent.style.height = height ? `${height}px` : '300px';
         windowComponent.style.left = x ? `${x}px` : `${50 + (this.windows.size * 20)}px`;

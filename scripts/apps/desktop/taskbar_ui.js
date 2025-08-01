@@ -1,4 +1,5 @@
 // gem/scripts/apps/desktop/taskbar_ui.js
+
 window.TaskbarUI = class TaskbarUI {
     constructor(callbacks, dependencies) {
         this.callbacks = callbacks;
@@ -38,12 +39,10 @@ window.TaskbarUI = class TaskbarUI {
     }
 
     setActive(windowId) {
-        // Deactivate all others
         Array.from(this.elements.taskList.children).forEach(btn => {
             btn.classList.remove('active');
         });
 
-        // Activate the correct one
         const button = this.elements.taskList.querySelector(`[data-window-id="${windowId}"]`);
         if (button) {
             button.classList.add('active');

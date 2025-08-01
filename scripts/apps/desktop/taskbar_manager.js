@@ -1,4 +1,5 @@
 // gem/scripts/apps/desktop/taskbar_manager.js
+
 window.TaskbarManager = class TaskbarManager {
     constructor(desktopContainer, windowManager, dependencies) {
         this.desktopContainer = desktopContainer;

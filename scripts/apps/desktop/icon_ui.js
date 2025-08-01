@@ -1,10 +1,23 @@
 // gem/scripts/apps/desktop/icon_ui.js
+
+/**
+ * UI component for creating and managing desktop icons
+ */
 window.IconUI = class IconUI {
+    /**
+     * @param {Object} callbacks - Event callbacks for icon interactions
+     * @param {Object} dependencies - System dependencies including Utils
+     */
     constructor(callbacks, dependencies) {
         this.callbacks = callbacks;
         this.dependencies = dependencies;
     }
 
+    /**
+     * Create a draggable desktop icon element
+     * @param {Object} fileData - File data with name and path properties
+     * @returns {HTMLElement} Icon DOM element
+     */
     createIcon(fileData) {
         const { Utils } = this.dependencies;
         const iconChar = this._getIconForFile(fileData.name);
@@ -28,28 +41,23 @@ window.IconUI = class IconUI {
             this.callbacks.onRightClick?.(fileData.path, iconDiv, e);
         });
 
-        // --- NEW: Dragging Logic ---
         let isDragging = false;
         let offsetX, offsetY;
 
         iconDiv.addEventListener('mousedown', (e) => {
-            // Only drag with the primary mouse button
             if (e.button !== 0) return;
 
             isDragging = true;
-            // Get the parent container (the desktop) to calculate relative offsets
             const parentRect = iconDiv.parentElement.getBoundingClientRect();
             offsetX = e.clientX - iconDiv.getBoundingClientRect().left + parentRect.left;
             offsetY = e.clientY - iconDiv.getBoundingClientRect().top + parentRect.top;
 
             iconDiv.classList.add('dragging');
-            // Prevent text selection while dragging
             e.preventDefault();
         });
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
-                // Ensure the icon stays within the bounds of its container
                 const parentRect = iconDiv.parentElement.getBoundingClientRect();
                 let newLeft = e.clientX - offsetX;
                 let newTop = e.clientY - offsetY;
@@ -72,13 +80,18 @@ window.IconUI = class IconUI {
         return iconDiv;
     }
 
+    /**
+     * Get appropriate emoji icon for file type
+     * @param {string} fileName - Name of the file
+     * @returns {string} Emoji character representing the file type
+     * @private
+     */
     _getIconForFile(fileName) {
         const { Utils } = this.dependencies;
         const ext = Utils.getFileExtension(fileName);
         
-        // Check if it's a directory first
         if (!ext || fileName.indexOf('.') === -1) {
-            return '📁'; // Folder icon
+            return '📁';
         }
         
         switch (ext) {

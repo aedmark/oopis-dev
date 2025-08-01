@@ -1,9 +1,17 @@
 // gem/scripts/apps/desktop/app_launcher.js
 
+/**
+ * Manages launching applications based on file extensions in the desktop environment
+ */
 window.AppLauncher = class AppLauncher {
+    /**
+     * @param {Object} windowManager - Window management system
+     * @param {Object} dependencies - System dependencies (Utils, FileSystemManager, CommandExecutor)
+     */
     constructor(windowManager, dependencies) {
         this.windowManager = windowManager;
         this.dependencies = dependencies;
+        /** @type {Object.<string, {manager: string, files: string[]}>} Registry mapping file extensions to app configurations */
         this.appRegistry = {
             'txt': { manager: 'EditorManager', files: ['apps/editor/editor_manager.js', 'apps/editor/editor_ui.js'] },
             'md': { manager: 'EditorManager', files: ['apps/editor/editor_manager.js', 'apps/editor/editor_ui.js'] },
@@ -17,6 +25,11 @@ window.AppLauncher = class AppLauncher {
         };
     }
 
+    /**
+     * Launches the appropriate application for a given file path
+     * @param {string} filePath - Path to the file to open
+     * @returns {Promise<void>}
+     */
     async launch(filePath) {
         const { Utils, FileSystemManager, CommandExecutor } = this.dependencies;
         const extension = Utils.getFileExtension(filePath);
