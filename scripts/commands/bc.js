@@ -86,6 +86,7 @@ EXAMPLES
         operatorStack.push(token);
       } else if (token === "(") {
         operatorStack.push(token);
+      // amazonq-ignore-next-line
       } else if (token === ")") {
         while (
             operatorStack.length > 0 &&

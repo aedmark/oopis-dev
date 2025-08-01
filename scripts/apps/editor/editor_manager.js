@@ -99,11 +99,14 @@ window.EditorManager = class EditorManager extends App {
    * @param {HTMLElement} element - Text element to update
    * @private
    */
+  // Import DOMPurify for sanitizing HTML
+  // DOMPurify is a library that sanitizes HTML and prevents XSS attacks
+
   _updateContent(element) {
     if (this.state.fileMode === 'code') {
       const selection = this._getSelection(element);
       const text = element.textContent || "";
-      element.innerHTML = this._jsHighlighter(text);
+      element.innerHTML = DOMPurify.sanitize(this._jsHighlighter(text));
       this._setSelection(element, selection);
     }
     if (this.state.viewMode !== "edit") {

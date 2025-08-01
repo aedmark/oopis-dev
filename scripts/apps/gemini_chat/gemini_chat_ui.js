@@ -87,7 +87,9 @@ window.GeminiChatUI = class GeminiChatUI {
 
     if (processMarkdown) {
       const sanitizedHtml = DOMPurify.sanitize(marked.parse(message));
-      messageDiv.innerHTML = sanitizedHtml;
+      // Use createTextNode and appendChild instead of innerHTML
+      const textNode = document.createTextNode(sanitizedHtml);
+      messageDiv.appendChild(textNode);
 
       const copyBtn = Utils.createElement("button", {
         className: "btn",

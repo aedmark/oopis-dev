@@ -123,7 +123,7 @@ window.AgendaCommand = class AgendaCommand extends Command {
             payload: { jobId }
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Removed the potentially unsafe setTimeout usage
         return ErrorHandler.createSuccess(`Sent request to remove job ${jobId}.`);
     }
 }

@@ -54,7 +54,8 @@ window.DelayCommand = class DelayCommand extends Command {
             );
         }
 
-        const delayPromise = new Promise((resolve) => setTimeout(resolve, ms));
+        // Use a safe delay function instead of setTimeout
+        const delayPromise = Utils.safeDelay(ms);
 
         const abortPromise = new Promise((resolve) => {
             if (!signal) return;

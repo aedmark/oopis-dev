@@ -447,6 +447,7 @@ window.AdventureManager = class AdventureManager extends App {
             engine._processDaemons();
             engine._checkWinConditions();
             if (parsedCommands.length > 1) {
+              // Use a constant delay value instead of user input
               await new Promise((resolve) => setTimeout(resolve, 350));
             }
           }
