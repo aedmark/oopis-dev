@@ -3,7 +3,7 @@
 async function _getFilesForAnalysis(startPath, startNode, currentUser, FileSystemManager, Utils) {
   const files = [];
   const visited = new Set();
-  const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "js", "sh"]);
+  const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html"]);
 
   async function recurse(currentPath, node) {
     if (visited.has(currentPath)) return;
@@ -146,7 +146,7 @@ window.ChidiCommand = class ChidiCommand extends Command {
 
       let files = [];
       let hadErrors = false;
-      const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "js", "sh"]);
+      const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html"]);
 
       if (options.stdinContent) {
         if (args.length > 0)
@@ -204,7 +204,7 @@ window.ChidiCommand = class ChidiCommand extends Command {
 
       if (files.length === 0) {
         return ErrorHandler.createSuccess(
-            `No supported files (.md, .txt, .js, .sh) found to open.`
+            `No supported files (.md, .txt, .html) found to open.`
         );
       }
 

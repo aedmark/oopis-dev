@@ -311,7 +311,7 @@ window.ChidiManager = class ChidiManager extends App {
         const url = URL.createObjectURL(blob);
         const a = Utils.createElement("a", {
           href: url,
-          download: `${currentFile.name.replace(/\.(md|txt|js|sh)$/, "")}_session.html`,
+          download: `${currentFile.name.replace(/\.(md|txt|html)$/, "")}_session.html`,
         });
         document.body.appendChild(a);
         a.click();
