@@ -1,14 +1,11 @@
 /* Captain's Log Style Sheet */
-/* ========================================================================== */
 
-/* The new standardized main container gets some padding */
 #captains-log-app-container .app-main {
     padding: var(--spacing-md);
     padding-top: 0;
     gap: var(--spacing-md);
 }
 
-/* Adjustments for the new standardized header */
 #captains-log-app-container .app-header {
     gap: var(--spacing-md);
     padding: var(--spacing-sm) var(--spacing-md);

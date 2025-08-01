@@ -1,4 +1,5 @@
 // scripts/apps/gemini_chat/gemini_chat_manager.js
+
 window.GeminiChatManager = class GeminiChatManager extends App {
   constructor() {
     super();
@@ -24,12 +25,10 @@ window.GeminiChatManager = class GeminiChatManager extends App {
       terminalContext: "",
     };
 
-    // Instantiate the new UI class
     this.ui = new this.dependencies.GeminiChatUI(this.callbacks, this.dependencies);
     this.container = this.ui.getContainer();
     appLayer.appendChild(this.container);
 
-    // Initial message
     this.ui.appendMessage(
         "Greetings! What would you like to do?",
         "ai",

@@ -1,4 +1,5 @@
 // scripts/apps/gemini_chat/gemini_chat_ui.js
+
 "use strict";
 
 window.GeminiChatUI = class GeminiChatUI {

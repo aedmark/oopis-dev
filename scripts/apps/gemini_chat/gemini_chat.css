@@ -1,5 +1,4 @@
-/* Gemini Chat Application Style s\Sheet */
-/* ========================================================================== */
+/* Gemini Chat Application Style Sheet */
 
 #gemini-chat-app-container .app-main {
     padding: var(--spacing-md);
@@ -9,13 +8,13 @@
 #gemini-chat-app-container .app-footer {
     padding: var(--spacing-md);
     padding-top: 0;
-    border-top: none; /* The form will have its own border */
+    border-top: none;
 }
 
 .gemini-chat-messages {
     flex-grow: 1;
     overflow-y: auto;
-    padding-right: var(--spacing-sm); /* For scrollbar */
+    padding-right: var(--spacing-sm);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);

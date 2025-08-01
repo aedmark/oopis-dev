@@ -1,18 +1,16 @@
 /* Oopis Editor Style Sheet */
-/* ========================================================================== */
 
 #text-editor-app-container > .app-main {
     display: flex;
-    flex-direction: column !important; /* Stack header, toolbar, and content vertically */
+    flex-direction: column !important;
     gap: var(--spacing-sm);
     padding: var(--spacing-sm);
 }
 
 .editor-header {
-    flex-shrink: 0; /* Don't shrink the header */
+    flex-shrink: 0;
 }
 
-/* Wrapper for editor header, toolbar, and content */
 .editor-layout {
     display: flex;
     flex-direction: column;
@@ -43,45 +41,39 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-sm);
-    flex-shrink: 0; /* Don't shrink the toolbar */
+    flex-shrink: 0;
 }
 
 .editor-toolbar-group {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* This is the corrected line! */
+    justify-content: center;
     gap: var(--spacing-xs);
 }
 
-/* This is the container for the text and preview areas */
 .editor-main-content {
-    flex-grow: 1; /* This is the key to making it fill the remaining space */
-    display: flex; /* Make it a flex-row for the side-by-side view */
-    min-height: 0; /* Crucial for flex children to scroll instead of overflowing */
+    flex-grow: 1;
+    display: flex;
+    min-height: 0;
     gap: var(--spacing-md);
 }
 
-/* This class controls the split view */
 .editor-main--split .editor-textarea,
 .editor-main--split .editor-preview {
-    flex: 1 1 0; /* shorthand for flex-grow: 1, flex-shrink: 1, flex-basis: 0 */
-    min-width: 0; /* Prevents flex items from overflowing */
+    flex: 1 1 0;
+    min-width: 0;
 }
 
-/* This class handles when one pane takes the full width */
 .editor-main--full .editor-textarea,
 .editor-main--full .editor-preview {
     flex: 1 1 100%;
 }
 
-/* Hide the inactive pane */
 .editor-main-content .hidden {
     display: none;
 }
 
-/* Shared styles for both the editor textarea and the preview pane */
 .editor-textarea, .editor-preview {
-    /* No height: 100% needed, flexbox will handle it */
     padding: var(--spacing-md);
     border: 1px solid var(--color-border-primary);
     border-radius: var(--border-radius-sm);
@@ -91,22 +83,21 @@
     line-height: 1.6;
     outline: none;
     transition: all 0.2s ease-in-out;
-    overflow-y: auto; /* Allow scrolling within each pane */
+    overflow-y: auto;
 }
 
 .editor-textarea {
     font-family: var(--font-family-mono), monospace;
-    white-space: pre; /* Keep whitespace, but don't wrap by default */
+    white-space: pre;
     word-wrap: normal;
     caret-color: var(--color-text-primary);
 }
 
 .editor-textarea.word-wrap-enabled {
-    white-space: pre-wrap; /* Enable word wrapping when the class is added */
+    white-space: pre-wrap;
     word-wrap: break-word;
 }
 
-/* Preview pane specific styles for rendered markdown/html */
 .editor-preview h1,
 .editor-preview h2,
 .editor-preview h3 {
@@ -149,19 +140,18 @@
     margin-bottom: 1em;
 }
 
-/* Syntax Highlighting Styles */
 .editor-textarea em {
-    color: #9cdcfe; /* Light blue for numbers/comments */
+    color: #9cdcfe;
     font-style: italic;
 }
 
 .editor-textarea strong {
-    color: #c586c0; /* Purple for keywords */
+    color: #c586c0;
     font-weight: normal;
 }
 
 .editor-textarea em strong,
 .editor-textarea strong em {
-    color: #ce9178; /* Orange for strings */
+    color: #ce9178;
     font-style: italic;
 }

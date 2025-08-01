@@ -1,4 +1,5 @@
 // scripts/apps/log/log_ui.js
+
 window.LogUI = class LogUI {
   constructor(callbacks, dependencies) {
     this.elements = {};
@@ -14,14 +15,11 @@ window.LogUI = class LogUI {
   _buildLayout() {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Use the UI toolkit to create the main app window
     const appWindow = UIComponents.createAppWindow("Captain's Log", this.callbacks.onExit);
     this.elements.container = appWindow.container;
     this.elements.header = appWindow.header;
     this.elements.main = appWindow.main;
-    // The footer is available but unused in this app.
 
-    // --- Header Content ---
     this.elements.searchBar = Utils.createElement("input", {
       id: "log-search-bar",
       type: "text",
@@ -45,10 +43,8 @@ window.LogUI = class LogUI {
       this.elements.saveBtn,
     ]);
 
-    // Insert new elements into the toolkit's header
     this.elements.header.append(this.elements.searchBar, actionButtons);
 
-    // --- Main Content ---
     this.elements.entryList = Utils.createElement("div", {
       id: "log-entry-list",
       className: "log-app__list-pane",
@@ -59,10 +55,8 @@ window.LogUI = class LogUI {
       placeholder: "Select an entry to view or edit...",
     });
 
-    // Append app-specific elements to the main area
     this.elements.main.append(this.elements.entryList, this.elements.contentView);
 
-    // Add event listeners
     this.elements.searchBar.addEventListener("input", () =>
         this.callbacks.onSearch(this.elements.searchBar.value)
     );

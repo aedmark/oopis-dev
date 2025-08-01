@@ -1,7 +1,5 @@
 /* Oopis BASIC Style Sheet */
-/* ========================================================================== */
 
-/* Apply the classic theme to the new standard container */
 .basic-app__container.app-container {
   background-color: #0088FF;
   border-color: #AAFFEE;
@@ -9,7 +7,6 @@
   box-shadow: var(--shadow-inset-light), var(--shadow-drop-medium);
 }
 
-/* Update the standard header elements for the BASIC theme */
 .basic-app__container .app-header {
   color: #AAFFEE;
   border-bottom: var(--border-width-thick) double #AAFFEE;
@@ -31,7 +28,6 @@
   flex-direction: column;
 }
 
-/* App-specific styles remain */
 .basic-app__output {
   flex-grow: 1;
   overflow-y: auto;

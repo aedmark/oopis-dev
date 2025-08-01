@@ -1,13 +1,10 @@
 /* Chidi Style Sheet */
-/* ========================================================================== */
 
-/* The main app content area */
 #chidi-app-container .app-main {
     padding: var(--spacing-md);
     background-color: var(--color-background-darkest);
 }
 
-/* Customizations for the standard header */
 #chidi-app-container .app-header {
     flex-wrap: nowrap;
     gap: var(--spacing-md);
@@ -23,7 +20,6 @@
     text-align: center;
 }
 
-/* Display and content styles */
 .chidi-markdown-content {
     width: 100%;
     color: var(--color-text-secondary);
@@ -59,7 +55,6 @@
 .chidi-markdown-content th { background-color: var(--color-background-light); }
 .chidi-ai-output { border-top: 2px dashed var(--color-info); margin-top: 2rem; padding-top: 1rem; }
 
-/* Control and footer styles */
 .chidi-control-group {
     display: flex;
     gap: 0.5rem;

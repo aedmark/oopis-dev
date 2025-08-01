@@ -1,3 +1,5 @@
+// scripts/apps/log/log_manager.js
+
 window.LogManager = class LogManager extends App {
   constructor() {
     super();

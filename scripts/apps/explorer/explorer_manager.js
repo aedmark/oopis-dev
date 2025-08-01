@@ -1,19 +1,21 @@
+// scripts/apps/explorer/explorer_manager.js
+
 window.ExplorerManager = class ExplorerManager extends App {
   constructor() {
-    super(); // Call the App constructor
+    super();
     this.currentPath = "/";
     this.expandedPaths = new Set(["/"]);
     this.moveOperation = {
       active: false,
       sourcePath: null,
     };
-    this.dependencies = {}; // To be populated on enter
+    this.dependencies = {};
     this.callbacks = {};
-    this.ui = null; // To hold the UI instance
+    this.ui = null;
   }
 
   async enter(appLayer, options = {}) {
-    this.dependencies = options.dependencies; // Dependency injection
+    this.dependencies = options.dependencies;
     this.callbacks = this._createCallbacks();
 
     const { FileSystemManager, OutputManager, ExplorerUI } = this.dependencies;

@@ -1,4 +1,11 @@
+/**
+ * Text editor application manager with syntax highlighting and preview support
+ * @extends App
+ */
 window.EditorManager = class EditorManager extends App {
+  /**
+   * Initialize editor manager with default state
+   */
   constructor() {
     super();
     this.state = {};
@@ -8,7 +15,12 @@ window.EditorManager = class EditorManager extends App {
     this.ui = null;
   }
 
-  // --- NEW: Cursor preservation logic ---
+  /**
+   * Get current text selection in element
+   * @param {HTMLElement} element - Text element
+   * @returns {Object} Selection with start and end positions
+   * @private
+   */
   _getSelection(element) {
     const selection = window.getSelection();
     if (selection.rangeCount === 0) return { start: 0, end: 0 };
@@ -23,6 +35,12 @@ window.EditorManager = class EditorManager extends App {
     };
   }
 
+  /**
+   * Set text selection in element
+   * @param {HTMLElement} element - Text element
+   * @param {Object} offset - Selection offset with start and end
+   * @private
+   */
   _setSelection(element, offset) {
     const range = document.createRange();
     const sel = window.getSelection();
@@ -58,20 +76,29 @@ window.EditorManager = class EditorManager extends App {
     }
   }
 
-  // --- NEW: Syntax Highlighter ---
+  /**
+   * Apply JavaScript syntax highlighting to text
+   * @param {string} text - Text to highlight
+   * @returns {string} HTML with syntax highlighting
+   * @private
+   */
   _jsHighlighter(text) {
     const escapedText = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     return escapedText
-        .replace(/(\/\*[\s\S]*?\*\/|\/\/.+)/g, "<em>$1</em>") // Comments
-        .replace(/\b(new|if|else|do|while|switch|for|in|of|continue|break|return|typeof|function|var|const|let|async|await|class|extends|true|false|null)(?=[^\w])/g, "<strong>$1</strong>") // Keywords
-        .replace(/(".*?"|'.*?'|`.*?`)/g, "<strong><em>$1</em></strong>") // Strings
-        .replace(/\b(\d+)/g, "<em><strong>$1</strong></em>"); // Numbers
+        .replace(/(\/\*[\s\S]*?\*\/|\/\/.+)/g, "<em>$1</em>")
+        .replace(/\b(new|if|else|do|while|switch|for|in|of|continue|break|return|typeof|function|var|const|let|async|await|class|extends|true|false|null)(?=[^\w])/g, "<strong>$1</strong>")
+        .replace(/(".*?"|'.*?'|`.*?`)/g, "<strong><em>$1</em></strong>")
+        .replace(/\b(\d+)/g, "<em><strong>$1</strong></em>");
   }
 
-  // --- NEW: Combined Highlight and Update Logic ---
+  /**
+   * Update content with syntax highlighting and preview
+   * @param {HTMLElement} element - Text element to update
+   * @private
+   */
   _updateContent(element) {
     if (this.state.fileMode === 'code') {
       const selection = this._getSelection(element);
@@ -85,6 +112,11 @@ window.EditorManager = class EditorManager extends App {
   }
 
 
+  /**
+   * Initialize and display the editor
+   * @param {HTMLElement} appLayer - Container element
+   * @param {Object} options - Configuration options
+   */
   enter(appLayer, options = {}) {
     const { filePath, fileContent, onSaveCallback, dependencies } = options;
     this.dependencies = dependencies;
@@ -125,10 +157,13 @@ window.EditorManager = class EditorManager extends App {
     appLayer.appendChild(this.container);
     this.container.focus();
 
-    // Initial render
     this._updateContent(this.ui.elements.textarea);
   }
 
+  /**
+   * Exit editor with unsaved changes confirmation
+   * @returns {Promise<void>}
+   */
   async exit() {
     if (!this.isActive) return;
 
@@ -155,6 +190,10 @@ window.EditorManager = class EditorManager extends App {
     }
   }
 
+  /**
+   * Perform actual exit cleanup
+   * @private
+   */
   _performExit() {
     this.ui.hideAndReset();
     this.dependencies.AppLayerManager.hide(this);
@@ -162,6 +201,11 @@ window.EditorManager = class EditorManager extends App {
     this.state = {};
   }
 
+  /**
+   * Handle keyboard shortcuts
+   * @param {KeyboardEvent} event - Keyboard event
+   * @returns {Promise<void>}
+   */
   async handleKeyDown(event) {
     if (!this.isActive) return;
 
@@ -194,6 +238,12 @@ window.EditorManager = class EditorManager extends App {
     }
   }
 
+  /**
+   * Determine file mode based on extension
+   * @param {string} filePath - File path
+   * @returns {string} File mode (text, markdown, html, code)
+   * @private
+   */
   _getFileMode(filePath) {
     const { Utils } = this.dependencies;
     if (!filePath) return "text";
@@ -205,6 +255,11 @@ window.EditorManager = class EditorManager extends App {
     return "text";
   }
 
+  /**
+   * Create callback functions for UI interactions
+   * @returns {Object} Callback functions
+   * @private
+   */
   _createCallbacks() {
     return {
       onContentChange: (element) => {
