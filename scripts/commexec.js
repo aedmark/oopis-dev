@@ -593,7 +593,8 @@ class CommandExecutor {
   }
 
   _expandBraces(commandString) {
-    commandString = commandString.replace(/\{(\w+)\.\.(\w+)\}/g, (match, start, end) => {
+    // Handle sequence expansion {a..z} or {1..10}
+    commandString = commandString.replace(/\{([^,}]+)\.\.([^,}]+)\}/g, (match, start, end) => {
       const startNum = parseInt(start);
       const endNum = parseInt(end);
       
@@ -617,9 +618,10 @@ class CommandExecutor {
       return match;
     });
     
-    commandString = commandString.replace(/\{([^}]+)\}/g, (match, content) => {
+    // Handle comma expansion {a,b,c} - need to handle empty strings
+    commandString = commandString.replace(/\{([^}]*)\}/g, (match, content) => {
       if (content.includes(',')) {
-        return content.split(',').map(item => item.trim()).join(' ');
+        return content.split(',').join(' ');
       }
       return match;
     });
@@ -631,6 +633,7 @@ class CommandExecutor {
     const { EnvironmentManager, AliasManager } = this.dependencies;
     let commandToProcess = rawCommandText.trim();
     
+    // Apply brace expansion before other processing
     commandToProcess = this._expandBraces(commandToProcess);
 
     const assignmentSubstitutionRegex = /^([a-zA-Z_][a-zA-Z0-9_]*)=\$\(([^)]+)\)$/;

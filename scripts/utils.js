@@ -295,6 +295,12 @@ class Utils {
     return { flags, remainingArgs };
   }
 
+  static safeDelay(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+
   static globToRegex(glob) {
     if (glob === "*") return /.*/;
 
