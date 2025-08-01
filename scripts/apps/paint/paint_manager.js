@@ -1,4 +1,5 @@
 // scripts/apps/paint/paint_manager.js
+
 window.PaintManager = class PaintManager extends App {
   constructor() {
     super();
@@ -23,7 +24,6 @@ window.PaintManager = class PaintManager extends App {
     this.ui = new this.dependencies.PaintUI(this.state, this.callbacks, this.dependencies);
     this.container = this.ui.getContainer();
     
-    // Adjust container for windowed mode
     if (this.isWindowed) {
       this.container.style.width = '100%';
       this.container.style.height = '100%';
@@ -66,7 +66,6 @@ window.PaintManager = class PaintManager extends App {
   handleKeyDown(event) {
     if (!this.isActive) return;
 
-    // Handle Ctrl/Cmd key combinations
     if (event.ctrlKey || event.metaKey) {
       let handled = true;
       switch (event.key.toLowerCase()) {
@@ -80,7 +79,7 @@ window.PaintManager = class PaintManager extends App {
         default: handled = false;
       }
       if (handled) event.preventDefault();
-    } else if (event.key === 'Escape') { // Handle single key presses
+    } else if (event.key === 'Escape') {
       event.preventDefault();
       this.exit();
     }

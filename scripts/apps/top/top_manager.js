@@ -1,4 +1,5 @@
 // scripts/apps/top/top_manager.js
+
 window.TopManager = class TopManager extends App {
     constructor() {
         super();
@@ -21,7 +22,7 @@ window.TopManager = class TopManager extends App {
         appLayer.appendChild(this.container);
 
         this.updateInterval = setInterval(() => this._updateProcessList(), 1000);
-        this._updateProcessList(); // Initial call
+        this._updateProcessList();
     }
 
     exit() {

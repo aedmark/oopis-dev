@@ -1,4 +1,5 @@
 // scripts/apps/paint/paint_ui.js
+
 window.PaintUI = class PaintUI {
   constructor(initialState, callbacks, dependencies) {
     this.elements = {};
@@ -16,11 +17,9 @@ window.PaintUI = class PaintUI {
   _buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
-    // Check if we're in windowed mode (inside desktop)
     const isWindowed = this.dependencies.isWindowed;
     
     if (isWindowed) {
-      // In windowed mode, create a simple container without app window chrome
       this.elements.container = Utils.createElement('div', {
         id: 'oopis-paint-app-container',
         className: 'paint-windowed-container',
@@ -44,18 +43,15 @@ window.PaintUI = class PaintUI {
       
       this.elements.container.append(this.elements.header, this.elements.main, this.elements.footer);
     } else {
-      // 1. Create the main application window using the toolkit
       const appWindow = UIComponents.createAppWindow('Oopis Paint', this.managerCallbacks.onExitRequest);
       this.elements.container = appWindow.container;
       this.elements.header = appWindow.header;
       this.elements.main = appWindow.main;
       this.elements.footer = appWindow.footer;
 
-      // Add a specific class for theming
       this.elements.container.id = 'oopis-paint-app-container';
     }
 
-    // 2. Create and assemble the toolbar elements
     const createToolBtn = (name, key, label) => UIComponents.createButton({
       id: `paint-tool-${name}`,
       text: label,
@@ -98,28 +94,21 @@ window.PaintUI = class PaintUI {
     const zoomGroup = Utils.createElement("div", { className: "paint-tool-group" }, [this.elements.zoomOutBtn, this.elements.zoomInBtn]);
 
     if (!isWindowed) {
-      // **Grab the exit button before we change anything!**
       const exitBtn = this.elements.header.querySelector('.app-header__exit-btn');
-      // Add all toolbar items to the header from the toolkit
-      this.elements.header.innerHTML = ''; // Clear default header content
+      this.elements.header.innerHTML = '';
       this.elements.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup, exitBtn);
     } else {
-      // In windowed mode, just add the toolbar items without exit button
       this.elements.header.append(toolGroup, colorGroup, brushGroup, this.elements.charInput, editGroup, historyGroup, zoomGroup);
     }
 
-
-    // 3. Create the main drawing area
     this.elements.canvas = Utils.createElement("div", { className: "paint-canvas", id: "paint-canvas" });
     this.elements.previewCanvas = Utils.createElement("div", { className: "paint-preview-canvas", id: "paint-preview-canvas" });
     this.elements.selectionRect = Utils.createElement("div", { className: "paint-selection-rect hidden" });
     const canvasContainer = Utils.createElement("div", { className: "paint-canvas-container" }, [this.elements.canvas, this.elements.previewCanvas, this.elements.selectionRect]);
     const mainDrawingArea = Utils.createElement("div", { className: "paint-main-drawing-area" }, [canvasContainer]);
 
-    // Add it to the main content area from the toolkit
     this.elements.main.appendChild(mainDrawingArea);
 
-    // 4. Create and add status bar elements to the footer
     this.elements.statusTool = Utils.createElement("span");
     this.elements.statusChar = Utils.createElement("span");
     this.elements.statusBrush = Utils.createElement("span");
@@ -127,7 +116,6 @@ window.PaintUI = class PaintUI {
     this.elements.statusZoom = Utils.createElement("span");
     this.elements.footer.append(this.elements.statusTool, this.elements.statusChar, this.elements.statusBrush, this.elements.statusCoords, this.elements.statusZoom);
 
-    // 5. Final setup
     this.renderInitialCanvas(initialState.canvasData, initialState.canvasDimensions);
     this.updateToolbar(initialState);
     this.updateStatusBar(initialState);
@@ -328,7 +316,6 @@ window.PaintUI = class PaintUI {
     this.elements.zoomOutBtn.addEventListener("click", () =>
         this.managerCallbacks.onZoomOut()
     );
-    // Exit button is handled by the UI Component now
     this.elements.canvas.addEventListener("mousedown", (e) => {
       const coords = this._getCoordsFromEvent(e);
       if (coords) this.managerCallbacks.onCanvasMouseDown(coords);

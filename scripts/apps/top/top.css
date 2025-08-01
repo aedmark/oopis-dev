@@ -1,7 +1,5 @@
 /* Top Style Sheet */
-/* ========================================================================== */
 
-/* The main content area will hold our table */
 #oopisos-process-viewer-app-container .app-main {
     padding: var(--spacing-md);
     overflow-y: auto;
@@ -17,7 +15,7 @@
     padding: var(--spacing-sm);
     border-bottom: 2px solid var(--color-border-primary);
     background-color: var(--color-background-medium);
-    position: sticky; /* Makes header stick while scrolling */
+    position: sticky;
     top: 0;
 }
 

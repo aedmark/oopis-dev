@@ -8,11 +8,10 @@ window.App = class App {
       );
     }
     this.isActive = false;
-    this.container = null; // The main DOM element for the app
+    this.container = null;
   }
 
   /**
-   * Called by AppLayerManager to start and show the application.
    * This method is responsible for building the app's UI,
    * attaching it to the app layer, and setting up initial state.
    * @param {HTMLElement} appLayer - The DOM element to which the app's UI should be appended.

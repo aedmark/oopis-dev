@@ -1,4 +1,5 @@
 // scripts/apps/top/top_ui.js
+
 window.TopUI = class TopUI {
     constructor(callbacks, dependencies) {
         this.elements = {};
@@ -14,11 +15,9 @@ window.TopUI = class TopUI {
     _buildLayout() {
         const { Utils, UIComponents } = this.dependencies;
 
-        // Create the main application window using the toolkit
         const appWindow = UIComponents.createAppWindow('OopisOS Process Viewer', this.callbacks.onExit);
         this.elements.container = appWindow.container;
         this.elements.main = appWindow.main;
-        // No footer needed for this app
 
         this.elements.processList = Utils.createElement("tbody");
         const table = Utils.createElement("table", { className: "top-table" }, [
@@ -33,14 +32,12 @@ window.TopUI = class TopUI {
             this.elements.processList
         ]);
 
-        // Place the table into the main content area provided by the toolkit
         this.elements.main.appendChild(table);
     }
 
     render(processes) {
         if (!this.elements.processList) return;
 
-        // Clear existing rows more efficiently
         this.elements.processList.innerHTML = "";
 
         if (processes.length === 0) {
