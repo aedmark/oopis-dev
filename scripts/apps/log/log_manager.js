@@ -1,15 +1,32 @@
-// scripts/apps/log/log_manager.js
-
+/**
+ * Log Manager - Manages the state and logic for the Log (journal) application.
+ * @class LogManager
+ * @extends App
+ */
 window.LogManager = class LogManager extends App {
+  /**
+   * Constructs a new LogManager instance.
+   */
   constructor() {
     super();
+    /** @type {object} The application's internal state. */
     this.state = {};
+    /** @type {object} The dependency injection container. */
     this.dependencies = {};
+    /** @type {object} A collection of UI callback functions. */
     this.callbacks = {};
+    /** @type {LogUI|null} The UI component instance. */
     this.ui = null;
+    /** @type {string} The default directory where log entries are stored. */
     this.LOG_DIR = "/home/Guest/.journal";
   }
 
+  /**
+   * Initializes and displays the Log application.
+   * @param {HTMLElement} appLayer - The DOM element to append the app's UI to.
+   * @param {object} [options={}] - Options for entering the application.
+   * @returns {Promise<void>}
+   */
   async enter(appLayer, options = {}) {
     if (this.isActive) return;
     this.dependencies = options.dependencies;
@@ -34,6 +51,9 @@ window.LogManager = class LogManager extends App {
     this.ui.renderContent(null);
   }
 
+  /**
+   * Exits the Log application, prompting to save if there are unsaved changes.
+   */
   exit() {
     if (!this.isActive) return;
     const { AppLayerManager, ModalManager } = this.dependencies;
@@ -63,6 +83,10 @@ window.LogManager = class LogManager extends App {
     }
   }
 
+  /**
+   * Handles keyboard events for the application, specifically for saving and exiting.
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
   async handleKeyDown(event) {
     if (!this.isActive) return;
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
@@ -73,6 +97,12 @@ window.LogManager = class LogManager extends App {
     }
   }
 
+  /**
+   * Adds a new log entry instantly without launching the full UI.
+   * @param {string} entryText - The text content of the new entry.
+   * @param {string} currentUser - The name of the current user.
+   * @returns {Promise<object>} An object indicating success or failure.
+   */
   async quickAdd(entryText, currentUser) {
     const { FileSystemManager, UserManager } = this.dependencies;
     await this._ensureLogDir();
@@ -100,9 +130,19 @@ window.LogManager = class LogManager extends App {
     };
   }
 
+  /**
+   * Creates and returns a set of callback functions for UI events.
+   * @private
+   * @returns {object} An object containing the callback functions.
+   */
   _createCallbacks() {
     return {
+      /** Callback for exiting the application. */
       onExit: this.exit.bind(this),
+      /**
+       * Callback to filter entries based on a search query.
+       * @param {string} query - The search query.
+       */
       onSearch: (query) => {
         this.state.filteredEntries = this.state.allEntries.filter((e) =>
             e.content.toLowerCase().includes(query.toLowerCase())
@@ -112,6 +152,10 @@ window.LogManager = class LogManager extends App {
             this.state.selectedPath
         );
       },
+      /**
+       * Callback to select and display a specific log entry.
+       * @param {string} path - The path of the selected entry.
+       */
       onSelect: async (path) => {
         const { ModalManager } = this.dependencies;
         if (this.state.isDirty) {
@@ -138,6 +182,7 @@ window.LogManager = class LogManager extends App {
         this.state.isDirty = false;
         this.ui.updateSaveButton(false);
       },
+      /** Callback to create a new log entry. */
       onNew: async () => {
         const { ModalManager, UserManager } = this.dependencies;
         const title = await new Promise((resolve) =>
@@ -162,6 +207,7 @@ window.LogManager = class LogManager extends App {
           }
         }
       },
+      /** Callback to save changes to the current log entry. */
       onSave: async () => {
         if (!this.state.selectedPath || !this.state.isDirty) return;
         const newContent = this.ui.getContent();
@@ -182,6 +228,7 @@ window.LogManager = class LogManager extends App {
           alert(`Error saving: ${result.error}`);
         }
       },
+      /** Callback to handle changes in the editor content and update the dirty state. */
       onContentChange: () => {
         const selectedEntry = this.state.allEntries.find(
             (e) => e.path === this.state.selectedPath
@@ -194,6 +241,13 @@ window.LogManager = class LogManager extends App {
     };
   }
 
+  /**
+   * Saves a log entry to a file.
+   * @param {string} path - The path to the file.
+   * @param {string} content - The content to save.
+   * @returns {Promise<object>} An object indicating success or failure.
+   * @private
+   */
   async _saveEntry(path, content) {
     const { FileSystemManager, UserManager } = this.dependencies;
     const result = await FileSystemManager.createOrUpdateFile(path, content, {
@@ -206,6 +260,11 @@ window.LogManager = class LogManager extends App {
     return result;
   }
 
+  /**
+   * Ensures the main log directory exists, creating it if necessary.
+   * @returns {Promise<void>}
+   * @private
+   */
   async _ensureLogDir() {
     const { FileSystemManager, CommandExecutor } = this.dependencies;
     const pathInfo = FileSystemManager.validatePath(this.LOG_DIR, {
@@ -218,6 +277,11 @@ window.LogManager = class LogManager extends App {
     }
   }
 
+  /**
+   * Loads all log entries from the log directory into the application state.
+   * @returns {Promise<void>}
+   * @private
+   */
   async _loadEntries() {
     const { FileSystemManager } = this.dependencies;
     this.state.allEntries = [];
@@ -249,4 +313,4 @@ window.LogManager = class LogManager extends App {
     this.state.allEntries.sort((a, b) => b.timestamp - a.timestamp);
     this.state.filteredEntries = [...this.state.allEntries];
   }
-}
+};

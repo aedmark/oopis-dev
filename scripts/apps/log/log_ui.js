@@ -1,17 +1,35 @@
-// scripts/apps/log/log_ui.js
-
+/**
+ * Log User Interface - Manages the visual interface for the log application.
+ * @class LogUI
+ */
 window.LogUI = class LogUI {
+  /**
+   * Constructs a new LogUI instance.
+   * @param {object} callbacks - An object containing callback functions for user interactions.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(callbacks, dependencies) {
+    /** @type {object} A cache of DOM elements for the UI. */
     this.elements = {};
+    /** @type {object} Callback functions for UI events. */
     this.callbacks = callbacks;
+    /** @type {object} The dependency injection container. */
     this.dependencies = dependencies;
     this._buildLayout();
   }
 
+  /**
+   * Returns the main container element of the log application.
+   * @returns {HTMLElement} The root DOM element.
+   */
   getContainer() {
     return this.elements.container;
   }
 
+  /**
+   * Builds the main UI layout, including the search bar, buttons, entry list, and content view.
+   * @private
+   */
   _buildLayout() {
     const { Utils, UIComponents } = this.dependencies;
 
@@ -67,6 +85,11 @@ window.LogUI = class LogUI {
     );
   }
 
+  /**
+   * Renders the list of log entries in the left pane.
+   * @param {Array<object>} entries - An array of log entry objects to display.
+   * @param {string|null} selectedPath - The path of the currently selected entry.
+   */
   renderEntries(entries, selectedPath) {
     if (!this.elements.entryList) return;
     const { Utils } = this.dependencies;
@@ -101,6 +124,10 @@ window.LogUI = class LogUI {
     });
   }
 
+  /**
+   * Renders the content of a selected log entry in the right pane.
+   * @param {object|null} entry - The log entry object to display, or null to clear the view.
+   */
   renderContent(entry) {
     if (!this.elements.contentView) return;
     if (!entry) {
@@ -112,19 +139,30 @@ window.LogUI = class LogUI {
     this.elements.contentView.value = entry.content;
   }
 
+  /**
+   * Toggles the visibility of the "Save Changes" button based on the dirty state.
+   * @param {boolean} isDirty - Whether the current entry has unsaved changes.
+   */
   updateSaveButton(isDirty) {
     if (this.elements.saveBtn) {
       this.elements.saveBtn.classList.toggle("hidden", !isDirty);
     }
   }
 
+  /**
+   * Gets the current content of the editor textarea.
+   * @returns {string} The content of the textarea.
+   */
   getContent() {
     return this.elements.contentView ? this.elements.contentView.value : "";
   }
 
+  /**
+   * Resets the UI state and clears all DOM elements.
+   */
   reset() {
     this.elements = {};
     this.callbacks = {};
     this.dependencies = {};
   }
-}
+};

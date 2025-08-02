@@ -1,17 +1,35 @@
-// scripts/apps/top/top_ui.js
-
+/**
+ * Top User Interface - Manages the visual interface for the process viewer application.
+ * @class TopUI
+ */
 window.TopUI = class TopUI {
+    /**
+     * Constructs a new TopUI instance.
+     * @param {object} callbacks - An object containing callback functions for user interactions.
+     * @param {object} dependencies - The dependency injection container.
+     */
     constructor(callbacks, dependencies) {
+        /** @type {object} A cache of DOM elements for the UI. */
         this.elements = {};
+        /** @type {object} Callback functions for UI events. */
         this.callbacks = callbacks;
+        /** @type {object} The dependency injection container. */
         this.dependencies = dependencies;
         this._buildLayout();
     }
 
+    /**
+     * Returns the main container element of the Top application.
+     * @returns {HTMLElement} The root DOM element.
+     */
     getContainer() {
         return this.elements.container;
     }
 
+    /**
+     * Builds the main UI layout, including the table for process display.
+     * @private
+     */
     _buildLayout() {
         const { Utils, UIComponents } = this.dependencies;
 
@@ -35,6 +53,10 @@ window.TopUI = class TopUI {
         this.elements.main.appendChild(table);
     }
 
+    /**
+     * Renders the list of processes in the table.
+     * @param {Array<object>} processes - An array of process objects to display.
+     */
     render(processes) {
         if (!this.elements.processList) return;
 
@@ -65,6 +87,9 @@ window.TopUI = class TopUI {
         this.elements.processList.appendChild(fragment);
     }
 
+    /**
+     * Hides the application and removes its elements from the DOM.
+     */
     hideAndReset() {
         if (this.elements.container) {
             this.elements.container.remove();

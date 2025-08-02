@@ -1,14 +1,32 @@
-// scripts/apps/paint/paint_manager.js
-
+/**
+ * Paint Manager - Manages the state and logic for the Paint application.
+ * @class PaintManager
+ * @extends App
+ */
 window.PaintManager = class PaintManager extends App {
+  /**
+   * Constructs a new PaintManager instance.
+   */
   constructor() {
     super();
+    /** @type {object} The application's internal state. */
     this.state = {};
+    /** @type {object} The dependency injection container. */
     this.dependencies = {};
+    /** @type {object} A collection of UI callback functions. */
     this.callbacks = {};
+    /** @type {PaintUI|null} The UI component instance. */
     this.ui = null;
   }
 
+  /**
+   * Initializes and displays the Paint application.
+   * @param {HTMLElement} appLayer - The DOM element to append the app's UI to.
+   * @param {object} [options={}] - Options for entering the application.
+   * @param {string} [options.dependencies.filePath] - The path of the file to open.
+   * @param {string} [options.dependencies.fileContent] - The initial content of the file.
+   * @param {boolean} [options.dependencies.isWindowed=false] - Whether the app is running in a window.
+   */
   enter(appLayer, options = {}) {
     if (this.isActive) return;
     this.dependencies = options.dependencies;
@@ -23,17 +41,20 @@ window.PaintManager = class PaintManager extends App {
 
     this.ui = new this.dependencies.PaintUI(this.state, this.callbacks, this.dependencies);
     this.container = this.ui.getContainer();
-    
+
     if (this.isWindowed) {
       this.container.style.width = '100%';
       this.container.style.height = '100%';
       this.container.style.overflow = 'hidden';
     }
-    
+
     appLayer.appendChild(this.container);
     this.container.focus();
   }
 
+  /**
+   * Exits the Paint application, prompting to save if there are unsaved changes.
+   */
   exit() {
     if (!this.isActive) return;
     const { AppLayerManager, ModalManager } = this.dependencies;
@@ -63,6 +84,10 @@ window.PaintManager = class PaintManager extends App {
     }
   }
 
+  /**
+   * Handles keyboard events for the application, such as shortcuts for saving, undoing, and exiting.
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
   handleKeyDown(event) {
     if (!this.isActive) return;
 
@@ -85,9 +110,16 @@ window.PaintManager = class PaintManager extends App {
     }
   }
 
+  /**
+   * Creates the initial state object for the application.
+   * @private
+   * @param {string} filePath - The path to the file being edited.
+   * @param {string} fileContent - The content of the file.
+   * @returns {object} The initial state object.
+   */
   _createInitialState(filePath, fileContent) {
     console.log('PaintManager: Creating initial state', { filePath, hasContent: !!fileContent, contentLength: fileContent?.length });
-    
+
     const initialState = {
       isActive: true,
       isLocked: false,
@@ -140,6 +172,12 @@ window.PaintManager = class PaintManager extends App {
     return initialState;
   }
 
+  /**
+   * Creates a blank canvas based on the given dimensions.
+   * @private
+   * @param {object} dimensions - The width and height of the canvas.
+   * @returns {Array<Array<object>>} A 2D array representing the blank canvas.
+   */
   _getBlankCanvas({ width, height }) {
     const canvas = [];
     for (let y = 0; y < height; y++) {
@@ -152,6 +190,11 @@ window.PaintManager = class PaintManager extends App {
     return canvas;
   }
 
+  /**
+   * Creates and returns a set of callback functions for UI events.
+   * @private
+   * @returns {object} An object containing the callback functions.
+   */
   _createCallbacks() {
     return {
       onToolSelect: (tool) => {

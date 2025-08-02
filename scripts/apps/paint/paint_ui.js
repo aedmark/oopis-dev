@@ -1,46 +1,67 @@
-// scripts/apps/paint/paint_ui.js
-
+/**
+ * Paint UI - Manages the visual interface for the Paint application.
+ * @class PaintUI
+ */
 window.PaintUI = class PaintUI {
+  /**
+   * Constructs a new PaintUI instance.
+   * @param {object} initialState - The initial state of the application.
+   * @param {object} callbacks - An object containing callback functions for user interactions.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(initialState, callbacks, dependencies) {
+    /** @type {object} A cache of DOM elements for the UI. */
     this.elements = {};
+    /** @type {object} Callback functions for UI events. */
     this.managerCallbacks = callbacks;
+    /** @type {object} The dependency injection container. */
     this.dependencies = dependencies;
+    /** @type {Function|null} The global mouse up event handler. */
     this._globalMouseUpHandler = null;
 
     this._buildAndShow(initialState);
   }
 
+  /**
+   * Returns the main container element of the paint application.
+   * @returns {HTMLElement} The root DOM element.
+   */
   getContainer() {
     return this.elements.container;
   }
 
+  /**
+   * Builds the main UI layout and appends it to the document.
+   * @private
+   * @param {object} initialState - The initial state to render the UI with.
+   */
   _buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
     const isWindowed = this.dependencies.isWindowed;
-    
+
     if (isWindowed) {
       this.elements.container = Utils.createElement('div', {
         id: 'oopis-paint-app-container',
         className: 'paint-windowed-container',
         style: 'width: 100%; height: 100%; display: flex; flex-direction: column;'
       });
-      
+
       this.elements.header = Utils.createElement('div', {
         className: 'paint-toolbar',
         style: 'flex-shrink: 0;'
       });
-      
+
       this.elements.main = Utils.createElement('div', {
         className: 'paint-main-content',
         style: 'flex: 1; overflow: hidden;'
       });
-      
+
       this.elements.footer = Utils.createElement('div', {
         className: 'paint-statusbar',
         style: 'flex-shrink: 0;'
       });
-      
+
       this.elements.container.append(this.elements.header, this.elements.main, this.elements.footer);
     } else {
       const appWindow = UIComponents.createAppWindow('Oopis Paint', this.managerCallbacks.onExitRequest);
@@ -123,6 +144,9 @@ window.PaintUI = class PaintUI {
     this._addEventListeners();
   }
 
+  /**
+   * Hides the application and removes its elements and event listeners.
+   */
   hideAndReset() {
     if (this._globalMouseUpHandler) {
       document.removeEventListener("mouseup", this._globalMouseUpHandler);
@@ -136,6 +160,11 @@ window.PaintUI = class PaintUI {
     this.managerCallbacks = {};
   }
 
+  /**
+   * Renders the initial state of the canvas based on provided data.
+   * @param {Array<Array<object>>} canvasData - A 2D array representing the canvas cells.
+   * @param {object} dimensions - The width and height of the canvas.
+   */
   renderInitialCanvas(canvasData, dimensions) {
     if (!this.elements.canvas || !this.elements.previewCanvas) return;
     const { Utils } = this.dependencies;
@@ -167,6 +196,10 @@ window.PaintUI = class PaintUI {
     }
   }
 
+  /**
+   * Updates specific cells on the main canvas.
+   * @param {Array<object>} cellsToUpdate - An array of cell objects to update.
+   */
   updateCanvas(cellsToUpdate) {
     cellsToUpdate.forEach((data) => {
       const cell = document.getElementById(`cell-${data.x}-${data.y}`);
@@ -177,6 +210,10 @@ window.PaintUI = class PaintUI {
     });
   }
 
+  /**
+   * Updates specific cells on the preview canvas.
+   * @param {Array<object>} cellsToUpdate - An array of cell objects to update.
+   */
   updatePreviewCanvas(cellsToUpdate) {
     Array.from(this.elements.previewCanvas.children).forEach((child) => {
       if (child.textContent !== " ") {
@@ -194,6 +231,10 @@ window.PaintUI = class PaintUI {
     });
   }
 
+  /**
+   * Updates the toolbar elements based on the current state.
+   * @param {object} state - The current application state.
+   */
   updateToolbar(state) {
     if (!this.elements.pencilBtn) return;
     ["pencil", "eraser", "line", "rect", "circle", "fill", "select"].forEach(
@@ -211,6 +252,11 @@ window.PaintUI = class PaintUI {
     this.elements.redoBtn.disabled = state.redoStack.length === 0;
   }
 
+  /**
+   * Updates the status bar with current tool information and coordinates.
+   * @param {object} state - The current application state.
+   * @param {object|null} [coords=null] - The current mouse coordinates.
+   */
   updateStatusBar(state, coords = null) {
     if (!this.elements.statusTool) return;
     this.elements.statusTool.textContent = `Tool: ${state.currentTool}`;
@@ -222,10 +268,18 @@ window.PaintUI = class PaintUI {
     this.elements.statusZoom.textContent = `Zoom: ${state.zoomLevel}%`;
   }
 
+  /**
+   * Toggles the grid visibility on the canvas.
+   * @param {boolean} visible - Whether the grid should be visible.
+   */
   toggleGrid(visible) {
     this.elements.canvas.classList.toggle("grid-visible", visible);
   }
 
+  /**
+   * Updates the zoom level of the canvas.
+   * @param {number} zoomLevel - The new zoom level in percent.
+   */
   updateZoom(zoomLevel) {
     const baseFontSize = 20;
     const newSize = baseFontSize * (zoomLevel / 100);
@@ -243,6 +297,10 @@ window.PaintUI = class PaintUI {
     }
   }
 
+  /**
+   * Displays the selection rectangle on the canvas.
+   * @param {object} rect - An object defining the rectangle {x, y, width, height}.
+   */
   showSelectionRect(rect) {
     if (!this.elements.selectionRect || !this.elements.canvas.firstChild) return;
     const charWidth = this.elements.canvas.firstChild.offsetWidth;
@@ -255,12 +313,21 @@ window.PaintUI = class PaintUI {
     this.elements.selectionRect.classList.remove("hidden");
   }
 
+  /**
+   * Hides the selection rectangle.
+   */
   hideSelectionRect() {
     if (this.elements.selectionRect) {
       this.elements.selectionRect.classList.add("hidden");
     }
   }
 
+  /**
+   * Gets the canvas grid coordinates from a mouse event.
+   * @private
+   * @param {MouseEvent} e - The mouse event.
+   * @returns {object|null} The coordinates {x, y} or null if outside the canvas.
+   */
   _getCoordsFromEvent(e) {
     if (!this.elements.canvas || !this.elements.canvas.firstChild) return null;
     const rect = this.elements.canvas.getBoundingClientRect();
@@ -272,6 +339,10 @@ window.PaintUI = class PaintUI {
     return { x, y };
   }
 
+  /**
+   * Adds all necessary event listeners for user interaction.
+   * @private
+   */
   _addEventListeners() {
     this.elements.pencilBtn.addEventListener("click", () =>
         this.managerCallbacks.onToolSelect("pencil")
@@ -331,4 +402,4 @@ window.PaintUI = class PaintUI {
     );
     this.elements.container.setAttribute("tabindex", "-1");
   }
-}
+};
