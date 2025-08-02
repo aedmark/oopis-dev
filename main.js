@@ -1,5 +1,19 @@
 // scripts/main.js
 
+/**
+ * @file This is the main entry point for the OopisOS application. It handles the
+ * initialization of all core managers, sets up dependency injection, and attaches
+ * the primary event listeners for the terminal interface once the window has loaded.
+ */
+
+/**
+ * Initializes all the essential event listeners for the terminal UI.
+ * This includes handling command submission, history navigation, tab completion,
+ * and focusing behavior.
+ * @param {object} domElements - A collection of cached DOM elements for the terminal.
+ * @param {CommandExecutor} commandExecutor - The main command executor instance.
+ * @param {object} dependencies - The dependency injection container.
+ */
 function initializeTerminalEventListeners(domElements, commandExecutor, dependencies) {
   const { AppLayerManager, ModalManager, TerminalUI, TabCompletionManager, HistoryManager, SoundManager } = dependencies;
 
@@ -10,6 +24,7 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
     return;
   }
 
+  // Focus the input when the terminal area is clicked.
   domElements.terminalDiv.addEventListener("click", (e) => {
     if (AppLayerManager.isActive()) return;
 
@@ -27,7 +42,9 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
     }
   });
 
+  // Main keyboard event handler for the document.
   document.addEventListener("keydown", async (e) => {
+    // Handle input for modal dialogs.
     if (ModalManager.isAwaiting()) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -46,10 +63,12 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
       return;
     }
 
+    // Ignore key events if a full-screen app is active.
     if (AppLayerManager.isActive()) {
       return;
     }
 
+    // Ignore key events not targeted at the input div.
     if (e.target !== domElements.editableInputDiv) {
       return;
     }
@@ -121,6 +140,7 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
     }
   });
 
+  // Handle paste events to sanitize input.
   if (domElements.editableInputDiv) {
     domElements.editableInputDiv.addEventListener("paste", (e) => {
       e.preventDefault();
@@ -134,6 +154,17 @@ function initializeTerminalEventListeners(domElements, commandExecutor, dependen
   }
 }
 
+/**
+ * The main entry point of the OopisOS application, triggered after the DOM is fully loaded.
+ * This function orchestrates the entire boot sequence:
+ * 1. Caches essential DOM elements.
+ * 2. Instantiates all manager classes.
+ * 3. Sets up a dependency injection container.
+ * 4. Initializes each manager in the correct order.
+ * 5. Loads persisted data (filesystem, users, aliases, etc.).
+ * 6. Sets up the terminal event listeners.
+ * 7. Displays the welcome message and initial prompt.
+ */
 window.onload = async () => {
   const domElements = {
     terminalBezel: document.getElementById("terminal-bezel"),
@@ -213,6 +244,7 @@ window.onload = async () => {
   const pagerManager = new PagerManager(dependencies);
   dependencies.PagerManager = pagerManager;
 
+  // Set up dependencies for each manager
   configManager.setDependencies(dependencies);
   storageManager.setDependencies(dependencies);
   indexedDBManager.setDependencies(dependencies);
@@ -236,6 +268,7 @@ window.onload = async () => {
   storageHAL.setDependencies(dependencies);
 
   try {
+    // Initialization sequence
     outputManager.initialize(domElements);
     terminalUI.initialize(domElements);
     modalManager.initialize(domElements);
