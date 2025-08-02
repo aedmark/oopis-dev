@@ -1,6 +1,18 @@
-// scripts/commands/clear.js
+/**
+ * @file scripts/commands/clear.js
+ * @description The 'clear' command, which clears all visible output from the terminal screen,
+ * providing a fresh prompt at the top.
+ */
 
+/**
+ * Represents the 'clear' command.
+ * @class ClearCommand
+ * @extends Command
+ */
 window.ClearCommand = class ClearCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "clear",
@@ -21,6 +33,13 @@ window.ClearCommand = class ClearCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'clear' command.
+     * In an interactive session, it returns a success object with a special 'clear_screen'
+     * effect that the CommandExecutor will interpret to clear the UI.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { ErrorHandler } = dependencies;

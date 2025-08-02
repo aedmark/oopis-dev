@@ -1,6 +1,20 @@
 // scripts/commands/csplit.js
 
+/**
+ * @fileoverview This file defines the 'csplit' command, a utility for splitting a file
+ * into multiple smaller files based on line numbers or regular expression patterns.
+ * @module commands/csplit
+ */
+
+/**
+ * Represents the 'csplit' command for splitting files based on context lines.
+ * @class CsplitCommand
+ * @extends Command
+ */
 window.CsplitCommand = class CsplitCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "csplit",
@@ -48,6 +62,13 @@ window.CsplitCommand = class CsplitCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'csplit' command.
+     * It parses the input file and split patterns (line numbers or regex),
+     * segments the file content accordingly, and writes each segment to a new output file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, validatedPaths, dependencies } = context;
         const { FileSystemManager, UserManager, CommandExecutor, OutputManager, ErrorHandler } = dependencies;

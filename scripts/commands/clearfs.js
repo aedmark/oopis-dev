@@ -1,6 +1,19 @@
-// scripts/commands/clearfs.js
+/**
+ * @file scripts/commands/clearfs.js
+ * @description The 'clearfs' command, a utility for clearing all files and directories
+ * from the current user's home directory after a confirmation prompt.
+ */
 
+/**
+ * Represents the 'clearfs' command. It provides a way for a user to reset their
+ * home directory to an empty state. For safety, it cannot be run by the root user.
+ * @class ClearfsCommand
+ * @extends Command
+ */
 window.ClearfsCommand = class ClearfsCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "clearfs",
@@ -23,6 +36,13 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'clearfs' command.
+     * It prompts the user for confirmation, then finds the user's home directory node
+     * and resets its 'children' property to an empty object.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { currentUser, options, dependencies } = context;
         const { FileSystemManager, ModalManager, ErrorHandler, Config } = dependencies;
@@ -52,7 +72,7 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
         const homeNode = FileSystemManager.getNodeByPath(homePath);
 
         if (homeNode && homeNode.children) {
-            // Create a new empty children object
+            // Create a new empty children object to clear the directory
             homeNode.children = {};
             homeNode.mtime = new Date().toISOString();
             await FileSystemManager.save();

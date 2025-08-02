@@ -1,6 +1,20 @@
 // scripts/commands/delay.js
 
+/**
+ * @fileoverview This file defines the 'delay' command, a utility for pausing
+ * execution for a specified duration in milliseconds, primarily for use in scripts.
+ * @module commands/delay
+ */
+
+/**
+ * Represents the 'delay' command.
+ * @class DelayCommand
+ * @extends Command
+ */
 window.DelayCommand = class DelayCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "delay",
@@ -26,6 +40,13 @@ window.DelayCommand = class DelayCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'delay' command.
+     * It parses the millisecond argument and waits for that duration,
+     * while also listening for an abort signal to cancel the delay.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, signal, dependencies } = context;
         const { Utils, ErrorHandler, OutputManager } = dependencies;
@@ -69,7 +90,7 @@ window.DelayCommand = class DelayCommand extends Command {
         });
 
         const result = await Promise.race([delayPromise, abortPromise]);
-        
+
         if (result === "cancelled") {
             return ErrorHandler.createSuccess("");
         }

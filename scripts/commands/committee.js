@@ -1,6 +1,21 @@
 // scripts/commands/committee.js
 
+/**
+ * @fileoverview This file defines the 'committee' command, a high-level utility
+ * for creating a collaborative project space by automating the setup of user groups,
+ * shared directories, and permissions.
+ * @module commands/committee
+ */
+
+/**
+ * Represents the 'committee' command for creating and managing project committees.
+ * @class CommitteeCommand
+ * @extends Command
+ */
 window.CommitteeCommand = class CommitteeCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "committee",
@@ -28,6 +43,14 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'committee' command.
+     * This function validates user permissions and arguments, then orchestrates
+     * the creation of a new group and a shared directory, assigns members,
+     * and sets appropriate permissions.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, currentUser, dependencies } = context;
         const { UserManager, GroupManager, FileSystemManager, ErrorHandler, Config } = dependencies;

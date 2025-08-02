@@ -1,6 +1,20 @@
 // scripts/commands/df.js
 
+/**
+ * @fileoverview This file defines the 'df' command, a utility for reporting
+ * file system disk space usage in a user-friendly format.
+ * @module commands/df
+ */
+
+/**
+ * Represents the 'df' (disk free) command.
+ * @class DfCommand
+ * @extends Command
+ */
 window.DfCommand = class DfCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "df",
@@ -30,6 +44,13 @@ window.DfCommand = class DfCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'df' command.
+     * It calculates the total, used, and available disk space of the virtual filesystem
+     * and formats it into a table for display, supporting a human-readable format.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object containing the formatted disk usage string.
+     */
     async coreLogic(context) {
         const { flags, dependencies } = context;
         const { Config, FileSystemManager, Utils, ErrorHandler } = dependencies;

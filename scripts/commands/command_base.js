@@ -1,6 +1,22 @@
 // scripts/commands/command_base.js
 
+/**
+ * @class Command
+ * @classdesc The base class for all shell commands in OopisOS. It provides a
+ * standardized structure for command definitions, argument parsing, input stream
+ * handling, and execution logic.
+ */
 class Command {
+    /**
+     * @constructor
+     * @param {object} definition - The command's configuration object.
+     * @param {string} definition.commandName - The name of the command.
+     * @param {string} [definition.description] - A brief description of the command.
+     * @param {string} [definition.helpText] - Detailed help text for the 'man' command.
+     * @param {object} [definition.argValidation] - Rules for validating arguments.
+     * @param {object[]} [definition.flagDefinitions] - Definitions for command-line flags.
+     * @param {boolean} [definition.isInputStream] - Whether the command can accept piped input.
+     */
     constructor(definition) {
         if (!definition || !definition.commandName) {
             throw new Error("Command definition must include a commandName.");
@@ -9,6 +25,16 @@ class Command {
         this.commandName = definition.commandName;
     }
 
+    /**
+     * An async generator that yields the content from standard input or a list of files.
+     * This abstracts the input source for commands that can process piped data or file arguments.
+     * @private
+     * @async
+     * @generator
+     * @param {object} context - The command execution context.
+     * @param {string[]} fileArgs - An array of file paths to read from if no stdin is present.
+     * @yields {Promise<object>} A promise that resolves to an object containing the content and metadata.
+     */
     async *_generateInputContent(context, fileArgs) {
         const { options, currentUser } = context;
         const { FileSystemManager } = context.dependencies;
@@ -53,6 +79,15 @@ class Command {
         }
     }
 
+    /**
+     * The main execution method for the command. It orchestrates parsing, validation,
+     * input stream handling, and calls the core logic.
+     * @async
+     * @param {string[]} rawArgs - The raw arguments passed to the command.
+     * @param {object} options - Execution options, such as stdin content.
+     * @param {object} dependencies - The dependency injection container.
+     * @returns {Promise<object>} A promise that resolves to the result of the command's core logic.
+     */
     async execute(rawArgs, options, dependencies) {
         const { Utils, ErrorHandler, FileSystemManager, UserManager } = dependencies;
 
@@ -131,6 +166,16 @@ class Command {
         return this.definition.coreLogic(context);
     }
 
+    /**
+     * Validates a path argument based on a rule defined in the command's definition.
+     * This includes checking for existence, type, permissions, and ownership.
+     * @private
+     * @async
+     * @param {object} rule - The validation rule object.
+     * @param {string[]} args - The array of command arguments.
+     * @param {object} dependencies - The dependency injection container.
+     * @returns {Promise<object>} A promise resolving to a success or error object.
+     */
     async _validatePathRule(rule, args, dependencies) {
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
         const validatedPathsForRule = [];

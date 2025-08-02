@@ -1,6 +1,20 @@
 // scripts/commands/cut.js
 
+/**
+ * @fileoverview This file defines the 'cut' command, a utility for extracting
+ * sections (fields or characters) from each line of a file or standard input.
+ * @module commands/cut
+ */
+
+/**
+ * Represents the 'cut' command for extracting sections from lines of text.
+ * @class CutCommand
+ * @extends Command
+ */
 window.CutCommand = class CutCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "cut",
@@ -37,6 +51,13 @@ window.CutCommand = class CutCommand extends Command {
         });
     }
 
+    /**
+     * Parses a comma-separated list of numbers and ranges (e.g., "1,3,5-7")
+     * into a sorted array of zero-based indices.
+     * @private
+     * @param {string} list - The string containing the list to parse.
+     * @returns {number[]} A sorted array of unique, zero-based indices.
+     */
     _parseRange(list) {
         const indices = new Set();
         const ranges = list.split(',');
@@ -59,6 +80,13 @@ window.CutCommand = class CutCommand extends Command {
     }
 
 
+    /**
+     * Executes the core logic of the 'cut' command.
+     * It processes input from stdin or files, and based on the provided flags,
+     * extracts either character-based or field-based sections from each line.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

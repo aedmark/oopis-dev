@@ -1,6 +1,20 @@
 // scripts/commands/cp.js
 
+/**
+ * @fileoverview This file defines the 'cp' command, a utility for copying files and directories
+ * within the OopisOS virtual file system, with support for recursive and interactive options.
+ * @module commands/cp
+ */
+
+/**
+ * Represents the 'cp' (copy) command.
+ * @class CpCommand
+ * @extends Command
+ */
 window.CpCommand = class CpCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "cp",
@@ -58,6 +72,13 @@ window.CpCommand = class CpCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'cp' command.
+     * It prepares an operation plan, handles user confirmations for overwrites,
+     * and then executes the copy operations, either for single files or recursively for directories.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, options, dependencies } = context;
         const {
@@ -128,6 +149,14 @@ window.CpCommand = class CpCommand extends Command {
             stateModified: anyChangesMade,
         });
 
+        /**
+         * The internal recursive function that performs the actual copy operation.
+         * @param {object} sourceNode - The source file or directory node to copy.
+         * @param {object} destinationParentNode - The node of the directory to copy into.
+         * @param {string} finalName - The name for the new file or directory.
+         * @param {string} destParentFullPath - The absolute path of the destination directory.
+         * @returns {Promise<object>} A promise resolving to a success or error object.
+         */
         async function _executeCopyInternal(
             sourceNode,
             destinationParentNode,

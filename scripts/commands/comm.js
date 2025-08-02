@@ -1,6 +1,18 @@
-// scripts/commands/comm.js
+/**
+ * @file scripts/commands/comm.js
+ * @description The 'comm' command, a utility for comparing two sorted files line by line and
+ * displaying lines that are unique to each or common to both.
+ */
 
+/**
+ * Represents the 'comm' command for comparing sorted files.
+ * @class CommCommand
+ * @extends Command
+ */
 window.CommCommand = class CommCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "comm",
@@ -45,6 +57,13 @@ window.CommCommand = class CommCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'comm' command.
+     * It performs a line-by-line comparison of two sorted files and prints the results
+     * in three columns, which can be suppressed by flags.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { flags, validatedPaths, dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -63,6 +82,7 @@ window.CommCommand = class CommCommand extends Command {
         const col3Prefix = flags.suppressCol1 && flags.suppressCol2 ? "" :
             (flags.suppressCol1 || flags.suppressCol2 ? "\t" : "\t\t");
 
+        // Compare lines while both files have lines to process
         while (i < lines1.length && j < lines2.length) {
             if (lines1[i] < lines2[j]) {
                 if (!flags.suppressCol1) {
@@ -83,6 +103,7 @@ window.CommCommand = class CommCommand extends Command {
             }
         }
 
+        // Add remaining lines from file 1
         while (i < lines1.length) {
             if (!flags.suppressCol1 && lines1[i]) {
                 outputLines.push(`${col1Prefix}${lines1[i]}`);
@@ -90,6 +111,7 @@ window.CommCommand = class CommCommand extends Command {
             i++;
         }
 
+        // Add remaining lines from file 2
         while (j < lines2.length) {
             if (!flags.suppressCol2 && lines2[j]) {
                 outputLines.push(`${col2Prefix}${lines2[j]}`);
