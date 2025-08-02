@@ -1,21 +1,59 @@
 // scripts/modal_manager.js
 
+/**
+ * Manages all modal-style user interactions, whether in the graphical
+ * app layer or directly within the terminal output. It handles confirmations,
+ * inputs (including obscured passwords), and user prompts.
+ * @class ModalManager
+ */
 class ModalManager {
+  /**
+   * @constructor
+   */
   constructor() {
+    /**
+     * Flag indicating if the manager is currently waiting for input from the terminal.
+     * @type {boolean}
+     */
     this.isAwaitingTerminalInput = false;
+    /**
+     * The context of the currently active modal interaction.
+     * @type {object|null}
+     */
     this.activeModalContext = null;
+    /**
+     * A cached reference to the terminal bezel DOM element.
+     * @type {HTMLElement|null}
+     */
     this.cachedTerminalBezel = null;
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = {};
   }
 
+  /**
+   * Initializes the ModalManager with a reference to the terminal's main DOM elements.
+   * @param {object} dom - An object containing references to core DOM elements.
+   */
   initialize(dom) {
     this.cachedTerminalBezel = dom.terminalBezel;
   }
 
+  /**
+   * Sets the dependency injection container.
+   * @param {object} injectedDependencies - The dependencies to be injected.
+   */
   setDependencies(injectedDependencies) {
     this.dependencies = injectedDependencies;
   }
 
+  /**
+   * Creates and displays a graphical modal dialog.
+   * @private
+   * @param {object} options - Options for configuring the modal.
+   */
   _createModalDOM(options) {
     const {
       messageLines,
@@ -124,6 +162,11 @@ class ModalManager {
     }
   }
 
+  /**
+   * Renders a modal-like prompt directly in the terminal output, awaiting the next input.
+   * @private
+   * @param {object} options - Options for the terminal prompt.
+   */
   _renderTerminalPrompt(options) {
     const { messageLines, onConfirm, onCancel, type, obscured, data } = options;
     const { OutputManager, TerminalUI, Config } = this.dependencies;
@@ -152,6 +195,10 @@ class ModalManager {
     TerminalUI.scrollOutputToEnd();
   }
 
+  /**
+   * Requests a user interaction, dispatching to either a graphical modal or a terminal prompt.
+   * @param {object} options - Options for the user interaction.
+   */
   request(options) {
     const { OutputManager, TerminalUI, Config } = this.dependencies;
     const finalOptions = {
@@ -226,6 +273,11 @@ class ModalManager {
     }
   }
 
+  /**
+   * Handles user input from the terminal when the manager is in an awaiting state.
+   * @param {string} input - The raw user input from the terminal.
+   * @returns {Promise<boolean>} A promise that resolves to true if input was handled.
+   */
   async handleTerminalInput(input) {
     if (!this.isAwaitingTerminalInput) return false;
 
@@ -261,6 +313,10 @@ class ModalManager {
     return true;
   }
 
+  /**
+   * Checks if the manager is currently awaiting input from the terminal.
+   * @returns {boolean} True if awaiting input, false otherwise.
+   */
   isAwaiting() {
     return this.isAwaitingTerminalInput;
   }

@@ -1,11 +1,31 @@
 // scripts/pager.js
 
+/**
+ * @class PagerUI
+ * @classdesc Manages the DOM elements and rendering for the pager application (like 'more' or 'less').
+ */
 class PagerUI {
+  /**
+   * Constructs a PagerUI instance.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(dependencies) {
+    /**
+     * A cache of the DOM elements used by the UI.
+     * @type {object.<string, HTMLElement>}
+     */
     this.elements = {};
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = dependencies;
   }
 
+  /**
+   * Creates the DOM structure for the pager and returns the main container.
+   * @returns {HTMLElement} The main container element for the pager.
+   */
   buildLayout() {
     const { Utils } = this.dependencies;
     this.elements.content = Utils.createElement("div", {
@@ -27,6 +47,13 @@ class PagerUI {
     return this.elements.container;
   }
 
+  /**
+   * Renders the visible portion of the content and updates the status bar.
+   * @param {string[]} lines - All lines of the content to be displayed.
+   * @param {number} topVisibleLine - The index of the first line to display.
+   * @param {string} mode - The current pager mode ('more' or 'less').
+   * @param {number} terminalRows - The number of rows that fit in the terminal view.
+   */
   render(lines, topVisibleLine, mode, terminalRows) {
     if (!this.elements.content || !this.elements.statusBar) return;
 
@@ -46,6 +73,10 @@ class PagerUI {
     this.elements.statusBar.textContent = `-- ${mode.toUpperCase()} -- (${percent}%) (q to quit)`;
   }
 
+  /**
+   * Calculates the number of text rows that can fit in the visible area.
+   * @returns {number} The number of rows.
+   */
   getTerminalRows() {
     const { Utils } = this.dependencies;
     if (!this.elements.content) return 24;
@@ -60,24 +91,77 @@ class PagerUI {
     return Math.max(1, Math.floor(screenHeight / lineHeight));
   }
 
+  /**
+   * Resets the UI by clearing the element cache.
+   */
   reset() {
     this.elements = {};
   }
 }
 
+/**
+ * @class PagerManager
+ * @classdesc Manages the state and logic for the pager application.
+ */
 class PagerManager {
+  /**
+   * Constructs a PagerManager instance.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(dependencies) {
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = dependencies;
+    /**
+     * The UI instance for the pager.
+     * @type {PagerUI}
+     */
     this.ui = new PagerUI(dependencies);
+    /**
+     * Whether the pager is currently active.
+     * @type {boolean}
+     */
     this.isActive = false;
+    /**
+     * The content split into an array of lines.
+     * @type {string[]}
+     */
     this.lines = [];
+    /**
+     * The index of the first visible line.
+     * @type {number}
+     */
     this.topVisibleLine = 0;
+    /**
+     * The number of rows visible in the terminal.
+     * @type {number}
+     */
     this.terminalRows = 24;
+    /**
+     * The pager mode ('more' or 'less').
+     * @type {string}
+     */
     this.mode = "more";
+    /**
+     * A callback to resolve the promise when the pager exits.
+     * @type {Function|null}
+     */
     this.exitCallback = null;
+    /**
+     * The bound keydown event handler.
+     * @type {Function}
+     * @private
+     */
     this._boundHandleKeyDown = this._handleKeyDown.bind(this);
   }
 
+  /**
+   * Handles keyboard input for navigating the pager.
+   * @private
+   * @param {KeyboardEvent} e - The keyboard event.
+   */
   _handleKeyDown(e) {
     if (!this.isActive) return;
 
@@ -119,6 +203,13 @@ class PagerManager {
     }
   }
 
+  /**
+   * Activates and displays the pager with the given content.
+   * @param {string} content - The text content to display.
+   * @param {object} options - Options for the pager.
+   * @param {string} options.mode - The pager mode ('more' or 'less').
+   * @returns {Promise<void>} A promise that resolves when the pager is closed.
+   */
   enter(content, options) {
     if (this.isActive) return;
     this.isActive = true;
@@ -142,6 +233,9 @@ class PagerManager {
     });
   }
 
+  /**
+   * Deactivates and hides the pager, cleaning up event listeners and state.
+   */
   exit() {
     if (!this.isActive) return;
     document.removeEventListener("keydown", this._boundHandleKeyDown);

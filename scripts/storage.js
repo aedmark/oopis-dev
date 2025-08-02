@@ -1,14 +1,38 @@
 // /scripts/storage.js
 
+/**
+ * @class StorageManager
+ * @classdesc Manages all interactions with the browser's localStorage. This class
+ * provides a simple, synchronous key-value storage mechanism for non-critical
+ * user settings and session information.
+ */
 class StorageManager {
+  /**
+   * Creates an instance of StorageManager.
+   */
   constructor() {
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = {};
   }
 
+  /**
+   * Sets the dependency injection container.
+   * @param {object} dependencies - The dependencies to be injected.
+   */
   setDependencies(dependencies) {
     this.dependencies = dependencies;
   }
 
+  /**
+   * Loads an item from localStorage, handling JSON parsing and errors.
+   * @param {string} key - The key of the item to load.
+   * @param {string} itemName - A human-readable name for the item, used for error messages.
+   * @param {*} [defaultValue=null] - The value to return if the item is not found or fails to load.
+   * @returns {*} The loaded item, or the default value.
+   */
   loadItem(key, itemName, defaultValue = null) {
     const { Config, OutputManager } = this.dependencies;
     try {
@@ -36,6 +60,13 @@ class StorageManager {
     return defaultValue;
   }
 
+  /**
+   * Saves an item to localStorage, handling object serialization.
+   * @param {string} key - The key to save the item under.
+   * @param {*} data - The data to be saved.
+   * @param {string} itemName - A human-readable name for the item, used for error messages.
+   * @returns {boolean} True if the item was saved successfully, false otherwise.
+   */
   saveItem(key, data, itemName) {
     const { Config, OutputManager } = this.dependencies;
     try {
@@ -59,6 +90,10 @@ class StorageManager {
     return false;
   }
 
+  /**
+   * Removes an item from localStorage.
+   * @param {string} key - The key of the item to remove.
+   */
   removeItem(key) {
     try {
       localStorage.removeItem(key);
@@ -69,6 +104,10 @@ class StorageManager {
     }
   }
 
+  /**
+   * Retrieves all keys currently stored in localStorage.
+   * @returns {string[]} An array of all localStorage keys.
+   */
   getAllLocalStorageKeys() {
     const keys = [];
     try {
@@ -85,17 +124,46 @@ class StorageManager {
   }
 }
 
+/**
+ * @class IndexedDBManager
+ * @classdesc Manages the connection to the IndexedDB database, which serves as the
+ * persistent storage backend for the virtual file system.
+ */
 class IndexedDBManager {
+  /**
+   * Creates an instance of IndexedDBManager.
+   */
   constructor() {
+    /**
+     * The active IndexedDB database instance.
+     * @type {IDBDatabase|null}
+     */
     this.dbInstance = null;
+    /**
+     * A flag to prevent duplicate initialization log messages.
+     * @type {boolean}
+     * @private
+     */
     this.hasLoggedNormalInitialization = false;
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = {};
   }
 
+  /**
+   * Sets the dependency injection container.
+   * @param {object} dependencies - The dependencies to be injected.
+   */
   setDependencies(dependencies) {
     this.dependencies = dependencies;
   }
 
+  /**
+   * Initializes the IndexedDB database connection and creates the object store if it doesn't exist.
+   * @returns {Promise<IDBDatabase>} A promise that resolves with the database instance or rejects on error.
+   */
   init() {
     const { Config, OutputManager } = this.dependencies;
     return new Promise((resolve, reject) => {
@@ -169,6 +237,10 @@ class IndexedDBManager {
     });
   }
 
+  /**
+   * Returns the active database instance. Throws an error if not initialized.
+   * @returns {IDBDatabase} The initialized IndexedDB database instance.
+   */
   getDbInstance() {
     const { Config, OutputManager } = this.dependencies;
     if (!this.dbInstance) {

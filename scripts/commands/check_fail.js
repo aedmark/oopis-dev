@@ -1,5 +1,10 @@
 // scripts/commands/check_fail.js
 
+/**
+ * Represents the check_fail command which is used for testing purposes to
+ * verify if a command fails or produces empty output.
+ * @extends Command
+ */
 window.CheckFailCommand = class CheckFailCommand extends Command {
   constructor() {
     super({
@@ -27,6 +32,15 @@ window.CheckFailCommand = class CheckFailCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the check_fail command.
+   * @param {object} context - The command context.
+   * @param {string[]} context.args - The arguments passed to the command.
+   * @param {object} context.options - The options for the command execution.
+   * @param {object} context.flags - The flags parsed from the arguments.
+   * @param {object} context.dependencies - The dependencies required by the command.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, options, flags, dependencies } = context;
     const { CommandExecutor, ErrorHandler } = dependencies;
