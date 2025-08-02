@@ -1,6 +1,18 @@
 // scripts/utils.js
 
+/**
+ * @class Utils
+ * @classdesc A static utility class providing a collection of helper functions
+ * used throughout the OopisOS application. This includes text manipulation,
+ * DOM creation, data formatting, and command-line parsing.
+ */
 class Utils {
+  /**
+   * Extracts comments from a string of code based on the file extension.
+   * @param {string} content - The code content to parse.
+   * @param {string} fileExtension - The file extension (e.g., 'js', 'sh').
+   * @returns {string} A string containing all extracted comments, separated by newlines.
+   */
   static extractComments(content, fileExtension) {
     let comments = [];
     let regex;
@@ -32,6 +44,13 @@ class Utils {
     return comments.join("\n");
   }
 
+  /**
+   * Creates a debounced function that delays invoking `func` until after `delay` milliseconds
+   * have elapsed since the last time the debounced function was invoked.
+   * @param {Function} func - The function to debounce.
+   * @param {number} delay - The number of milliseconds to delay.
+   * @returns {Function} The new debounced function.
+   */
   static debounce(func, delay) {
     let timeout;
     return function (...args) {
@@ -41,6 +60,11 @@ class Utils {
     };
   }
 
+  /**
+   * Calculates the pixel dimensions (width and height) of a character for a given font style.
+   * @param {string} [fontStyle='16px "VT323"'] - The CSS font style to measure.
+   * @returns {{width: number, height: number}} An object containing the width and height.
+   */
   static getCharacterDimensions(fontStyle = '16px "VT323"') {
     const tempSpan = document.createElement("span");
     tempSpan.textContent = "M";
@@ -57,6 +81,11 @@ class Utils {
     return { width: rect.width, height: rect.height };
   }
 
+  /**
+   * Calculates the SHA-256 hash of a given string.
+   * @param {string} text - The text to hash.
+   * @returns {Promise<string|null>} A promise that resolves to the hex-encoded hash string, or null on failure.
+   */
   static async calculateSHA256(text) {
     if (typeof text !== "string") {
       return null;
@@ -73,6 +102,11 @@ class Utils {
     }
   }
 
+  /**
+   * Formats arguments for display in the terminal, similar to console.log.
+   * @param {any[]} args - The arguments to format.
+   * @returns {string} A single formatted string.
+   */
   static formatConsoleArgs(args) {
     return Array.from(args)
         .map((arg) =>
@@ -83,6 +117,11 @@ class Utils {
         .join(" ");
   }
 
+  /**
+   * Parses an array of arguments into a key-value pair based on the first '='.
+   * @param {string[]} args - The arguments array.
+   * @returns {{name: string, value: string|null}} An object with the parsed name and value.
+   */
   static parseKeyValue(args) {
     const combined = args.join(" ");
     const eqIndex = combined.indexOf("=");
@@ -104,10 +143,21 @@ class Utils {
     return { name, value };
   }
 
+  /**
+   * Creates a deep copy of a filesystem node using JSON serialization.
+   * @param {object} node - The filesystem node to copy.
+   * @returns {object|null} A deep copy of the node, or null if the input is null.
+   */
   static deepCopyNode(node) {
     return node ? JSON.parse(JSON.stringify(node)) : null;
   }
 
+  /**
+   * Formats a number of bytes into a human-readable string (e.g., KB, MB).
+   * @param {number} bytes - The number of bytes.
+   * @param {number} [decimals=2] - The number of decimal places to use.
+   * @returns {string} The formatted string.
+   */
   static formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return "0 B";
     const k = 1024;
@@ -117,6 +167,11 @@ class Utils {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
 
+  /**
+   * Extracts the file extension from a file path.
+   * @param {string} filePath - The path to the file.
+   * @returns {string} The file extension in lowercase, or an empty string if not found.
+   */
   static getFileExtension(filePath) {
     if (!filePath || typeof filePath !== "string") return "";
     const separator =
@@ -131,6 +186,13 @@ class Utils {
     return name.substring(lastDot + 1).toLowerCase();
   }
 
+  /**
+   * A helper function to create and configure DOM elements.
+   * @param {string} tag - The HTML tag for the element.
+   * @param {object} [attributes={}] - An object of attributes to set on the element.
+   * @param {...(Node|string)} childrenArgs - Child nodes or strings to append.
+   * @returns {HTMLElement} The created DOM element.
+   */
   static createElement(tag, attributes = {}, ...childrenArgs) {
     const element = document.createElement(tag);
     for (const key in attributes) {
@@ -167,6 +229,15 @@ class Utils {
     return element;
   }
 
+  /**
+   * Validates the number of arguments passed to a command.
+   * @param {string[]} argsArray - The array of arguments.
+   * @param {object} [config={}] - The validation configuration.
+   * @param {number} [config.exact] - The exact number of arguments required.
+   * @param {number} [config.min] - The minimum number of arguments required.
+   * @param {number} [config.max] - The maximum number of arguments allowed.
+   * @returns {{isValid: boolean, errorDetail?: string}} An object indicating if the validation passed.
+   */
   static validateArguments(argsArray, config = {}) {
     const argCount = argsArray.length;
     if (typeof config.exact === "number" && argCount !== config.exact) {
@@ -190,6 +261,16 @@ class Utils {
     return { isValid: true };
   }
 
+  /**
+   * Parses a string argument into a number with validation options.
+   * @param {string} argString - The string to parse.
+   * @param {object} [options={}] - The parsing and validation options.
+   * @param {boolean} [options.allowFloat=false] - Whether to allow floating-point numbers.
+   * @param {boolean} [options.allowNegative=false] - Whether to allow negative numbers.
+   * @param {number} [options.min] - The minimum allowed value.
+   * @param {number} [options.max] - The maximum allowed value.
+   * @returns {{value: number|null, error: string|null}} The parsed number or an error object.
+   */
   static parseNumericArg(argString, options = {}) {
     const { allowFloat = false, allowNegative = false, min, max } = options;
     const num = allowFloat ? parseFloat(argString) : parseInt(argString, 10);
@@ -203,6 +284,11 @@ class Utils {
     return { value: num, error: null };
   }
 
+  /**
+   * Validates a username against system rules (length, characters, reserved names).
+   * @param {string} username - The username to validate.
+   * @returns {{isValid: boolean, error: string|null}} An object indicating if the validation passed.
+   */
   static validateUsernameFormat(username) {
     if (!username || typeof username !== "string" || username.trim() === "")
       return { isValid: false, error: "Username cannot be empty." };
@@ -235,6 +321,12 @@ class Utils {
     return { isValid: true, error: null };
   }
 
+  /**
+   * Parses an array of command-line arguments into flags and remaining arguments.
+   * @param {string[]} argsArray - The array of arguments to parse.
+   * @param {object[]} flagDefinitions - An array of flag definition objects.
+   * @returns {{flags: object, remainingArgs: string[]}} An object containing parsed flags and other arguments.
+   */
   static parseFlags(argsArray, flagDefinitions) {
     const flags = {};
     const remainingArgs = [];
@@ -295,12 +387,22 @@ class Utils {
     return { flags, remainingArgs };
   }
 
+  /**
+   * A promise-based wrapper for setTimeout.
+   * @param {number} ms - The number of milliseconds to delay.
+   * @returns {Promise<void>} A promise that resolves after the delay.
+   */
   static safeDelay(ms) {
     return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
   }
 
+  /**
+   * Converts a simple glob pattern (supporting * and ?) into a regular expression.
+   * @param {string} glob - The glob pattern.
+   * @returns {RegExp|null} The corresponding regular expression, or null on error.
+   */
   static globToRegex(glob) {
     if (glob === "*") return /.*/;
 
@@ -355,6 +457,14 @@ class Utils {
     }
   }
 
+  /**
+   * A basic security sanitizer for command strings to prevent command substitution.
+   * @param {string} input - The command or argument string to sanitize.
+   * @param {object} [options={}] - Sanitization options.
+   * @param {string} [options.level='command'] - The strictness level ('command', 'arguments', 'full').
+   * @param {string[]|null} [options.allowedCommands=null] - A whitelist of commands if level is 'command'.
+   * @returns {{isValid: boolean, sanitized: string|null, error: string|null}} A validation result object.
+   */
   static sanitizeForExecution(input, options = {}) {
     const {
       level = "command", // "command", "arguments", "full"

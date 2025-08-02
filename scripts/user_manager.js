@@ -1,19 +1,49 @@
 // gem/scripts/user_manager.js
 
+/**
+ * @class UserManager
+ * @classdesc Manages all aspects of user accounts, including creation, authentication,
+ * password management, and session control (login, logout, su). It is the central
+ * authority for user identity and privileges in OopisOS.
+ */
 class UserManager {
+  /**
+   * Creates an instance of UserManager.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(dependencies) {
+    /** @type {object} */
     this.dependencies = dependencies;
+    /** @type {ConfigManager} */
     this.config = dependencies.Config;
+    /** @type {FileSystemManager} */
     this.fsManager = dependencies.FileSystemManager;
+    /** @type {GroupManager} */
     this.groupManager = dependencies.GroupManager;
+    /** @type {StorageManager} */
     this.storageManager = dependencies.StorageManager;
+    /** @type {SessionManager|null} */
     this.sessionManager = null;
+    /** @type {SudoManager|null} */
     this.sudoManager = null;
+    /** @type {CommandExecutor|null} */
     this.commandExecutor = null;
+    /** @type {ModalManager|null} */
     this.modalManager = null;
+    /**
+     * The currently active user object.
+     * @type {{name: string}}
+     */
     this.currentUser = { name: this.config.USER.DEFAULT_NAME };
   }
 
+  /**
+   * Sets dependencies that are initialized after the UserManager.
+   * @param {SessionManager} sessionManager - The session manager instance.
+   * @param {SudoManager} sudoManager - The sudo manager instance.
+   * @param {CommandExecutor} commandExecutor - The command executor instance.
+   * @param {ModalManager} modalManager - The modal manager instance.
+   */
   setDependencies(sessionManager, sudoManager, commandExecutor, modalManager) {
     this.sessionManager = sessionManager;
     this.sudoManager = sudoManager;
@@ -21,6 +51,12 @@ class UserManager {
     this.modalManager = modalManager;
   }
 
+  /**
+   * Securely hashes a password using PBKDF2 with a random salt.
+   * @private
+   * @param {string} password - The plaintext password to hash.
+   * @returns {Promise<{salt: string, hash: string}>} A promise that resolves to an object containing the salt and hash.
+   */
   async _secureHashPassword(password) {
     const salt = new Uint8Array(16);
     window.crypto.getRandomValues(salt);
@@ -48,6 +84,14 @@ class UserManager {
     return { salt: saltHex, hash: hashHex };
   }
 
+  /**
+   * Verifies a password attempt against a stored salt and hash.
+   * @private
+   * @param {string} passwordAttempt - The password to check.
+   * @param {string} saltHex - The stored salt in hexadecimal format.
+   * @param {string} storedHashHex - The stored hash in hexadecimal format.
+   * @returns {Promise<boolean>} A promise that resolves to true if the password is correct, false otherwise.
+   */
   async _verifyPasswordWithSalt(passwordAttempt, saltHex, storedHashHex) {
     const salt = new Uint8Array(
         saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
@@ -76,10 +120,19 @@ class UserManager {
     );
   }
 
+  /**
+   * Gets the currently logged-in user.
+   * @returns {{name: string}} The current user object.
+   */
   getCurrentUser() {
     return this.currentUser;
   }
 
+  /**
+   * Gets the primary group for a specified user.
+   * @param {string} username - The name of the user.
+   * @returns {string|null} The name of the primary group, or null if not found.
+   */
   getPrimaryGroupForUser(username) {
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
@@ -89,6 +142,11 @@ class UserManager {
     return users[username]?.primaryGroup || null;
   }
 
+  /**
+   * Checks if a user exists in the system.
+   * @param {string} username - The username to check.
+   * @returns {Promise<boolean>} True if the user exists, false otherwise.
+   */
   async userExists(username) {
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
@@ -98,7 +156,14 @@ class UserManager {
     return users.hasOwnProperty(username);
   }
 
+  /**
+   * Registers a new user, hashes their password, and creates their home directory.
+   * @param {string} username - The new user's name.
+   * @param {string} password - The new user's password.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async register(username, password) {
+    const { Utils, ErrorHandler } = this.dependencies;
     const formatValidation = Utils.validateUsernameFormat(username);
     if (!formatValidation.isValid) {
       return ErrorHandler.createError(formatValidation.error);
@@ -138,7 +203,14 @@ class UserManager {
     return ErrorHandler.createError("Failed to save new user credentials.");
   }
 
+  /**
+   * Verifies a user's password.
+   * @param {string} username - The username.
+   * @param {string} password - The password to verify.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async verifyPassword(username, password) {
+    const { ErrorHandler } = this.dependencies;
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
         "User list",
@@ -154,7 +226,14 @@ class UserManager {
         : ErrorHandler.createError("Incorrect password.");
   }
 
+  /**
+   * Executes a command with temporarily elevated (root) privileges.
+   * @param {string} commandStr - The full command string to execute.
+   * @param {object} options - Execution options to pass to the command executor.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async sudoExecute(commandStr, options) {
+    const { ErrorHandler } = this.dependencies;
     const originalUser = this.currentUser;
     try {
       this.currentUser = { name: "root" };
@@ -171,12 +250,21 @@ class UserManager {
     }
   }
 
+  /**
+   * Changes a user's password. Requires the old password unless the actor is root.
+   * @param {string} actorUsername - The user performing the action.
+   * @param {string} targetUsername - The user whose password is being changed.
+   * @param {string} oldPassword - The target's current password.
+   * @param {string} newPassword - The desired new password.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async changePassword(
       actorUsername,
       targetUsername,
       oldPassword,
       newPassword
   ) {
+    const { ErrorHandler } = this.dependencies;
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
         "User list",
@@ -223,6 +311,16 @@ class UserManager {
     return ErrorHandler.createError("Failed to save updated password.");
   }
 
+  /**
+   * Handles the generic authentication flow for login and su.
+   * @private
+   * @param {string} username - The username to authenticate.
+   * @param {string|null} providedPassword - The password provided in the command, if any.
+   * @param {Function} successCallback - The function to call on successful authentication.
+   * @param {string} failureMessage - The error message to show on failure.
+   * @param {object} options - Execution options for the modal manager.
+   * @returns {Promise<object>} The result of the authentication flow.
+   */
   async _handleAuthFlow(
       username,
       providedPassword,
@@ -230,6 +328,7 @@ class UserManager {
       failureMessage,
       options
   ) {
+    const { ErrorHandler } = this.dependencies;
     const users = this.storageManager.loadItem(
         this.config.STORAGE_KEYS.USER_CREDENTIALS,
         "User list",
@@ -284,7 +383,15 @@ class UserManager {
     }
   }
 
+  /**
+   * Logs in a user, clearing the current session stack.
+   * @param {string} username - The username to log in as.
+   * @param {string|null} providedPassword - The password, if provided.
+   * @param {object} [options={}] - Execution options.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async login(username, providedPassword, options = {}) {
+    const { ErrorHandler } = this.dependencies;
     const currentUserName = this.getCurrentUser().name;
     if (username === currentUserName) {
       return ErrorHandler.createSuccess({
@@ -306,7 +413,14 @@ class UserManager {
     );
   }
 
+  /**
+   * Performs the internal state changes for a successful login.
+   * @private
+   * @param {string} username - The username that has successfully logged in.
+   * @returns {object} An ErrorHandler success object.
+   */
   _performLogin(username) {
+    const { ErrorHandler } = this.dependencies;
     if (this.currentUser.name !== this.config.USER.DEFAULT_NAME) {
       this.sessionManager.saveAutomaticState(this.currentUser.name);
       this.sudoManager.clearUserTimestamp(this.currentUser.name);
@@ -326,7 +440,15 @@ class UserManager {
     });
   }
 
+  /**
+   * Switches to another user, stacking the new session on top of the old one.
+   * @param {string} username - The username to switch to.
+   * @param {string|null} providedPassword - The password, if provided.
+   * @param {object} [options={}] - Execution options.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async su(username, providedPassword, options = {}) {
+    const { ErrorHandler } = this.dependencies;
     const currentUserName = this.getCurrentUser().name;
     if (username === currentUserName) {
       return ErrorHandler.createSuccess({
@@ -344,7 +466,14 @@ class UserManager {
     );
   }
 
+  /**
+   * Performs the internal state changes for a successful 'su'.
+   * @private
+   * @param {string} username - The username to switch to.
+   * @returns {object} An ErrorHandler success object.
+   */
   _performSu(username) {
+    const { ErrorHandler } = this.dependencies;
     this.sessionManager.saveAutomaticState(this.currentUser.name);
     this.sessionManager.pushUserToStack(username);
     this.currentUser = { name: username };
@@ -360,7 +489,12 @@ class UserManager {
     });
   }
 
+  /**
+   * Logs out of the current session, returning to the previous user in the stack.
+   * @returns {Promise<object>} An ErrorHandler result object.
+   */
   async logout() {
+    const { ErrorHandler } = this.dependencies;
     const oldUser = this.currentUser.name;
     if (this.sessionManager.getStack().length <= 1) {
       return ErrorHandler.createSuccess({
@@ -387,6 +521,11 @@ class UserManager {
     });
   }
 
+  /**
+   * Ensures the default 'root' and 'Guest' users exist on first run, creating
+   * a one-time random password for the root user.
+   * @returns {Promise<void>}
+   */
   async initializeDefaultUsers() {
     const { OutputManager, Config } = this.dependencies;
     const users = this.storageManager.loadItem(
