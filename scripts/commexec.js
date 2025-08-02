@@ -7,6 +7,7 @@ class CommandExecutor {
     this.commands = {};
     this.loadedScripts = new Set();
     this.dependencies = {};
+    this.isInDreamatorium = false;
   }
 
   setDependencies(dependencies) {
@@ -739,6 +740,12 @@ class CommandExecutor {
   }
 
   async processSingleCommand(rawCommandText, options = {}) {
+    if (this.isInDreamatorium && rawCommandText.trim() === 'exit') {
+      if (typeof this.dreamatoriumExitHandler === 'function') {
+        await this.dreamatoriumExitHandler();
+      }
+      return this.dependencies.ErrorHandler.createSuccess("");
+    }
     const {
       isInteractive = true,
       scriptingContext = null,
