@@ -1,5 +1,10 @@
 // /scripts/commands/adventure.js
 
+/**
+ * @const {object} defaultAdventureData
+ * @description The default adventure game data that loads when the `adventure` command is run without a file path.
+ * This serves as both a playable demo and a template for creating new adventures.
+ */
 const defaultAdventureData = {
   title: "The Architect's Apprentice",
   startingRoomId: "test_chamber",
@@ -187,7 +192,21 @@ const defaultAdventureData = {
   },
 };
 
+/**
+ * @file /scripts/commands/adventure.js
+ * @description The 'adventure' command, which serves as the entry point for both playing
+ * text adventure games and launching the interactive adventure creation tool.
+ */
+
+/**
+ * Represents the 'adventure' command, which launches the text adventure game engine or the creation tool.
+ * @class AdventureCommand
+ * @extends Command
+ */
 window.AdventureCommand = class AdventureCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "adventure",
@@ -227,6 +246,16 @@ window.AdventureCommand = class AdventureCommand extends Command {
     });
   }
 
+  /**
+   * Main logic for the adventure command.
+   * It determines whether to launch the game player or the creation tool based on the provided flags.
+   * @param {object} context - The command execution context.
+   * @param {Array<string>} context.args - The arguments passed to the command.
+   * @param {object} context.options - The options for command execution.
+   * @param {object} context.flags - The parsed flags from the arguments.
+   * @param {object} context.dependencies - The dependencies required by the command.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
 
     const { args, options, flags, dependencies } = context;

@@ -1,6 +1,19 @@
-// /scripts/commands/agenda.js
+/**
+ * @file /scripts/commands/agenda.js
+ * @description The 'agenda' command, which allows users to schedule other commands to run at specific times,
+ * and the AgendaDaemon class, a background service that executes these scheduled jobs.
+ */
 
+/**
+ * Represents the 'agenda' command for scheduling tasks. This command acts as a user-facing
+ * interface to interact with the AgendaDaemon background process.
+ * @class AgendaCommand
+ * @extends Command
+ */
 window.AgendaCommand = class AgendaCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "agenda",
@@ -17,6 +30,12 @@ window.AgendaCommand = class AgendaCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'agenda' command. It parses sub-commands and ensures the
+     * AgendaDaemon is running before passing tasks to it.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { ErrorHandler, CommandExecutor, OutputManager } = dependencies;
@@ -30,19 +49,21 @@ window.AgendaCommand = class AgendaCommand extends Command {
             return ErrorHandler.createError(`agenda: modifying the schedule requires root privileges. Try 'sudo agenda ${args.join(' ')}'.`);
         }
 
+        // Internal command to start the daemon process
         if (subCommand === '--daemon-start') {
             const daemon = new AgendaDaemon(dependencies);
             await daemon.run();
             return ErrorHandler.createSuccess("Agenda daemon started.");
         }
 
+        // Check if the daemon is running, start it if it's not
         const psResult = await CommandExecutor.processSingleCommand("ps", { isInteractive: false });
         const isDaemonRunning = psResult.output && psResult.output.includes("agenda --daemon-start");
 
         if (!isDaemonRunning) {
             await OutputManager.appendToOutput("Starting agenda daemon for the first time...");
             await CommandExecutor.processSingleCommand("agenda --daemon-start &", { isInteractive: false });
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 500)); // Give daemon time to initialize
         }
 
         switch (subCommand.toLowerCase()) {
@@ -57,6 +78,12 @@ window.AgendaCommand = class AgendaCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'add' sub-command by sending a message to the daemon.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleAdd(context) {
         const { args, dependencies } = context;
         const { ErrorHandler, MessageBusManager } = dependencies;
@@ -71,6 +98,7 @@ window.AgendaCommand = class AgendaCommand extends Command {
             return ErrorHandler.createError("Cron string and command must be provided.");
         }
 
+        // Post a message to the daemon to add a new job
         MessageBusManager.postMessage('agenda-daemon', {
             type: 'ADD_JOB',
             payload: { cronString, command }
@@ -80,6 +108,12 @@ window.AgendaCommand = class AgendaCommand extends Command {
         return ErrorHandler.createSuccess("Job submitted to the agenda.");
     }
 
+    /**
+     * Handles the 'list' sub-command by reading the schedule file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleList(context) {
         const { dependencies } = context;
         const { FileSystemManager, ErrorHandler } = dependencies;
@@ -106,6 +140,12 @@ window.AgendaCommand = class AgendaCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'remove' sub-command by sending a message to the daemon.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleRemove(context) {
         const { args, dependencies } = context;
         const { ErrorHandler, MessageBusManager } = dependencies;
@@ -123,14 +163,21 @@ window.AgendaCommand = class AgendaCommand extends Command {
             payload: { jobId }
         });
 
-        // Removed the potentially unsafe setTimeout usage
         return ErrorHandler.createSuccess(`Sent request to remove job ${jobId}.`);
     }
 }
 
 window.CommandRegistry.register(new AgendaCommand());
 
+/**
+ * The background service that manages and executes scheduled commands.
+ * @class AgendaDaemon
+ */
 class AgendaDaemon {
+    /**
+     * @constructor
+     * @param {object} dependencies - The dependency injection container.
+     */
     constructor(dependencies) {
         this.dependencies = dependencies;
         this.schedule = [];
@@ -139,6 +186,10 @@ class AgendaDaemon {
         this.isRunning = false;
     }
 
+    /**
+     * Loads the schedule from the filesystem.
+     * @private
+     */
     async _loadSchedule() {
         const { FileSystemManager } = this.dependencies;
         const node = FileSystemManager.getNodeByPath(this.schedulePath);
@@ -153,6 +204,10 @@ class AgendaDaemon {
         }
     }
 
+    /**
+     * Saves the current schedule to the filesystem.
+     * @private
+     */
     async _saveSchedule() {
         const { FileSystemManager } = this.dependencies;
         const content = JSON.stringify(this.schedule, null, 2);
@@ -168,12 +223,18 @@ class AgendaDaemon {
             if (scheduleNode) {
                 scheduleNode.owner = 'root';
                 scheduleNode.group = 'root';
-                scheduleNode.mode = 0o644;
+                scheduleNode.mode = 0o644; // Read-write for root, read-only for others
             }
             await FileSystemManager.save();
         }
     }
 
+    /**
+     * Parses a cron string into its components.
+     * @param {string} cronString - The cron string to parse.
+     * @returns {object|null} The parsed cron components or null if invalid.
+     * @private
+     */
     _parseCron(cronString) {
         const parts = cronString.split(' ');
         if (parts.length !== 5) return null;
@@ -181,6 +242,11 @@ class AgendaDaemon {
         return { minute, hour, dayOfMonth };
     }
 
+    /**
+     * Checks the schedule against the current time and executes any due commands.
+     * @param {Date} now - The current time.
+     * @private
+     */
     _checkSchedule(now) {
         const { CommandExecutor } = this.dependencies;
         this.schedule.forEach(job => {
@@ -191,6 +257,7 @@ class AgendaDaemon {
             if (cron.minute !== '*' && parseInt(cron.minute) !== now.getMinutes()) shouldRun = false;
             if (cron.hour !== '*' && parseInt(cron.hour) !== now.getHours()) shouldRun = false;
             if (cron.dayOfMonth !== '*' && parseInt(cron.dayOfMonth) !== now.getDate()) shouldRun = false;
+            // DayOfWeek and Month are ignored in this simplified version
 
             if (shouldRun) {
                 console.log(`AgendaDaemon: Executing job ${job.id}: ${job.command}`);
@@ -199,6 +266,11 @@ class AgendaDaemon {
         });
     }
 
+    /**
+     * Handles incoming messages from the message bus to modify the schedule.
+     * @param {object} message - The message payload from the message bus.
+     * @private
+     */
     async _handleMessage(message) {
         if (!message || !message.type) return;
 
@@ -215,6 +287,9 @@ class AgendaDaemon {
         }
     }
 
+    /**
+     * Starts the daemon, loads the schedule, and begins the main loop.
+     */
     async run() {
         if (this.isRunning) return;
         this.isRunning = true;
@@ -224,6 +299,10 @@ class AgendaDaemon {
         await this._runDaemonLoop();
     }
 
+    /**
+     * The main execution loop for the daemon.
+     * @private
+     */
     async _runDaemonLoop() {
         while (true) {
             try {
@@ -233,11 +312,16 @@ class AgendaDaemon {
                 await this._waitUntilNextMinute(now);
             } catch (error) {
                 console.error("AgendaDaemon: Encountered an error in the main loop, but I'm doing my best!", error);
+                // Wait before retrying to avoid rapid-fire errors
                 await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
     }
 
+    /**
+     * Processes all pending messages from the message bus.
+     * @private
+     */
     async _processMessages() {
         const messages = this.dependencies.MessageBusManager.getMessages('agenda-daemon');
         for (const msg of messages) {
@@ -245,6 +329,11 @@ class AgendaDaemon {
         }
     }
 
+    /**
+     * Calculates the time until the next minute and waits.
+     * @param {Date} currentTime - The current time.
+     * @private
+     */
     async _waitUntilNextMinute(currentTime) {
         const secondsUntilNextMinute = 60 - currentTime.getSeconds();
         await new Promise(resolve => setTimeout(resolve, secondsUntilNextMinute * 1000));

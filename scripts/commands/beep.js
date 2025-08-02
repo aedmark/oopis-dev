@@ -1,6 +1,18 @@
-// scripts/commands/beep.js
+/**
+ * @file scripts/commands/beep.js
+ * @description The 'beep' command, which plays a simple system sound. It serves as an auditory notification
+ * and a way to test the sound system.
+ */
 
+/**
+ * Represents the 'beep' command.
+ * @class BeepCommand
+ * @extends Command
+ */
 window.BeepCommand = class BeepCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "beep",
@@ -18,6 +30,13 @@ window.BeepCommand = class BeepCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'beep' command.
+     * It ensures the SoundManager is initialized and then plays a system beep.
+     * @param {object} context - The command execution context.
+     * @param {object} context.dependencies - The system dependencies.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { SoundManager, ErrorHandler } = dependencies;

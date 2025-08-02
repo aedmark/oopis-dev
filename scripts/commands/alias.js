@@ -1,6 +1,18 @@
-// scripts/commands/alias.js
+/**
+ * @file /scripts/commands/alias.js
+ * @description The 'alias' command, used for creating, displaying, and managing command shortcuts.
+ */
 
+/**
+ * Represents the 'alias' command which allows users to define or display command aliases.
+ * @class AliasCommand
+ * @extends Command
+ */
 window.AliasCommand = class AliasCommand extends Command {
+  /**
+   * @constructor
+   * @description Initializes the command's definition.
+   */
   constructor() {
     super({
       commandName: "alias",
@@ -37,6 +49,17 @@ EXAMPLES
     });
   }
 
+  /**
+   * Main logic for the 'alias' command.
+   * Handles three cases:
+   * 1. No arguments: Lists all defined aliases.
+   * 2. One argument: Displays the definition for a specific alias.
+   * 3. Key-value pair: Creates or updates an alias.
+   * @param {object} context - The command execution context.
+   * @param {Array<string>} context.args - The arguments passed to the command.
+   * @param {object} context.dependencies - The system dependencies.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
     const { args, dependencies } = context;
     const { AliasManager, ErrorHandler, Utils } = dependencies;
@@ -57,6 +80,7 @@ EXAMPLES
     const { name, value } = Utils.parseKeyValue(args);
 
     if (value !== null) {
+      // Set an alias
       if (!name) {
         return ErrorHandler.createError(
             "alias: invalid format. Missing name."
@@ -67,6 +91,7 @@ EXAMPLES
       }
       return ErrorHandler.createError("alias: failed to set alias.");
     } else {
+      // Get a specific alias
       const aliasValue = AliasManager.getAlias(name);
       if (aliasValue) {
         return ErrorHandler.createSuccess(`alias ${name}='${aliasValue}'`);

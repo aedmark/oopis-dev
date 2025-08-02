@@ -1,6 +1,18 @@
-// scripts/commands/awk.js
+/**
+ * @file scripts/commands/awk.js
+ * @description The 'awk' command, a powerful tool for pattern scanning and text processing.
+ * This is a simplified implementation supporting basic pattern-action rules.
+ */
 
+/**
+ * Represents the 'awk' command for pattern scanning and text processing.
+ * @class AwkCommand
+ * @extends Command
+ */
 window.AwkCommand = class AwkCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "awk",
@@ -46,6 +58,13 @@ EXAMPLES
     });
   }
 
+  /**
+   * Parses the user-provided awk script into a structured object.
+   * It identifies BEGIN blocks, END blocks, and pattern-action rules.
+   * @private
+   * @param {string} programString - The raw awk program string.
+   * @returns {{begin: string|null, end: string|null, rules: Array<object>, error: string|null}} The parsed program structure.
+   */
   _parseProgram(programString) {
     const program = { begin: null, end: null, rules: [], error: null };
     const ruleRegex =
@@ -85,6 +104,15 @@ EXAMPLES
     return program;
   }
 
+  /**
+   * Executes a given action string (currently only 'print').
+   * Replaces field variables ($0, $1) and built-in variables (NR, NF) with their values.
+   * @private
+   * @param {string} action - The action string to execute, e.g., "print $1, $2".
+   * @param {string[]} fields - The fields of the current line, where fields[0] is the whole line ($0).
+   * @param {object} vars - An object containing built-in variables like { NR, NF }.
+   * @returns {string|null} The formatted string for printing, or null if the action is not supported.
+   */
   _executeAction(action, fields, vars) {
     if (action.startsWith("print")) {
       let argsStr = action.substring(5).trim();
@@ -106,6 +134,13 @@ EXAMPLES
     return null;
   }
 
+  /**
+   * Main logic for the 'awk' command.
+   * It parses the program, processes the input line by line, applies the rules,
+   * and generates the final output, handling BEGIN and END blocks.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
     const { flags, args, inputItems, inputError, dependencies } = context;
     const { ErrorHandler } = dependencies;
@@ -139,6 +174,7 @@ EXAMPLES
     let outputLines = [];
     let nr = 0;
 
+    // BEGIN block
     if (program.begin) {
       const beginResult = this._executeAction(program.begin, [], {
         NR: 0,
@@ -149,6 +185,7 @@ EXAMPLES
       }
     }
 
+    // Main processing loop
     const lines = inputText.split("\n");
     for (const line of lines) {
       if (line === "" && lines.at(-1) === "") continue;
@@ -156,7 +193,7 @@ EXAMPLES
       const trimmedLine = line.trim();
       let fields = trimmedLine === "" ? [] : trimmedLine.split(separator);
       if (!Array.isArray(fields)) fields = [];
-      const allFields = [line, ...fields];
+      const allFields = [line, ...fields]; // $0 is the whole line
       const vars = { NR: nr, NF: fields.length };
 
       for (const rule of program.rules) {
@@ -167,6 +204,7 @@ EXAMPLES
       }
     }
 
+    // END block
     if (program.end) {
       const endResult = this._executeAction(program.end, [], { NR: nr, NF: 0 });
       if (endResult !== null) {

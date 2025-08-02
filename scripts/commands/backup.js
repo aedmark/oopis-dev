@@ -1,6 +1,20 @@
-// scripts/commands/backup.js
+/**
+ * @file /scripts/commands/backup.js
+ * @description The 'backup' command, which creates a comprehensive, verifiable snapshot
+ * of the entire OopisOS system state for later restoration.
+ */
 
+/**
+ * Represents the 'backup' command. This command gathers all critical system data,
+ * including the filesystem, user accounts, and session states, into a single,
+ * checksum-verified JSON file that the user can download.
+ * @class BackupCommand
+ * @extends Command
+ */
 window.BackupCommand = class BackupCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "backup",
@@ -23,6 +37,15 @@ DESCRIPTION
     });
   }
 
+  /**
+   * Main logic for the 'backup' command.
+   * Gathers all system state, computes a checksum, and prepares the data for download.
+   * @param {object} context - The command execution context.
+   * @param {object} context.options - The options for command execution.
+   * @param {object} context.dependencies - The system dependencies.
+   * @returns {Promise<object>} A success object containing the backup data and an 'effect'
+   * to trigger a download, or an error object.
+   */
   async coreLogic(context) {
     const { options, dependencies } = context;
     const {
@@ -46,6 +69,7 @@ DESCRIPTION
       const automaticSessionStates = {};
       const manualSaveStates = {};
 
+      // Gather all session state data from local storage.
       allKeys.forEach((key) => {
         if (key.startsWith(Config.STORAGE_KEYS.USER_TERMINAL_STATE_PREFIX)) {
           automaticSessionStates[key] = StorageManager.loadItem(key);
@@ -56,6 +80,7 @@ DESCRIPTION
         }
       });
 
+      // Assemble the main backup data object.
       const backupData = {
         dataType: "OopisOS_System_State_Backup_v4.5",
         osVersion: Config.OS.VERSION,
@@ -75,6 +100,7 @@ DESCRIPTION
         manualSaveStates,
       };
 
+      // Calculate a checksum for data integrity verification.
       const stringifiedDataForChecksum = JSON.stringify(backupData);
       const checksum = await Utils.calculateSHA256(
           stringifiedDataForChecksum
@@ -92,6 +118,8 @@ DESCRIPTION
           currentUser.name
       }_${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
 
+      // Return a success object with a special 'backup' effect.
+      // The CommandExecutor will interpret this effect and trigger a file download.
       return ErrorHandler.createSuccess(
           `Backup data prepared for ${defaultFileName}.`,
           {

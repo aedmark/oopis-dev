@@ -1,6 +1,18 @@
-// scripts/commands/bc.js
+/**
+ * @file scripts/commands/bc.js
+ * @description The 'bc' command, a simple command-line calculator that evaluates mathematical expressions.
+ * This implementation uses the Shunting-yard algorithm for safe expression evaluation.
+ */
 
+/**
+ * Represents the 'bc' command, an arbitrary-precision calculator language.
+ * @class BcCommand
+ * @extends Command
+ */
 window.BcCommand = class BcCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "bc",
@@ -26,6 +38,14 @@ EXAMPLES
     });
   }
 
+  /**
+   * Safely evaluates a mathematical expression using the Shunting-yard algorithm
+   * to handle order of operations. This prevents the use of `eval()`.
+   * @private
+   * @param {string} expression - The mathematical expression to evaluate.
+   * @returns {number} The result of the calculation.
+   * @throws {Error} If the expression is invalid.
+   */
   _safeEvaluate(expression) {
     const cleanExpression = expression.replace(/\s+/g, "");
 
@@ -86,7 +106,6 @@ EXAMPLES
         operatorStack.push(token);
       } else if (token === "(") {
         operatorStack.push(token);
-      // amazonq-ignore-next-line
       } else if (token === ")") {
         while (
             operatorStack.length > 0 &&
@@ -110,6 +129,12 @@ EXAMPLES
     return outputQueue[0];
   }
 
+  /**
+   * Main logic for the 'bc' command.
+   * Takes an expression from arguments or stdin and uses the safe evaluator to compute the result.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
     const { args, options, dependencies } = context;
     const { ErrorHandler } = dependencies;

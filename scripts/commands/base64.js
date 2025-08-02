@@ -1,6 +1,18 @@
-// scripts/commands/base64.js
+/**
+ * @file scripts/commands/base64.js
+ * @description The 'base64' command, a utility for encoding and decoding data using the Base64 standard,
+ * leveraging the browser's built-in `btoa` and `atob` functions.
+ */
 
+/**
+ * Represents the 'base64' command for encoding and decoding data.
+ * @class Base64Command
+ * @extends Command
+ */
 window.Base64Command = class Base64Command extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "base64",
@@ -33,6 +45,17 @@ EXAMPLES
     });
   }
 
+  /**
+   * Main logic for the 'base64' command.
+   * It reads from the input stream (file or stdin), and either encodes or decodes
+   * the content based on the presence of the '--decode' flag.
+   * @param {object} context - The command execution context.
+   * @param {object} context.flags - The parsed command-line flags.
+   * @param {Array<object>} context.inputItems - The content read from the input stream.
+   * @param {boolean} context.inputError - A flag indicating if there was an error reading the input.
+   * @param {object} context.dependencies - System dependencies.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
     const { flags, inputItems, inputError, dependencies } = context;
     const { ErrorHandler } = dependencies;
@@ -51,18 +74,22 @@ EXAMPLES
 
     try {
       if (flags.decode) {
+        // Decode the input data from Base64
         const decodedData = atob(inputData);
         return ErrorHandler.createSuccess(decodedData);
       } else {
+        // Encode the input data to Base64 and format with newlines every 64 characters
         const encodedData = btoa(inputData);
         return ErrorHandler.createSuccess(
             encodedData.replace(/(.{64})/g, "$1\n")
         );
       }
     } catch (e) {
+      // Handle potential errors from atob (e.g., invalid characters)
       if (e instanceof DOMException && e.name === "InvalidCharacterError") {
         return ErrorHandler.createError("base64: invalid input");
       }
+      // Re-throw other unexpected errors
       throw e;
     }
   }

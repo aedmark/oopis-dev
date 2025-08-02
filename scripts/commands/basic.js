@@ -1,6 +1,19 @@
-// scripts/commands/basic.js
+/**
+ * @file /scripts/commands/basic.js
+ * @description The 'basic' command, which launches the Oopis Basic Integrated Development Environment (IDE).
+ * This command is the entry point for users to start writing, editing, and running BASIC programs.
+ */
 
+/**
+ * Represents the 'basic' command. This class is responsible for loading the necessary
+ * application modules for the BASIC IDE and launching the BasicManager.
+ * @class BasicCommand
+ * @extends Command
+ */
 window.BasicCommand = class BasicCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "basic",
@@ -50,6 +63,12 @@ window.BasicCommand = class BasicCommand extends Command {
     });
   }
 
+  /**
+   * Main logic for the 'basic' command. It ensures all necessary application modules are loaded
+   * and then launches the BasicManager, passing any specified file for loading.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
 
     const { args, options, currentUser, dependencies } = context;

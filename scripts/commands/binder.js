@@ -1,6 +1,18 @@
-// gem/scripts/commands/binder.js
+/**
+ * @file gem/scripts/commands/binder.js
+ * @description The 'binder' command, a utility for creating and managing project binders.
+ * Binders are manifest files that group related files and directories, allowing for easy project management.
+ */
 
+/**
+ * Represents the 'binder' command for creating and managing file collections.
+ * @class BinderCommand
+ * @extends Command
+ */
 window.BinderCommand = class BinderCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "binder",
@@ -29,6 +41,11 @@ window.BinderCommand = class BinderCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'binder' command. It acts as a router for various sub-commands.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -54,6 +71,12 @@ window.BinderCommand = class BinderCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'create' sub-command to create a new binder file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleCreate(context) {
         const { args, currentUser, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
@@ -97,6 +120,12 @@ window.BinderCommand = class BinderCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'add' sub-command to add a file path to a binder.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleAdd(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
@@ -154,6 +183,12 @@ window.BinderCommand = class BinderCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'list' sub-command to display the contents of a binder.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleList(context) {
         const { args, dependencies } = context;
         const { FileSystemManager, ErrorHandler } = dependencies;
@@ -203,6 +238,12 @@ window.BinderCommand = class BinderCommand extends Command {
         return ErrorHandler.createSuccess(output.join('\n'));
     }
 
+    /**
+     * Handles the 'remove' sub-command to remove a file path from a binder.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleRemove(context) {
         const { args, currentUser, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
@@ -263,6 +304,12 @@ window.BinderCommand = class BinderCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'exec' sub-command to execute a command for each file in a binder.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleExec(context) {
         const { args, dependencies } = context;
         const { FileSystemManager, CommandExecutor, ErrorHandler, OutputManager, Config } = dependencies;
