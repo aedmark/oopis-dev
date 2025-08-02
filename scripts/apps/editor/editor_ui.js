@@ -1,13 +1,36 @@
-// scripts/apps/editor/editor_ui.js
-
+/**
+ * Editor User Interface - Handles the visual interface for the text editor
+ * @class EditorUI
+ */
 window.EditorUI = class EditorUI {
+  /**
+   * Create a new Editor UI instance
+   * @param {object} initialState - The initial state of the editor application.
+   * @param {object} callbacks - The callback functions for UI events.
+   * @param {object} deps - The dependency injection container.
+   */
   constructor(initialState, callbacks, deps) {
+    /** @type {object} A cache of DOM elements for easy access. */
     this.elements = {};
+    /** @type {object} Callback functions for UI interaction. */
     this.managerCallbacks = callbacks;
+    /** @type {object} The dependency injection container. */
     this.dependencies = deps;
     this.buildAndShow(initialState);
   }
 
+  /**
+   * Hides the editor and cleans up its DOM elements.
+   */
+  hideAndReset() {
+    this.elements = {};
+    this.managerCallbacks = {};
+  }
+
+  /**
+   * Builds the editor's DOM elements and appends them to the application layer.
+   * @param {object} initialState - The initial state to render the UI with.
+   */
   buildAndShow(initialState) {
     const { Utils, UIComponents } = this.dependencies;
 
@@ -89,6 +112,11 @@ window.EditorUI = class EditorUI {
     this.elements.textarea.focus();
   }
 
+  /**
+   * Renders the HTML preview of the editor content.
+   * @param {string} content - The content to be rendered.
+   * @param {string} mode - The file mode ('markdown' or 'html').
+   */
   renderPreview(content, mode) {
     if (!this.elements.preview) return;
 
@@ -111,6 +139,12 @@ window.EditorUI = class EditorUI {
     }
   }
 
+  /**
+   * Sets the view mode of the editor (e.g., 'split', 'edit', 'preview').
+   * @param {string} viewMode - The new view mode.
+   * @param {string} fileMode - The current file mode.
+   * @param {string} content - The current content of the editor.
+   */
   setViewMode(viewMode, fileMode, content) {
     const editorMainContent = this.elements.main.querySelector('.editor-main-content');
     if (!this.elements.preview || !this.elements.textarea || !editorMainContent) return;
@@ -143,11 +177,10 @@ window.EditorUI = class EditorUI {
     }
   }
 
-  hideAndReset() {
-    this.elements = {};
-    this.managerCallbacks = {};
-  }
-
+  /**
+   * Updates the dirty status indicator in the UI.
+   * @param {boolean} isDirty - Whether the content has unsaved changes.
+   */
   updateDirtyStatus(isDirty) {
     if (this.elements.dirtyStatus) {
       this.elements.dirtyStatus.textContent = isDirty ? "UNSAVED" : "SAVED";
@@ -157,12 +190,20 @@ window.EditorUI = class EditorUI {
     }
   }
 
+  /**
+   * Updates the window title with the given file path.
+   * @param {string} filePath - The new file path.
+   */
   updateWindowTitle(filePath) {
     if (this.elements.titleInput) {
       this.elements.titleInput.value = filePath || "Untitled";
     }
   }
 
+  /**
+   * Displays a status message in the footer for a short period.
+   * @param {string} message - The message to display.
+   */
   updateStatusMessage(message) {
     if (this.elements.statusMessage) {
       this.elements.statusMessage.textContent = message;
@@ -172,12 +213,20 @@ window.EditorUI = class EditorUI {
     }
   }
 
+  /**
+   * Sets the content of the editor textarea.
+   * @param {string} content - The new content.
+   */
   setContent(content) {
     if (this.elements.textarea) {
       this.elements.textarea.textContent = content;
     }
   }
 
+  /**
+   * Toggles word wrap on the editor textarea.
+   * @param {boolean} enabled - Whether word wrap should be enabled.
+   */
   setWordWrap(enabled) {
     if (this.elements.textarea) {
       this.elements.textarea.classList.toggle("word-wrap-enabled", enabled);
@@ -187,6 +236,10 @@ window.EditorUI = class EditorUI {
     }
   }
 
+  /**
+   * Adds event listeners for user input and interaction.
+   * @private
+   */
   _addEventListeners() {
     this.elements.textarea.addEventListener("input", () => {
       this.managerCallbacks.onContentChange(this.elements.textarea);
@@ -198,4 +251,4 @@ window.EditorUI = class EditorUI {
       document.execCommand("insertText", false, text);
     });
   }
-}
+};

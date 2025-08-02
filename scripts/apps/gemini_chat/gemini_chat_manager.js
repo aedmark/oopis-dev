@@ -1,14 +1,32 @@
-// scripts/apps/gemini_chat/gemini_chat_manager.js
-
+/**
+ * Gemini Chat Manager - Manages the state and logic for the Gemini Chat application.
+ * @class GeminiChatManager
+ * @extends App
+ */
 window.GeminiChatManager = class GeminiChatManager extends App {
+  /**
+   * Constructs a new GeminiChatManager instance.
+   */
   constructor() {
     super();
+    /** @type {object} The application's internal state. */
     this.state = {};
+    /** @type {object} The dependency injection container. */
     this.dependencies = {};
+    /** @type {object} A collection of UI callback functions. */
     this.callbacks = {};
+    /** @type {GeminiChatUI|null} The UI component instance. */
     this.ui = null;
   }
 
+  /**
+   * Initializes and displays the Gemini Chat application.
+   * @param {HTMLElement} appLayer - The DOM element to append the app's UI to.
+   * @param {object} [options={}] - Options for entering the application.
+   * @param {string} [options.provider] - The AI provider to use (e.g., "gemini", "ollama").
+   * @param {string} [options.model] - The specific model to use for the provider.
+   * @returns {Promise<void>}
+   */
   async enter(appLayer, options = {}) {
     if (this.isActive) return;
 
@@ -38,6 +56,9 @@ window.GeminiChatManager = class GeminiChatManager extends App {
     this.container.focus();
   }
 
+  /**
+   * Exits the Gemini Chat application, cleaning up UI and state.
+   */
   exit() {
     if (!this.isActive) return;
     if (this.ui) {
@@ -49,14 +70,28 @@ window.GeminiChatManager = class GeminiChatManager extends App {
     this.ui = null;
   }
 
+  /**
+   * Handles keyboard events for the application.
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
   handleKeyDown(event) {
     if (event.key === "Escape") {
       this.exit();
     }
   }
 
+  /**
+   * Creates and returns a set of callback functions for UI events.
+   * @private
+   * @returns {object} An object containing the callback functions.
+   */
   _createCallbacks() {
     return {
+      /**
+       * Callback to handle sending a new message from the user.
+       * It sends the message to the AI and updates the UI with the response.
+       * @param {string} userInput - The message text from the user.
+       */
       onSendMessage: async (userInput) => {
         const { AIManager } = this.dependencies;
         if (!userInput || userInput.trim() === "") return;
@@ -99,7 +134,14 @@ window.GeminiChatManager = class GeminiChatManager extends App {
           this.state.conversationHistory.pop();
         }
       },
+      /**
+       * Callback to exit the application.
+       */
       onExit: this.exit.bind(this),
+      /**
+       * Callback to run a command provided by the AI in the main terminal.
+       * @param {string} commandText - The command string to execute.
+       */
       onRunCommand: async (commandText) => {
         const { CommandExecutor } = this.dependencies;
         this.exit();
@@ -110,4 +152,4 @@ window.GeminiChatManager = class GeminiChatManager extends App {
       },
     };
   }
-}
+};

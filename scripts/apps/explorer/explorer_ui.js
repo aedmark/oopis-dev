@@ -1,19 +1,38 @@
-// scripts/apps/explorer/explorer_ui.js
-
+/**
+ * Explorer User Interface - Manages the visual representation of the file explorer application.
+ * @class ExplorerUI
+ */
 window.ExplorerUI = class ExplorerUI {
+  /**
+   * Constructs a new ExplorerUI instance.
+   * @param {object} callbacks - An object containing callback functions for user interactions.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(callbacks, dependencies) {
-    this.callbacks = callbacks;
-    this.dependencies = dependencies;
+    /** @type {object} A cache of DOM elements for the UI. */
     this.elements = {};
+    /** @type {object} Callback functions for UI events. */
+    this.callbacks = callbacks;
+    /** @type {object} The dependency injection container. */
+    this.dependencies = dependencies;
+    /** @type {HTMLElement|null} The currently active context menu element. */
     this.activeContextMenu = null;
 
     this._buildLayout();
   }
 
+  /**
+   * Returns the main container element of the explorer.
+   * @returns {HTMLElement} The root DOM element.
+   */
   getContainer() {
     return this.elements.container;
   }
 
+  /**
+   * Builds the main UI layout, including the tree, main pane, and status bar.
+   * @private
+   */
   _buildLayout() {
     const { Utils, UIComponents } = this.dependencies;
 
@@ -81,6 +100,10 @@ window.ExplorerUI = class ExplorerUI {
     );
   }
 
+  /**
+   * Removes the active context menu from the DOM.
+   * @private
+   */
   _removeContextMenu() {
     if (this.activeContextMenu) {
       this.activeContextMenu.remove();
@@ -88,6 +111,13 @@ window.ExplorerUI = class ExplorerUI {
     }
   }
 
+  /**
+   * Creates and displays a context menu at a given position.
+   * @private
+   * @param {Array<object>} items - An array of menu item definitions.
+   * @param {number} x - The x-coordinate for the menu.
+   * @param {number} y - The y-coordinate for the menu.
+   */
   _createContextMenu(items, x, y) {
     this._removeContextMenu();
     const { Utils } = this.dependencies;
@@ -120,6 +150,12 @@ window.ExplorerUI = class ExplorerUI {
     this.activeContextMenu = menu;
   }
 
+  /**
+   * Renders the file system directory tree in the left pane.
+   * @param {object} treeData - The root node of the file system to display.
+   * @param {string} selectedPath - The currently selected path.
+   * @param {Set<string>} expandedPaths - A set of paths that should be shown as expanded.
+   */
   renderTree(treeData, selectedPath, expandedPaths) {
     if (!this.elements.treePane) return;
     const { Utils, FileSystemManager, UserManager } = this.dependencies;
@@ -196,6 +232,11 @@ window.ExplorerUI = class ExplorerUI {
     this.elements.treePane.appendChild(treeRoot);
   }
 
+  /**
+   * Renders the file and directory list in the main pane.
+   * @param {Array<object>} items - An array of file/directory item objects to display.
+   * @param {string} currentPath - The path of the directory whose contents are being displayed.
+   */
   renderMainPane(items, currentPath) {
     if (!this.elements.mainPane) return;
     const { Utils, FileSystemManager } = this.dependencies;
@@ -284,17 +325,31 @@ window.ExplorerUI = class ExplorerUI {
     this.elements.mainPane.appendChild(list);
   }
 
+  /**
+   * Updates the status bar at the bottom of the window.
+   * @param {string} path - The current path.
+   * @param {number|string} itemCount - The number of items in the current directory.
+   */
   updateStatusBar(path, itemCount) {
     if (!this.elements.statusBar) return;
     this.elements.statusBar.textContent = `Path: ${path}  |  Items: ${itemCount}`;
   }
 
+  /**
+   * Sets the cursor style to indicate a move operation is active.
+   * @param {boolean} isMoving - Whether a move operation is in progress.
+   */
   setMoveCursor(isMoving) {
     if (this.elements.container) {
       this.elements.container.style.cursor = isMoving ? "move" : "default";
     }
   }
 
+  /**
+   * Applies or removes a highlight to a specific item in the main pane.
+   * @param {string} path - The path of the item to highlight.
+   * @param {boolean} isHighlighted - Whether to add or remove the highlight.
+   */
   highlightItem(path, isHighlighted) {
     const allItems = this.elements.mainPane.querySelectorAll("li");
     allItems.forEach((li) => {
@@ -313,9 +368,12 @@ window.ExplorerUI = class ExplorerUI {
     }
   }
 
+  /**
+   * Resets the UI state and clears all DOM elements.
+   */
   reset() {
     this._removeContextMenu();
     this.elements = {};
     this.callbacks = {};
   }
-}
+};

@@ -1,19 +1,36 @@
-// scripts/apps/explorer/explorer_manager.js
-
+/**
+ * Explorer Application Manager - Provides a graphical file explorer interface
+ * @class ExplorerManager
+ * @extends App
+ */
 window.ExplorerManager = class ExplorerManager extends App {
+  /**
+   * Creates a new ExplorerManager instance.
+   */
   constructor() {
     super();
+    /** @type {string} The current path being viewed in the main pane. */
     this.currentPath = "/";
+    /** @type {Set<string>} A set of paths that are currently expanded in the directory tree. */
     this.expandedPaths = new Set(["/"]);
+    /** @type {object} State for a file move operation. */
     this.moveOperation = {
       active: false,
       sourcePath: null,
     };
+    /** @type {object} The dependency injection container. */
     this.dependencies = {};
+    /** @type {object} The callback functions for UI events. */
     this.callbacks = {};
+    /** @type {ExplorerUI|null} The UI component instance. */
     this.ui = null;
   }
 
+  /**
+   * Initializes and displays the explorer interface.
+   * @param {HTMLElement} appLayer - The DOM element to append the explorer's UI to.
+   * @param {object} [options={}] - Options for entering the application, including the starting path.
+   */
   async enter(appLayer, options = {}) {
     this.dependencies = options.dependencies;
     this.callbacks = this._createCallbacks();
@@ -56,6 +73,9 @@ window.ExplorerManager = class ExplorerManager extends App {
     this._updateView(initialPath);
   }
 
+  /**
+   * Exits the explorer, cleaning up UI and state.
+   */
   exit() {
     if (!this.isActive) return;
     const { AppLayerManager } = this.dependencies;
@@ -71,6 +91,10 @@ window.ExplorerManager = class ExplorerManager extends App {
     this.ui = null;
   }
 
+  /**
+   * Handles keyboard events for the application.
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
   handleKeyDown(event) {
     if (event.key === "Escape") {
       if (this.moveOperation.active) {
@@ -81,6 +105,11 @@ window.ExplorerManager = class ExplorerManager extends App {
     }
   }
 
+  /**
+   * Creates and returns a set of callback functions for UI events.
+   * @private
+   * @returns {object} An object containing the callback functions.
+   */
   _createCallbacks() {
     return {
       onExit: this.exit.bind(this),
@@ -223,6 +252,10 @@ window.ExplorerManager = class ExplorerManager extends App {
     };
   }
 
+  /**
+   * Resets the internal state of a move operation.
+   * @private
+   */
   _resetMoveOperation() {
     this.moveOperation.active = false;
     this.moveOperation.sourcePath = null;
@@ -231,6 +264,11 @@ window.ExplorerManager = class ExplorerManager extends App {
     }
   }
 
+  /**
+   * Renders the UI to display the contents of a given path.
+   * @param {string} path - The path to render.
+   * @private
+   */
   _updateView(path) {
     if (!this.ui) return;
     const { UserManager, FileSystemManager } = this.dependencies;
@@ -277,4 +315,4 @@ window.ExplorerManager = class ExplorerManager extends App {
       this.ui.updateStatusBar(this.currentPath, "Permission Denied");
     }
   }
-}
+};
