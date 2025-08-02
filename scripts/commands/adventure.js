@@ -195,7 +195,6 @@ window.AdventureCommand = class AdventureCommand extends Command {
         "apps/adventure/adventure_ui.js",
         "apps/adventure/adventure_manager.js",
         "apps/adventure/adventure_create.js",
-        "pager.js",
       ],
       applicationModules: ["AdventureManager", "TextAdventureModal", "App", "Adventure_create"],
       description: "Starts an interactive text adventure game or creation tool.",

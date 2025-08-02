@@ -4,7 +4,7 @@ window.LessCommand = class LessCommand extends Command {
     constructor() {
         super({
             commandName: "less",
-            dependencies: ["utils.js", "pager.js"],
+            dependencies: [],
             description: "An improved pager for displaying content.",
             helpText: `Usage: less [file]
       Displays file content or standard input one screen at a time.
@@ -52,4 +52,3 @@ window.LessCommand = class LessCommand extends Command {
 }
 
 window.CommandRegistry.register(new LessCommand());
-

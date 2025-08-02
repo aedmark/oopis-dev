@@ -367,7 +367,7 @@ window.Basic_interp = class Basic_interp {
    * @returns {Promise<*>} Evaluated result
    */
   async _evaluateExpression(expression) {
-    const { CommandExecutor, FileSystemManager, UserManager, NetworkManager } = this.dependencies;
+    const { CommandExecutor, FileSystemManager, UserManager, NetworkManager, Utils } = this.dependencies;
     const functionMatch = expression.match(/([a-zA-Z_$]+)\((.*)\)/i);
     if (functionMatch) {
       const funcName = functionMatch[1].toUpperCase();
@@ -399,7 +399,11 @@ window.Basic_interp = class Basic_interp {
           break;
         case "SYS_CMD":
           const cmd = await this._evaluateExpression(argExpr);
-          const result = await CommandExecutor.processSingleCommand(cmd, { isInteractive: false });
+          const sanitizedCmd = Utils.sanitizeForExecution(cmd, { level: "full" });
+          if (!sanitizedCmd.isValid) {
+            throw new Error(`Invalid system command: ${sanitizedCmd.error}`);
+          }
+          const result = await CommandExecutor.processSingleCommand(sanitizedCmd.sanitized, { isInteractive: false });
           return result.output || "";
         case "SYS_READ":
           const path = await this._evaluateExpression(argExpr);

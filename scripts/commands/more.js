@@ -4,7 +4,7 @@ window.MoreCommand = class MoreCommand extends Command {
     constructor() {
         super({
             commandName: "more",
-            dependencies: ["utils.js", "pager.js"],
+            dependencies: [],
             description: "A simple pager for displaying content.",
             helpText: `Usage: more [file]
       Displays file content or standard input one screen at a time.

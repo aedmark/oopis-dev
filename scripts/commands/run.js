@@ -35,11 +35,18 @@ window.RunCommand = class RunCommand extends Command {
 
   async coreLogic(context) {
     const { validatedPaths, dependencies } = context;
-    const { CommandExecutor, ErrorHandler } = dependencies;
+    const { CommandExecutor, ErrorHandler, Utils } = dependencies;
     const fileNode = validatedPaths[0].node;
 
     const scriptContent = fileNode.content || "";
     const lines = scriptContent.split("\n");
+
+    for (const line of lines) {
+      const sanitized = Utils.sanitizeForExecution(line, { context: "script" });
+      if (!sanitized.isValid) {
+        return ErrorHandler.createError(`run: security error in script: ${sanitized.error}`);
+      }
+    }
 
     try {
       await CommandExecutor.executeScript(lines, {
@@ -53,4 +60,3 @@ window.RunCommand = class RunCommand extends Command {
 }
 
 window.CommandRegistry.register(new RunCommand());
-

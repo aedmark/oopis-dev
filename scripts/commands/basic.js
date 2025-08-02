@@ -53,7 +53,7 @@ window.BasicCommand = class BasicCommand extends Command {
   async coreLogic(context) {
 
     const { args, options, currentUser, dependencies } = context;
-    const { FileSystemManager, AppLayerManager, ErrorHandler, BasicManager, BasicUI, Basic_interp, App } = dependencies;
+    const { FileSystemManager, AppLayerManager, ErrorHandler, BasicManager, BasicUI, Basic_interp, App, Utils } = dependencies;
 
     try {
       if (!options.isInteractive) {
@@ -78,7 +78,12 @@ window.BasicCommand = class BasicCommand extends Command {
 
       if (args.length > 0) {
         const pathArg = args[0];
-        const pathValidationResult = FileSystemManager.validatePath(pathArg, {
+        const sanitizedPath = Utils.sanitizeForExecution(pathArg, { level: "arguments" });
+        if (!sanitizedPath.isValid) {
+          return ErrorHandler.createError(`basic: invalid path: ${sanitizedPath.error}`);
+        }
+
+        const pathValidationResult = FileSystemManager.validatePath(sanitizedPath.sanitized, {
           allowMissing: true,
           expectedType: "file",
         });
