@@ -1,6 +1,19 @@
-// scripts/commands/chgrp.js
+/**
+ * @file scripts/commands/chgrp.js
+ * @description The 'chgrp' command, which changes the group ownership of files and directories.
+ * This is a key part of the OopisOS file permission system.
+ */
 
+/**
+ * Represents the 'chgrp' (change group) command. It allows the owner of a file or the root user
+ * to change the group associated with a file or directory, optionally recursively.
+ * @class ChgrpCommand
+ * @extends Command
+ */
 window.ChgrpCommand = class ChgrpCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "chgrp",
@@ -36,6 +49,13 @@ window.ChgrpCommand = class ChgrpCommand extends Command {
         });
     }
 
+    /**
+     * Recursively changes the group of a directory and all its contents.
+     * @param {object} node - The filesystem node to start from.
+     * @param {string} newGroup - The name of the new group to apply.
+     * @param {object} dependencies - The system dependencies.
+     * @private
+     */
     async _recursiveChgrp(node, newGroup, dependencies) {
         const nowISO = new Date().toISOString();
         node.group = newGroup;
@@ -49,6 +69,12 @@ window.ChgrpCommand = class ChgrpCommand extends Command {
         }
     }
 
+    /**
+     * Main logic for the 'chgrp' command.
+     * It validates the group and paths, checks user permissions, and then applies the group change.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { GroupManager, FileSystemManager, ErrorHandler } = dependencies;

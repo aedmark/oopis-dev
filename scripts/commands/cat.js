@@ -1,6 +1,19 @@
-// scripts/commands/cat.js
+/**
+ * @file scripts/commands/cat.js
+ * @description The 'cat' command, which concatenates and displays the content of files or standard input.
+ * It supports numbering output lines.
+ */
 
+/**
+ * Represents the 'cat' (concatenate) command. It can read from files or standard input
+ * and print the content to standard output, optionally with line numbers.
+ * @class CatCommand
+ * @extends Command
+ */
 window.CatCommand = class CatCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "cat",
@@ -30,6 +43,16 @@ window.CatCommand = class CatCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'cat' command.
+     * It processes input from files or stdin, concatenates them, and optionally numbers the lines.
+     * @param {object} context - The command execution context.
+     * @param {object} context.flags - The parsed command-line flags.
+     * @param {Array<object>} context.inputItems - The content read from the input stream.
+     * @param {boolean} context.inputError - A flag indicating if there was an error reading the input.
+     * @param {object} context.dependencies - System dependencies.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -48,6 +71,7 @@ window.CatCommand = class CatCommand extends Command {
         if (flags.numberLines) {
             let lineCounter = 1;
             const lines = content.split("\n");
+            // If the last line is empty, it's a trailing newline, so don't number it.
             const processedLines =
                 lines.length > 0 && lines[lines.length - 1] === ""
                     ? lines.slice(0, -1)

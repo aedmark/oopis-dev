@@ -1,6 +1,18 @@
-// /scripts/commands/bulletin.js
+/**
+ * @file /scripts/commands/bulletin.js
+ * @description The 'bulletin' command, a system-wide message board for persistent, timestamped announcements.
+ * It handles posting, listing, and clearing messages.
+ */
 
+/**
+ * Represents the 'bulletin' command for managing the system-wide message board.
+ * @class BulletinCommand
+ * @extends Command
+ */
 window.BulletinCommand = class BulletinCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "bulletin",
@@ -21,6 +33,11 @@ window.BulletinCommand = class BulletinCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'bulletin' command. Acts as a router for the sub-commands.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -42,11 +59,23 @@ window.BulletinCommand = class BulletinCommand extends Command {
         }
     }
 
+    /**
+     * Gets the absolute path to the bulletin board file.
+     * @param {object} dependencies - The system dependencies.
+     * @returns {string} The absolute path to '/var/log/bulletin.md'.
+     * @private
+     */
     _getBulletinPath(dependencies) {
         const { FileSystemManager } = dependencies;
         return FileSystemManager.getAbsolutePath("/var/log/bulletin.md");
     }
 
+    /**
+     * Ensures that the bulletin board file and its parent directories exist, creating them if necessary.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A success object if the file exists or was created, otherwise an error object.
+     * @private
+     */
     async _ensureBulletinExists(context) {
         const { currentUser, dependencies } = context;
         const { FileSystemManager, UserManager } = dependencies;
@@ -80,6 +109,12 @@ window.BulletinCommand = class BulletinCommand extends Command {
         return dependencies.ErrorHandler.createSuccess();
     }
 
+    /**
+     * Handles the 'post' sub-command to add a new message to the bulletin board.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handlePost(context) {
         const { args, currentUser, dependencies } = context;
         const { FileSystemManager, GroupManager, ErrorHandler } = dependencies;
@@ -118,6 +153,12 @@ ${message}
         }
     }
 
+    /**
+     * Handles the 'list' sub-command by displaying the contents of the bulletin file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the 'cat' command execution.
+     * @private
+     */
     async _handleList(context) {
         const { dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -131,6 +172,12 @@ ${message}
         );
     }
 
+    /**
+     * Handles the 'clear' sub-command to empty the bulletin board. Root access is required.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     * @private
+     */
     async _handleClear(context) {
         const { currentUser, dependencies } = context;
         const { FileSystemManager, ErrorHandler } = dependencies;

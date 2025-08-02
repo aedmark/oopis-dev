@@ -1,6 +1,19 @@
-// scripts/commands/chmod.js
+/**
+ * @file scripts/commands/chmod.js
+ * @description The 'chmod' command, which changes the access permissions (mode) of a file or directory.
+ * This command is essential for managing the OopisOS security model.
+ */
 
+/**
+ * Represents the 'chmod' (change mode) command. It allows the owner of a file or the root user
+ * to change the read, write, and execute permissions for the owner, group, and others.
+ * @class ChmodCommand
+ * @extends Command
+ */
 window.ChmodCommand = class ChmodCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "chmod",
@@ -51,6 +64,15 @@ window.ChmodCommand = class ChmodCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'chmod' command.
+     * It validates the octal mode argument and applies the new permissions to the specified file node.
+     * @param {object} context - The command execution context.
+     * @param {Array<string>} context.args - The arguments passed to the command ([mode, path]).
+     * @param {Array<object>} context.validatedPaths - The pre-validated path object.
+     * @param {object} context.dependencies - The system dependencies.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, validatedPaths, dependencies } = context;
         const { ErrorHandler } = dependencies;

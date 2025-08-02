@@ -1,5 +1,19 @@
-// scripts/commands/chidi.js
+/**
+ * @file scripts/commands/chidi.js
+ * @description The 'chidi' command, which launches the AI-powered document and code analyst application.
+ * It gathers files for analysis from either a directory path or piped input.
+ */
 
+/**
+ * Recursively traverses a directory structure to find all supported files for analysis.
+ * @param {string} startPath - The absolute path to start the search from.
+ * @param {object} startNode - The filesystem node corresponding to the startPath.
+ * @param {string} currentUser - The name of the user running the command, for permission checks.
+ * @param {FileSystemManager} FileSystemManager - The filesystem manager instance.
+ * @param {Utils} Utils - The utility class instance.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of file objects, each containing the name, path, and content.
+ * @private
+ */
 async function _getFilesForAnalysis(startPath, startNode, currentUser, FileSystemManager, Utils) {
   const files = [];
   const visited = new Set();
@@ -35,7 +49,15 @@ async function _getFilesForAnalysis(startPath, startNode, currentUser, FileSyste
   return files;
 }
 
+/**
+ * Represents the 'chidi' command, the entry point for the AI document analyst application.
+ * @class ChidiCommand
+ * @extends Command
+ */
 window.ChidiCommand = class ChidiCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "chidi",
@@ -101,6 +123,12 @@ window.ChidiCommand = class ChidiCommand extends Command {
     });
   }
 
+  /**
+   * Main logic for the 'chidi' command. It gathers files from either a path argument or standard input,
+   * checks for necessary modules and API keys, and then launches the Chidi application.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} The result of the command execution.
+   */
   async coreLogic(context) {
 
     const { args, flags, currentUser, options, dependencies } = context;

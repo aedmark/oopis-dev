@@ -1,6 +1,18 @@
-// scripts/commands/chown.js
+/**
+ * @file scripts/commands/chown.js
+ * @description The 'chown' command, which changes the user ownership of a file or directory.
+ * This is a root-only command critical for managing file permissions.
+ */
 
+/**
+ * Represents the 'chown' (change owner) command.
+ * @class ChownCommand
+ * @extends Command
+ */
 window.ChownCommand = class ChownCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "chown",
@@ -33,6 +45,12 @@ window.ChownCommand = class ChownCommand extends Command {
         });
     }
 
+    /**
+     * Recursively changes the owner of a directory and all its contents.
+     * @param {object} node - The filesystem node (directory) to start from.
+     * @param {string} newOwner - The name of the new owner.
+     * @private
+     */
     async _recursiveChown(node, newOwner) {
         const nowISO = new Date().toISOString();
         node.owner = newOwner;
@@ -45,6 +63,12 @@ window.ChownCommand = class ChownCommand extends Command {
         }
     }
 
+    /**
+     * Main logic for the 'chown' command.
+     * It validates that the user is root, the target owner exists, and then applies the ownership change.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { UserManager, FileSystemManager, Config, ErrorHandler } = dependencies;

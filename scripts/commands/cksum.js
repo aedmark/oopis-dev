@@ -1,6 +1,18 @@
-// scripts/commands/cksum.js
+/**
+ * @file scripts/commands/cksum.js
+ * @description The 'cksum' command, a utility for calculating the CRC32 checksum and byte count of a file
+ * to verify its integrity.
+ */
 
+/**
+ * Represents the 'cksum' command for calculating file checksums.
+ * @class CksumCommand
+ * @extends Command
+ */
 window.CksumCommand = class CksumCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "cksum",
@@ -31,6 +43,13 @@ EXAMPLES
         });
     }
 
+    /**
+     * Main logic for the 'cksum' command.
+     * It iterates through input items (from files or stdin), calculates a CRC32 checksum
+     * for each, and formats the output string with the checksum, byte count, and filename.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
 
         const { inputItems, inputError, dependencies } = context;
@@ -46,6 +65,11 @@ EXAMPLES
             return ErrorHandler.createSuccess("");
         }
 
+        /**
+         * Calculates the CRC32 checksum of a string.
+         * @param {string} str - The input string.
+         * @returns {number} The 32-bit CRC checksum.
+         */
         const crc32 = (str) => {
             const table = [];
             for (let i = 0; i < 256; i++) {

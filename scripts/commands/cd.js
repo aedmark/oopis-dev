@@ -1,6 +1,20 @@
-// scripts/commands/cd.js
+/**
+ * @file scripts/commands/cd.js
+ * @description The 'cd' command, used to change the current working directory.
+ * This file implements the logic for path resolution and updating the shell's state.
+ */
 
+/**
+ * Represents the 'cd' (change directory) command.
+ * @class CdCommand
+ * @extends Command
+ */
 window.CdCommand = class CdCommand extends Command {
+    /**
+     * @constructor
+     * @description Initializes the command's definition, including its validation rules
+     * which ensure the target path is a directory and the user has execute permissions.
+     */
     constructor() {
         super({
             commandName: "cd",
@@ -35,6 +49,16 @@ window.CdCommand = class CdCommand extends Command {
         });
     }
 
+    /**
+     * Main logic for the 'cd' command.
+     * It uses the pre-validated path from the command's execution context to update
+     * the FileSystemManager's current path and then updates the terminal prompt.
+     * @param {object} context - The command execution context.
+     * @param {object} context.options - The options for command execution.
+     * @param {Array<object>} context.validatedPaths - An array of path objects that have already been validated.
+     * @param {object} context.dependencies - The system dependencies.
+     * @returns {Promise<object>} The result of the command execution.
+     */
     async coreLogic(context) {
         const { options, validatedPaths, dependencies } = context;
         const { FileSystemManager, TerminalUI, ErrorHandler } = dependencies;
