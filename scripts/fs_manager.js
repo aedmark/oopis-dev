@@ -1,14 +1,44 @@
 // scripts/fs_manager.js
 
+/**
+ * @typedef {object} FileSystemNode
+ * @property {string} type - 'file', 'directory', or 'symlink'.
+ * @property {string} owner - The name of the user who owns the node.
+ * @property {string} group - The name of the group that owns the node.
+ * @property {number} mode - The octal permission mode (e.g., 0o755).
+ * @property {string} mtime - The last modification timestamp in ISO format.
+ * @property {object} [children] - An object containing child nodes (for directories).
+ * @property {string} [content] - The file content (for files).
+ * @property {string} [target] - The path the symlink points to (for symbolic links).
+ */
+
+/**
+ * Manages the entire virtual filesystem state, including user permissions,
+ * file operations, and persistence to the underlying storage layer.
+ * This is the central hub for all file-related activities.
+ * @class FileSystemManager
+ */
 class FileSystemManager {
+  /**
+   * @constructor
+   * @param {object} config - The global configuration object.
+   */
   constructor(config) {
     this.config = config;
+    /** @type {object.<string, FileSystemNode>} The in-memory representation of the filesystem. */
     this.fsData = {};
+    /** @type {string} The current working directory. */
     this.currentPath = this.config.FILESYSTEM.ROOT_PATH;
+    /** @type {object} The dependency injection container. */
     this.dependencies = {};
+    /** @type {object} The storage abstraction layer for persistence. */
     this.storageHAL = null;
   }
 
+  /**
+   * Sets the dependency injection container and initializes sub-managers.
+   * @param {object} dependencies - The dependencies to be injected.
+   */
   setDependencies(dependencies) {
     this.dependencies = dependencies;
     this.userManager = dependencies.UserManager;
@@ -16,6 +46,12 @@ class FileSystemManager {
     this.storageHAL = dependencies.StorageHAL;
   }
 
+  /**
+   * Initializes the filesystem with a default structure and essential files.
+   * This is our 'Genesis' block, setting up the basic world for our users.
+   * @param {string} guestUsername - The default guest user's name.
+   * @returns {Promise<void>}
+   */
   async initialize(guestUsername) {
     const nowISO = new Date().toISOString();
     this.fsData = {
@@ -92,6 +128,12 @@ class FileSystemManager {
     await this.createUserHomeDirectory(guestUsername);
   }
 
+  /**
+   * Creates a home directory for a specified user if it doesn't already exist.
+   * This is where a user's journey begins.
+   * @param {string} username - The name of the user.
+   * @returns {Promise<void>}
+   */
   async createUserHomeDirectory(username) {
     if (!this.fsData["/"]?.children?.home) {
       console.error(
@@ -113,6 +155,11 @@ class FileSystemManager {
     }
   }
 
+  /**
+   * Saves the entire in-memory filesystem to persistent storage.
+   * This commits all changes and makes them permanent.
+   * @returns {Promise<object>} A promise that resolves to a success or error object.
+   */
   async save() {
     const { ErrorHandler, Utils } = this.dependencies;
     const saveData = Utils.deepCopyNode(this.fsData);
@@ -123,6 +170,11 @@ class FileSystemManager {
     return ErrorHandler.createError("OopisOs failed to save the file system.");
   }
 
+  /**
+   * Loads the entire filesystem from persistent storage.
+   * If no data is found, it initializes a new, pristine filesystem.
+   * @returns {Promise<object>} A promise that resolves to a success or error object.
+   */
   async load() {
     const { ErrorHandler, OutputManager } = this.dependencies;
     const loadedData = await this.storageHAL.load();
@@ -134,7 +186,7 @@ class FileSystemManager {
       if (etcNode && etcNode.type === 'directory') {
         const nowISO = new Date().toISOString();
         let needsSave = false;
-        
+
         if (!etcNode.children['sudoers']) {
           etcNode.children['sudoers'] = {
             type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
@@ -147,7 +199,7 @@ class FileSystemManager {
           console.log("FileSystem Migration: Created missing /etc/sudoers file.");
           needsSave = true;
         }
-        
+
         if (!etcNode.children['agenda.json']) {
           etcNode.children['agenda.json'] = {
             type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
@@ -160,7 +212,7 @@ class FileSystemManager {
           console.log("FileSystem Migration: Created missing /etc/agenda.json file.");
           needsSave = true;
         }
-        
+
         if (needsSave) {
           etcNode.mtime = nowISO;
           await this.save();
@@ -177,6 +229,11 @@ class FileSystemManager {
     return ErrorHandler.createSuccess();
   }
 
+  /**
+   * Clears all filesystem data from persistent storage.
+   * This is a one-way ticket to a clean slate, so be careful.
+   * @returns {Promise<object>} A promise that resolves to a success or error object.
+   */
   async clearAllFS() {
     const success = await this.storageHAL.clear();
     if (success) {
@@ -185,22 +242,46 @@ class FileSystemManager {
     return this.dependencies.ErrorHandler.createError("Could not clear all user file systems.");
   }
 
+  /**
+   * Retrieves the current working directory.
+   * @returns {string} The current path.
+   */
   getCurrentPath() {
     return this.currentPath;
   }
 
+  /**
+   * Sets the current working directory.
+   * @param {string} path - The new current path.
+   */
   setCurrentPath(path) {
     this.currentPath = path;
   }
 
+  /**
+   * Retrieves the raw in-memory filesystem data object.
+   * @returns {object} The filesystem data.
+   */
   getFsData() {
     return this.fsData;
   }
 
+  /**
+   * Sets the in-memory filesystem data to a new object.
+   * This is how we restore from a backup or reset to a new state.
+   * @param {object} newData - The new filesystem data.
+   */
   setFsData(newData) {
     this.fsData = newData;
   }
 
+  /**
+   * Converts a relative path and a base path into an absolute path.
+   * It's like finding your way on a map with a compass.
+   * @param {string} targetPath - The relative or absolute path to resolve.
+   * @param {string} [basePath] - The base path to resolve from.
+   * @returns {string} The absolute path.
+   */
   getAbsolutePath(targetPath, basePath) {
     basePath = basePath || this.currentPath;
     if (!targetPath) targetPath = this.config.FILESYSTEM.CURRENT_DIR_SYMBOL;
@@ -240,6 +321,14 @@ class FileSystemManager {
     );
   }
 
+  /**
+   * Creates a new symbolic link node.
+   * @private
+   * @param {string} targetPath - The path the symlink points to.
+   * @param {string} owner - The owner of the link.
+   * @param {string} group - The group of the link.
+   * @returns {FileSystemNode} The new symbolic link node.
+   */
   _createNewSymlinkNode(targetPath, owner, group) {
     return {
       type: this.config.FILESYSTEM.SYMBOLIC_LINK_TYPE,
@@ -251,6 +340,13 @@ class FileSystemManager {
     };
   }
 
+  /**
+   * Traverses the filesystem tree to find and return a node by its absolute path.
+   * @param {string} absolutePath - The absolute path of the node to find.
+   * @param {object} [options={}] - Options for path resolution.
+   * @param {boolean} [options.resolveLastSymlink=true] - Whether to follow the final symbolic link in the path.
+   * @returns {FileSystemNode|null} The filesystem node or null if not found.
+   */
   getNodeByPath(absolutePath, options = {}) {
     const { resolveLastSymlink = true } = options;
     const MAX_SYMLINK_DEPTH = 10;
@@ -311,6 +407,13 @@ class FileSystemManager {
     return null;
   }
 
+  /**
+   * Validates a given path against a set of rules, including existence, type, and permissions.
+   * This is like checking an ID before letting someone into the club.
+   * @param {string} pathArg - The path to validate.
+   * @param {object} options - Validation options.
+   * @returns {object} A success or error object with validation data.
+   */
   validatePath(pathArg, options = {}) {
     const { ErrorHandler } = this.dependencies;
     const {
@@ -349,6 +452,11 @@ class FileSystemManager {
     return ErrorHandler.createSuccess({ node, resolvedPath });
   }
 
+  /**
+   * Calculates the total size of a node, including its children if it's a directory.
+   * @param {FileSystemNode} node - The node to calculate the size of.
+   * @returns {number} The total size in bytes.
+   */
   calculateNodeSize(node) {
     if (!node) return 0;
     if (node.type === this.config.FILESYSTEM.DEFAULT_FILE_TYPE)
@@ -362,6 +470,12 @@ class FileSystemManager {
     return 0;
   }
 
+  /**
+   * Updates the modification timestamp of a node and its parents.
+   * @private
+   * @param {string} nodePath - The path of the node to update.
+   * @param {string} nowISO - The current timestamp.
+   */
   _updateNodeAndParentMtime(nodePath, nowISO) {
     if (!nodePath || !nowISO) return;
     const node = this.getNodeByPath(nodePath);
@@ -381,6 +495,11 @@ class FileSystemManager {
     }
   }
 
+  /**
+   * Creates a directory path recursively if it doesn't exist.
+   * @param {string} fullPath - The full path to a file or directory.
+   * @returns {object} A success object containing the final parent node, or an error.
+   */
   createParentDirectoriesIfNeeded(fullPath) {
     const { ErrorHandler } = this.dependencies;
     const currentUserForCPDIF = this.dependencies.UserManager.getCurrentUser().name;
@@ -469,6 +588,14 @@ class FileSystemManager {
     return ErrorHandler.createSuccess(currentParentNode);
   }
 
+  /**
+   * Checks if a user has a specific permission on a given node.
+   * This is like checking your membership card before letting you into the treehouse.
+   * @param {FileSystemNode} node - The node to check permissions on.
+   * @param {string} username - The name of the user.
+   * @param {('read'|'write'|'execute')} permissionType - The permission type to check.
+   * @returns {boolean} True if the user has permission, false otherwise.
+   */
   hasPermission(node, username, permissionType) {
     if (username === "root") {
       return true;
@@ -507,6 +634,11 @@ class FileSystemManager {
     return (otherPerms & requiredPerm) === requiredPerm;
   }
 
+  /**
+   * Formats a node's permission mode into a human-readable string (e.g., 'drwxr-xr-x').
+   * @param {FileSystemNode} node - The node to format.
+   * @returns {string} The formatted permission string.
+   */
   formatModeToString(node) {
     if (!node || typeof node.mode !== "number") {
       return "----------";
@@ -550,6 +682,13 @@ class FileSystemManager {
     );
   }
 
+  /**
+   * Recursively deletes a node and all its children.
+   * This is like cleaning out your backpack, but on a digital scale.
+   * @param {string} path - The path of the node to delete.
+   * @param {object} options - Options for the deletion, including force and user context.
+   * @returns {Promise<object>} A promise that resolves to a success or error object.
+   */
   async deleteNodeRecursive(path, options = {}) {
     const { ErrorHandler } = this.dependencies;
     const { force = false, currentUser } = options;
@@ -580,14 +719,14 @@ class FileSystemManager {
       const permError = `cannot remove '${path}'${this.config.MESSAGES.PERMISSION_DENIED_SUFFIX}`;
       return ErrorHandler.createError(permError);
     }
-    
+
     if (node.type === this.config.FILESYSTEM.SYMBOLIC_LINK_TYPE) {
       delete parentNode.children[itemName];
       parentNode.mtime = nowISO;
       anyChangeMade = true;
       return ErrorHandler.createSuccess({ messages, anyChangeMade });
     }
-    
+
     if (node.type === this.config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
       if (node.children && typeof node.children === "object") {
         const childrenNames = Object.keys(node.children);
@@ -606,13 +745,23 @@ class FileSystemManager {
         );
       }
     }
-    
+
     delete parentNode.children[itemName];
     parentNode.mtime = nowISO;
     anyChangeMade = true;
     return ErrorHandler.createSuccess({ messages, anyChangeMade });
   }
 
+  /**
+   * Creates a new file node object with default properties.
+   * @private
+   * @param {string} name - The name of the new file.
+   * @param {string} content - The content of the new file.
+   * @param {string} owner - The owner of the file.
+   * @param {string} group - The group of the file.
+   * @param {number|null} [mode=null] - The permission mode. Defaults to `config.FILESYSTEM.DEFAULT_FILE_MODE`.
+   * @returns {FileSystemNode} The new file node.
+   */
   _createNewFileNode(name, content, owner, group, mode = null) {
     const nowISO = new Date().toISOString();
     return {
@@ -625,16 +774,35 @@ class FileSystemManager {
     };
   }
 
+  /**
+   * Calculates the total size of the filesystem.
+   * @private
+   * @returns {number} The total size in bytes.
+   */
   _calculateTotalSize() {
     if (!this.fsData || !this.fsData[this.config.FILESYSTEM.ROOT_PATH]) return 0;
     return this.calculateNodeSize(this.fsData[this.config.FILESYSTEM.ROOT_PATH]);
   }
 
+  /**
+   * Checks if an operation would exceed the disk quota.
+   * @private
+   * @param {number} changeInBytes - The change in size from the operation.
+   * @returns {boolean} True if the quota would be exceeded.
+   */
   _willOperationExceedQuota(changeInBytes) {
     const currentSize = this._calculateTotalSize();
     return currentSize + changeInBytes > this.config.FILESYSTEM.MAX_VFS_SIZE;
   }
 
+  /**
+   * Creates a new empty directory node with default properties.
+   * @private
+   * @param {string} owner - The owner of the directory.
+   * @param {string} group - The group of the directory.
+   * @param {number|null} [mode=null] - The permission mode. Defaults to `config.FILESYSTEM.DEFAULT_DIR_MODE`.
+   * @returns {FileSystemNode} The new directory node.
+   */
   _createNewDirectoryNode(owner, group, mode = null) {
     const nowISO = new Date().toISOString();
     return {
@@ -647,6 +815,14 @@ class FileSystemManager {
     };
   }
 
+  /**
+   * Creates or updates a file at a specified path.
+   * This is the core workhorse function for file writing.
+   * @param {string} absolutePath - The absolute path of the file.
+   * @param {string} content - The content to write to the file.
+   * @param {object} context - The context of the operation, including user and group info.
+   * @returns {Promise<object>} A promise that resolves to a success or error object.
+   */
   async createOrUpdateFile(absolutePath, content, context) {
     const { ErrorHandler } = this.dependencies;
     const {
@@ -736,10 +912,24 @@ class FileSystemManager {
     return ErrorHandler.createSuccess();
   }
 
+  /**
+   * Checks if a user has ownership or root privileges to modify a node.
+   * @param {FileSystemNode} node - The node to check.
+   * @param {string} username - The name of the user.
+   * @returns {boolean} True if the user can modify the node.
+   */
   canUserModifyNode(node, username) {
     return username === "root" || node.owner === username;
   }
 
+  /**
+   * Prepares a plan for a file operation (move or copy) involving multiple sources and a single destination.
+   * This is like planning a play before the actors even get on stage.
+   * @param {string[]} sourcePathArgs - An array of source paths.
+   * @param {string} destPathArg - The destination path.
+   * @param {object} options - Options for the operation (isCopy, isMove).
+   * @returns {Promise<object>} A promise that resolves to a plan of operations or an error object.
+   */
   async prepareFileOperation(sourcePathArgs, destPathArg, options = {}) {
     const { ErrorHandler } = this.dependencies;
     const { isCopy = false, isMove = false } = options;

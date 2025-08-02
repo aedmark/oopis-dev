@@ -1,6 +1,18 @@
 // scripts/comm_utils.js
 
+/**
+ * A utility class for parsing and handling timestamps from command-line flags.
+ * This is the nerve center for all time-travel-related commands.
+ * @class TimestampParser
+ */
 class TimestampParser {
+  /**
+   * Parses a flexible date string into a Date object.
+   * Supports absolute dates like "2025-01-01" and relative dates like "1 day ago".
+   * @param {string} dateStr - The date string to parse.
+   * @returns {Date|null} A Date object on success, otherwise null.
+   * @static
+   */
   static parseDateString(dateStr) {
     if (typeof dateStr !== "string") return null;
 
@@ -57,6 +69,13 @@ class TimestampParser {
     return null;
   }
 
+  /**
+   * Parses a Unix-like timestamp string into a valid ISO 8601 date string.
+   * Format: `[[CC]YY]MMDDhhmm[.ss]`.
+   * @param {string} stampStr - The timestamp string.
+   * @returns {string|null} An ISO date string on success, otherwise null.
+   * @static
+   */
   static parseStampToISO(stampStr) {
     let year,
         monthVal,
@@ -126,6 +145,14 @@ class TimestampParser {
     return dateObj.toISOString();
   }
 
+  /**
+   * Resolves the final timestamp from a set of command-line flags.
+   * Handles conflicts and returns the appropriate timestamp or an error.
+   * @param {object} flags - The flag object from the command parser.
+   * @param {string} commandName - The name of the calling command for error messaging.
+   * @returns {{timestampISO: string|null, error: string|null}} The resolved timestamp or an error object.
+   * @static
+   */
   static resolveTimestampFromCommandFlags(flags, commandName) {
     if (flags.dateString && flags.stamp) {
       return {
@@ -157,7 +184,20 @@ class TimestampParser {
   }
 }
 
+/**
+ * A utility class for generating simple, human-readable diffs.
+ * It's all about finding out what's different in a file and pointing it out.
+ * @class DiffUtils
+ */
 class DiffUtils {
+  /**
+   * Compares two text strings line by line and generates a diff report.
+   * Uses a classic longest common subsequence (LCS) algorithm to find differences.
+   * @param {string} textA - The first text content.
+   * @param {string} textB - The second text content.
+   * @returns {string} The formatted diff string.
+   * @static
+   */
   static compare(textA, textB) {
     if (textA === textB) {
       return "";
@@ -241,7 +281,20 @@ class DiffUtils {
   }
 }
 
+/**
+ * A utility class for applying and creating simple text patches.
+ * This helps us fix things that are broken, just like we help Pierce with his feelings.
+ * @class PatchUtils
+ */
 class PatchUtils {
+  /**
+   * Creates a simple patch object representing the difference between two strings.
+   * Note: This is a simplified version and only handles single, contiguous changes.
+   * @param {string} oldText - The original text.
+   * @param {string} newText - The new text.
+   * @returns {object|null} The patch object, or null if no difference is found.
+   * @static
+   */
   static createPatch(oldText, newText) {
     if (oldText === newText) {
       return null;
@@ -274,6 +327,14 @@ class PatchUtils {
     };
   }
 
+  /**
+   * Applies an array of patch hunks to an original string.
+   * This is our version of the "patch" command from the terminal.
+   * @param {string} originalContent - The original text.
+   * @param {Array<object>} hunks - An array of hunk objects to apply.
+   * @returns {string} The patched content.
+   * @static
+   */
   static applyPatch(originalContent, hunks) {
     if (!hunks || hunks.length === 0) {
       return originalContent;
@@ -310,6 +371,13 @@ class PatchUtils {
     return lines.join('\n');
   }
 
+  /**
+   * Reverts a patch by applying its inverse.
+   * @param {string} text - The text to revert.
+   * @param {object} patch - The patch object to apply the inverse of.
+   * @returns {string} The reverted text.
+   * @static
+   */
   static applyInverse(text, patch) {
     const head = text.substring(0, patch.index);
     const tail = text.substring(patch.index + patch.insert.length);

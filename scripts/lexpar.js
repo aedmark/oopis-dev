@@ -1,5 +1,10 @@
-// /scripts/lexpar.js
+// scripts/lexpar.js
 
+/**
+ * A simple Enum for the different types of tokens the Lexer can produce.
+ * @readonly
+ * @enum {string}
+ */
 const TokenType = {
   WORD: "WORD",
   STRING_DQ: "STRING_DQ",
@@ -15,7 +20,17 @@ const TokenType = {
   EOF: "EOF",
 };
 
+/**
+ * Represents a single token found by the Lexer.
+ * @class Token
+ */
 class Token {
+  /**
+   * @constructor
+   * @param {TokenType} type - The type of the token.
+   * @param {string} value - The raw string value of the token.
+   * @param {number} position - The starting position of the token in the input string.
+   */
   constructor(type, value, position) {
     this.type = type;
     this.value = value;
@@ -23,7 +38,17 @@ class Token {
   }
 }
 
+/**
+ * The Lexer breaks a raw command string into a stream of meaningful tokens.
+ * This is the first step in the parsing process.
+ * @class Lexer
+ */
 class Lexer {
+  /**
+   * @constructor
+   * @param {string} input - The raw command line string.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(input, dependencies) {
     this.input = input;
     this.position = 0;
@@ -31,6 +56,11 @@ class Lexer {
     this.dependencies = dependencies;
   }
 
+  /**
+   * Tokenizes the entire input string and returns an array of tokens.
+   * It's like breaking a script down into individual words and actions.
+   * @returns {Token[]} The array of tokens.
+   */
   tokenize() {
     const specialChars = ['"', "'", ">", "<", "|", "&", ";"];
     while (this.position < this.input.length) {
@@ -142,6 +172,12 @@ class Lexer {
     return this.tokens;
   }
 
+  /**
+   * Tokenizes a quoted string, handling escaped characters.
+   * @private
+   * @param {string} quoteChar - The quote character to look for (either "'" or '"').
+   * @returns {Token} The string token.
+   */
   _tokenizeString(quoteChar) {
     const startPos = this.position;
     let value = "";
@@ -179,34 +215,77 @@ class Lexer {
     );
   }
 }
+
+/**
+ * Represents a single command, separated from a pipeline.
+ * @class ParsedCommandSegment
+ */
 class ParsedCommandSegment {
+  /**
+   * @constructor
+   * @param {string} command - The command name.
+   * @param {string[]} args - An array of arguments.
+   */
   constructor(command, args) {
     this.command = command;
     this.args = args;
   }
 }
 
+/**
+ * Represents a command pipeline, which can contain one or more commands,
+ * input/output redirection, and can be run in the background.
+ * @class ParsedPipeline
+ */
 class ParsedPipeline {
+  /**
+   * @constructor
+   */
   constructor() {
+    /** @type {ParsedCommandSegment[]} */
     this.segments = [];
+    /** @type {object|null} */
     this.redirection = null;
+    /** @type {string|null} */
     this.inputRedirectFile = null;
+    /** @type {boolean} */
     this.isBackground = false;
+    /** @type {number|null} */
     this.jobId = null;
   }
 }
 
+/**
+ * The Parser takes a stream of tokens from the Lexer and builds an
+ * Abstract Syntax Tree (AST) representing the command line structure.
+ * @class Parser
+ */
 class Parser {
+  /**
+   * @constructor
+   * @param {Token[]} tokens - The array of tokens from the Lexer.
+   * @param {object} dependencies - The dependency injection container.
+   */
   constructor(tokens, dependencies) {
     this.tokens = tokens;
     this.position = 0;
     this.dependencies = dependencies;
   }
 
+  /**
+   * Gets the current token without advancing the position.
+   * @private
+   * @returns {Token} The current token.
+   */
   _currentToken() {
     return this.tokens[this.position];
   }
 
+  /**
+   * Advances the parser to the next token.
+   * @private
+   * @returns {Token} The next token.
+   */
   _nextToken() {
     if (this.position < this.tokens.length - 1) {
       this.position++;
@@ -214,6 +293,14 @@ class Parser {
     return this._currentToken();
   }
 
+  /**
+   * Checks if the current token is of the expected type and consumes it.
+   * Throws an error if the type doesn't match and the token is not optional.
+   * @private
+   * @param {TokenType} tokenType - The expected token type.
+   * @param {boolean} [optional=false] - If the token is optional.
+   * @returns {Token|null} The consumed token or null if it was optional and not found.
+   */
   _expectAndConsume(tokenType, optional = false) {
     const current = this._currentToken();
     if (current.type === tokenType) {
@@ -228,6 +315,11 @@ class Parser {
     );
   }
 
+  /**
+   * Parses a single command segment within a pipeline.
+   * @private
+   * @returns {ParsedCommandSegment|null} The parsed command segment or null if no command is found.
+   */
   _parseSingleCommandSegment() {
     const terminators = [
       TokenType.EOF,
@@ -311,6 +403,12 @@ class Parser {
     return new ParsedCommandSegment(command, args);
   }
 
+  /**
+   * Parses a single pipeline, which may consist of one or more command segments
+   * connected by pipes, along with any I/O redirection.
+   * @private
+   * @returns {ParsedPipeline|null} The parsed pipeline or null.
+   */
   _parseSinglePipeline() {
     const pipeline = new ParsedPipeline();
 
@@ -372,6 +470,11 @@ class Parser {
         : null;
   }
 
+  /**
+   * Parses the entire token stream into a sequence of pipelines.
+   * This is the entry point for turning the tokenized script into a coherent narrative.
+   * @returns {object[]} An array of objects representing the full command sequence.
+   */
   parse() {
     const commandSequence = [];
     while (this._currentToken().type !== TokenType.EOF) {

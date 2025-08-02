@@ -1,5 +1,27 @@
 // scripts/commands/ls.js
+/**
+ * @typedef {object} LsItemDetails
+ * @property {string} name - The name of the file or directory.
+ * @property {string} path - The absolute path to the item.
+ * @property {object} node - A reference to the raw filesystem node.
+ * @property {string} type - The type of the item ('file', 'directory', or 'symlink').
+ * @property {string} owner - The owner of the item.
+ * @property {string} group - The group of the item.
+ * @property {number} mode - The octal permissions mode.
+ * @property {Date} mtime - The last modification time.
+ * @property {number} size - The size of the item in bytes.
+ * @property {string} extension - The file extension.
+ * @property {number} linkCount - The number of hard links to the item (always 1 in OopisOS).
+ */
 
+/**
+ * Retrieves detailed metadata for a filesystem node.
+ * @param {string} itemName - The name of the item.
+ * @param {object} itemNode - The raw filesystem node object.
+ * @param {string} itemPath - The absolute path of the item.
+ * @param {object} dependencies - The dependency injection container.
+ * @returns {LsItemDetails|null} The item details, or null if the node is invalid.
+ */
 function getItemDetails(itemName, itemNode, itemPath, dependencies) {
   const { FileSystemManager, Utils } = dependencies;
   if (!itemNode) return null;
@@ -14,10 +36,17 @@ function getItemDetails(itemName, itemNode, itemPath, dependencies) {
     mtime: itemNode.mtime ? new Date(itemNode.mtime) : new Date(0),
     size: FileSystemManager.calculateNodeSize(itemNode),
     extension: Utils.getFileExtension(itemName),
-    linkCount: 1, // Hardcoded for this simulation
+    linkCount: 1,
   };
 }
 
+/**
+ * Formats a single item's details for the long list output format.
+ * @param {LsItemDetails} itemDetails - The item's details.
+ * @param {object} effectiveFlags - The flags object for the current command execution.
+ * @param {object} dependencies - The dependency injection container.
+ * @returns {string} The formatted output line.
+ */
 function formatLongListItem(itemDetails, effectiveFlags, dependencies) {
   const { FileSystemManager, Utils, Config } = dependencies;
   let perms = FileSystemManager.formatModeToString(itemDetails.node);
@@ -66,6 +95,12 @@ function formatLongListItem(itemDetails, effectiveFlags, dependencies) {
   return `${perms}  ${String(itemDetails.linkCount).padStart(2)} ${owner} ${group} ${size} ${dateStr.padEnd(12)} ${nameOutput}`;
 }
 
+/**
+ * Sorts an array of items based on the given flags.
+ * @param {Array<LsItemDetails>} items - The items to sort.
+ * @param {object} currentFlags - The sorting flags.
+ * @returns {Array<LsItemDetails>} The sorted array.
+ */
 function sortItems(items, currentFlags) {
   let sortedItems = [...items];
   if (currentFlags.noSort) {
@@ -93,6 +128,13 @@ function sortItems(items, currentFlags) {
   return sortedItems;
 }
 
+/**
+ * Formats a list of names into columns for display in the terminal.
+ * @param {Array<string>} names - The names to format.
+ * @param {object} [options={}] - The command execution options.
+ * @param {object} dependencies - The dependency injection container.
+ * @returns {string} The formatted, multi-column string.
+ */
 function formatToColumns(names, options = {}, dependencies) {
   const { Utils } = dependencies;
   if (names.length === 0) return "";
@@ -137,6 +179,15 @@ function formatToColumns(names, options = {}, dependencies) {
   return output.join("\n");
 }
 
+/**
+ * Lists the contents of a single path, handling both files and directories.
+ * @param {string} targetPathArg - The path to list.
+ * @param {object} effectiveFlags - The flags object for the current command execution.
+ * @param {string} currentUser - The current user's name.
+ * @param {object} options - The command execution options.
+ * @param {object} dependencies - The dependency injection container.
+ * @returns {Promise<object>} A success object containing the formatted output and item details.
+ */
 async function listSinglePathContents(
     targetPathArg,
     effectiveFlags,
@@ -224,8 +275,15 @@ async function listSinglePathContents(
   });
 }
 
-
+/**
+ * @class LsCommand
+ * @extends Command
+ * @description Lists directory contents and file information.
+ */
 window.LsCommand = class LsCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "ls",
@@ -268,6 +326,11 @@ window.LsCommand = class LsCommand extends Command {
     });
   }
 
+  /**
+   * Main logic for the ls command.
+   * @param {object} context - The command context object.
+   * @returns {Promise<object>} The command execution result.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, options, dependencies } = context;
     const { ErrorHandler } = dependencies;
@@ -287,6 +350,11 @@ window.LsCommand = class LsCommand extends Command {
     let overallSuccess = true;
 
     if (effectiveFlags.recursive) {
+      /**
+       * Recursively lists directory contents.
+       * @param {string} currentPath - The current path to list.
+       * @param {number} [depth=0] - The current recursion depth.
+       */
       async function displayRecursive(currentPath, depth = 0) {
         if (depth > 0 || pathsToList.length > 1) {
           outputBlocks.push(`\n${currentPath}:`);

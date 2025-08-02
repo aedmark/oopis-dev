@@ -1,19 +1,61 @@
 // scripts/commexec.js
 
+/**
+ * The central nervous system of OopisOS. This class is responsible for taking a raw
+ * command string, parsing it, resolving aliases and variables, and executing
+ * the resulting command pipeline, managing everything from input redirection
+ * to background jobs. It's the director, producer, and craft services all in one.
+ * @class CommandExecutor
+ */
 class CommandExecutor {
+  /**
+   * @constructor
+   */
   constructor() {
+    /**
+     * A counter for assigning unique IDs to background processes.
+     * @type {number}
+     */
     this.backgroundProcessIdCounter = 0;
+    /**
+     * A map of active background jobs, indexed by their PID.
+     * @type {object}
+     */
     this.activeJobs = {};
-    this.commands = {};
+    /**
+     * A set to keep track of dynamically loaded command scripts to avoid
+     * redundant fetches.
+     * @type {Set<string>}
+     */
     this.loadedScripts = new Set();
+    /**
+     * The dependency injection container.
+     * @type {object}
+     */
     this.dependencies = {};
+    /**
+     * A flag to indicate if the current session is inside the Dreamatorium.
+     * What happens in the Dreamatorium stays in the Dreamatorium.
+     * @type {boolean}
+     */
     this.isInDreamatorium = false;
   }
 
+  /**
+   * Sets the dependency injection container for the executor.
+   * @param {object} dependencies - The dependencies to be injected.
+   */
   setDependencies(dependencies) {
     this.dependencies = dependencies;
   }
 
+  /**
+   * Dynamically loads a JavaScript script from the filesystem.
+   * This is how we get all our cool new commands!
+   * @private
+   * @param {string} scriptPath - The path to the script file.
+   * @returns {Promise<boolean>} A promise that resolves to true on success.
+   */
   _loadScript(scriptPath) {
     if (this.loadedScripts.has(scriptPath)) {
       return Promise.resolve(true);
@@ -33,6 +75,13 @@ class CommandExecutor {
     });
   }
 
+  /**
+   * Ensures that a command is loaded and ready to be executed.
+   * If a command isn't already in memory, it fetches its script and any declared dependencies.
+   * @private
+   * @param {string} commandName - The name of the command.
+   * @returns {Promise<Command|null>} A promise that resolves to the command instance or null if it fails to load.
+   */
   async _ensureCommandLoaded(commandName) {
     const { Config, OutputManager, CommandRegistry, FileSystemManager } = this.dependencies;
     if (!commandName || typeof commandName !== "string") return null;
@@ -102,6 +151,13 @@ class CommandExecutor {
     return null;
   }
 
+  /**
+   * Creates a command handler function from a command definition.
+   * This is like a movie director who plans out every shot before filming begins.
+   * @private
+   * @param {object} definition - The command's definition object.
+   * @returns {Function} An async function that handles command execution.
+   */
   _createCommandHandler(definition) {
     const handler = async (args, options) => {
       const { Utils, ErrorHandler, FileSystemManager, UserManager } = this.dependencies;
@@ -208,10 +264,21 @@ class CommandExecutor {
     return handler;
   }
 
+  /**
+   * Retrieves a list of all active background jobs.
+   * @returns {object} A map of active jobs.
+   */
   getActiveJobs() {
     return this.activeJobs;
   }
 
+  /**
+   * Sends a signal to a running background job.
+   * This is like sending a note to the actor in the middle of a take.
+   * @param {number} jobId - The ID of the job to signal.
+   * @param {string} signal - The signal to send ('KILL', 'TERM', 'STOP', 'CONT').
+   * @returns {object} A result object indicating success or failure.
+   */
   sendSignalToJob(jobId, signal) {
     const { ErrorHandler } = this.dependencies;
     const job = this.activeJobs[jobId];
@@ -242,6 +309,13 @@ class CommandExecutor {
   }
 
 
+  /**
+   * Executes a series of commands from a script file line by line.
+   * This is like filming a whole scene from a script.
+   * @param {string[]} lines - An array of command strings from the script.
+   * @param {object} [options={}] - Options for execution.
+   * @returns {Promise<object>} A promise that resolves to the final result of the script.
+   */
   async executeScript(lines, options = {}) {
     const { ErrorHandler, EnvironmentManager, Config } = this.dependencies;
 
@@ -283,6 +357,15 @@ class CommandExecutor {
     return ErrorHandler.createSuccess("Script finished successfully.");
   }
 
+  /**
+   * Executes a single command segment.
+   * @private
+   * @param {ParsedCommandSegment} segment - The parsed command segment.
+   * @param {object} execCtxOpts - Execution context options.
+   * @param {string|null} [stdinContent=null] - Content to be used as standard input.
+   * @param {AbortSignal|null} signal - An optional signal for cancelling the command.
+   * @returns {Promise<object>} A promise that resolves to the command's result.
+   */
   async _executeCommandHandler(
       segment,
       execCtxOpts,
@@ -328,6 +411,14 @@ class CommandExecutor {
     return ErrorHandler.createSuccess("");
   }
 
+  /**
+   * Executes a full command pipeline, handling pipes, redirection, and operators.
+   * This is like directing a movie scene with multiple actors and special effects.
+   * @private
+   * @param {ParsedPipeline} pipeline - The parsed pipeline object.
+   * @param {object} options - Execution options.
+   * @returns {Promise<object>} A promise that resolves to the final result of the pipeline.
+   */
   async _executePipeline(pipeline, options) {
     const { FileSystemManager, UserManager, OutputManager, Config, ErrorHandler, Utils } = this.dependencies;
     const { isInteractive, signal, scriptingContext, suppressOutput } = options;
@@ -593,6 +684,13 @@ class CommandExecutor {
     return lastResult;
   }
 
+  /**
+   * Expands a command string using brace expansion.
+   * This is like finding all the different toy cars in the toy box.
+   * @private
+   * @param {string} commandString - The command string to expand.
+   * @returns {string} The expanded command string.
+   */
   _expandBraces(commandString) {
     const braceExpansionRegex = /(\S*?)\{([^}]+)\}(\S*)/g;
 
@@ -637,10 +735,18 @@ class CommandExecutor {
     return expandedString;
   }
 
+  /**
+   * Pre-processes the command string before parsing.
+   * This handles brace expansion, variable and command substitution, and comments.
+   * @private
+   * @param {string} rawCommandText - The raw command string from user input or a script.
+   * @param {object} [scriptingContext=null] - Optional context for script execution.
+   * @returns {Promise<string>} A promise that resolves to the pre-processed command string.
+   */
   async _preprocessCommandString(rawCommandText, scriptingContext = null) {
     const { EnvironmentManager, AliasManager } = this.dependencies;
     let commandToProcess = rawCommandText.trim();
-    
+
     // Apply brace expansion before other processing
     commandToProcess = this._expandBraces(commandToProcess);
 
@@ -719,6 +825,12 @@ class CommandExecutor {
     return aliasResult.newCommand;
   }
 
+  /**
+   * Handles final UI cleanup after a command is executed in interactive mode.
+   * @private
+   * @param {string} originalCommandText - The original command text.
+   * @returns {Promise<void>}
+   */
   async _finalizeInteractiveModeUI(originalCommandText) {
     const { TerminalUI, AppLayerManager, HistoryManager } = this.dependencies;
     TerminalUI.clearInput();
@@ -739,6 +851,13 @@ class CommandExecutor {
     TerminalUI.setIsNavigatingHistory(false);
   }
 
+  /**
+   * The main entry point for executing a single command string.
+   * This function orchestrates the entire command lifecycle.
+   * @param {string} rawCommandText - The raw command string to execute.
+   * @param {object} [options={}] - Options for the command execution.
+   * @returns {Promise<object>} A promise that resolves to a result object with `success`, `output`, and `error` properties.
+   */
   async processSingleCommand(rawCommandText, options = {}) {
     if (this.isInDreamatorium && rawCommandText.trim() === 'exit') {
       if (typeof this.dreamatoriumExitHandler === 'function') {
@@ -925,6 +1044,10 @@ class CommandExecutor {
     };
   }
 
+  /**
+   * Retrieves the command handlers.
+   * @returns {object} An object containing the command handlers.
+   */
   getCommands() {
     return this.commands;
   }

@@ -1,8 +1,24 @@
 // scripts/ai_manager.js
 
+/**
+ * Manages all interactions with external Large Language Models (LLMs)
+ * and orchestrates tool-use for the `gemini` command.
+ * @class AIManager
+ */
 class AIManager {
+  /**
+   * Constructs a new AIManager instance.
+   * @constructor
+   */
   constructor() {
     this.dependencies = {};
+
+    /**
+     * The system prompt for the AI agent's planning stage. This prompt
+     * instructs the AI to break down a user's request into a series of
+     * executable OopisOS commands based on a provided tool manifest.
+     * @type {string}
+     */
     this.PLANNER_SYSTEM_PROMPT = `You are a command-line Agent for OopisOS. Your goal is to formulate a plan of simple, sequential OopisOS commands to gather the necessary information to answer the user's prompt.
 
 **Core Directives:**
@@ -17,22 +33,44 @@ class AIManager {
 ls [-l, -a, -R], cd, cat, grep [-i, -v, -n, -R], find [path] -name [pattern] -type [f|d], tree, pwd, head [-n], tail [-n], wc, touch, xargs, shuf, tail, csplit, awk, sort, echo, man, help, set, history, mkdir
 --- END MANIFEST ---`;
 
+    /**
+     * The system prompt for the AI agent's synthesis stage. This prompt
+     * instructs the AI to act as a "digital librarian" and formulate a
+     * natural-language answer based on the output of the executed commands.
+     * @type {string}
+     */
     this.SYNTHESIZER_SYSTEM_PROMPT = `You are a helpful digital librarian. Your task is to synthesize a final, natural-language answer for the user based on their original prompt and the provided output from a series of commands.
 
 **Rules:**
 - Formulate a comprehensive answer using only the provided command outputs.
 - If the tool context is insufficient to answer the question, state that you don't know enough to answer.`;
 
+    /**
+     * A strict whitelist of allowed commands for the AI agent to execute.
+     * Any command not in this list will be rejected for security reasons.
+     * @type {string[]}
+     */
     this.COMMAND_WHITELIST = [
       "ls", "cat", "cd", "grep", "find", "tree", "pwd", "head", "shuf",
       "xargs", "echo", "tail", "csplit", "wc", "awk", "sort", "touch",
     ];
   }
 
+  /**
+   * Sets the dependency injection container.
+   * @param {object} dependencies - The dependency container.
+   */
   setDependencies(dependencies) {
     this.dependencies = dependencies;
   }
 
+  /**
+   * Retrieves the API key for a given provider, prompting the user if necessary.
+   * This function handles a fallback to Gemini if a local provider is unavailable.
+   * @param {string} provider - The name of the AI provider (e.g., 'gemini', 'ollama').
+   * @param {object} options - Options for the API key retrieval process.
+   * @returns {Promise<object>} A promise that resolves with the API key or an error.
+   */
   async getApiKey(provider, options = {}) {
     const {StorageManager, ModalManager, OutputManager, Config} = this.dependencies;
     if (provider !== "gemini") {
@@ -89,6 +127,11 @@ ls [-l, -a, -R], cd, cat, grep [-i, -v, -n, -R], find [path] -name [pattern] -ty
     });
   }
 
+  /**
+   * Gathers and formats the current state of the terminal session into a context string.
+   * This includes the current directory, file listings, and environment variables.
+   * @returns {Promise<string>} A promise that resolves to the formatted session context.
+   */
   async getTerminalContext() {
     const {CommandExecutor} = this.dependencies;
     const pwdResult = await CommandExecutor.processSingleCommand("pwd", {
@@ -121,6 +164,15 @@ Environment Variables:
 ${setResult.output || "(none)"}`;
   }
 
+  /**
+   * Makes a call to an LLM API endpoint.
+   * @param {string} provider - The AI provider to use.
+   * @param {string|null} model - The specific model to use.
+   * @param {Array<Object>} conversation - The conversation history.
+   * @param {string|null} apiKey - The API key for the provider.
+   * @param {string|null} [systemPrompt=null] - An optional system prompt to guide the model.
+   * @returns {Promise<object>} A promise that resolves to the API's response or an error object.
+   */
   async callLlmApi(
       provider,
       model,
@@ -272,6 +324,18 @@ ${setResult.output || "(none)"}`;
     }
   }
 
+  /**
+   * Orchestrates the multi-step AI process (planning, tool execution, and synthesis)
+   * to answer a user's prompt.
+   * @param {string} prompt - The user's original prompt.
+   * @param {Array<Object>} history - The current conversation history.
+   * @param {string} provider - The AI provider to use.
+   * @param {string|null} model - The specific model for the provider.
+   * @param {object} [options={}] - Additional options for the search process.
+   * @param {Function} [options.verboseCallback] - A callback for logging verbose output during execution.
+   * @param {boolean} [options.isInteractive] - Whether the current session is interactive.
+   * @returns {Promise<object>} A promise that resolves to the final answer or an error object.
+   */
   async performAgenticSearch(
       prompt,
       history,
