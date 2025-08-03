@@ -1,6 +1,18 @@
-// scripts/commands/wc.js
+/**
+ * @fileoverview This file defines the 'wc' command, a utility for counting
+ * lines, words, and bytes in files or from standard input.
+ * @module commands/wc
+ */
 
+/**
+ * Represents the 'wc' (word count) command.
+ * @class WcCommand
+ * @extends Command
+ */
 window.WcCommand = class WcCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "wc",
@@ -36,6 +48,14 @@ window.WcCommand = class WcCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'wc' command. It processes content from an
+     * input stream, calculates the line, word, and byte counts based on active
+     * flags, and formats the output. If multiple files are processed, it also
+     * calculates and displays a total count.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

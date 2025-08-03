@@ -1,6 +1,18 @@
-// scripts/commands/xargs.js
+/**
+ * @fileoverview This file defines the 'xargs' command, a utility for building
+ * and executing command lines from standard input.
+ * @module commands/xargs
+ */
 
+/**
+ * Represents the 'xargs' command.
+ * @class XargsCommand
+ * @extends Command
+ */
 window.XargsCommand = class XargsCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "xargs",
@@ -30,6 +42,13 @@ window.XargsCommand = class XargsCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'xargs' command. It reads items from the
+   * standard input, then constructs and executes new commands using these items
+   * as arguments, either by appending them or by replacing a placeholder.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, options, inputItems, inputError, dependencies } = context;
     const { CommandExecutor, ErrorHandler, Utils } = dependencies;

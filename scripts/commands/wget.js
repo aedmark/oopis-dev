@@ -1,6 +1,18 @@
-// scripts/commands/wget.js
+/**
+ * @fileoverview This file defines the 'wget' command, a utility for
+ * non-interactive downloading of files from the web.
+ * @module commands/wget
+ */
 
+/**
+ * Represents the 'wget' command for downloading files.
+ * @class WgetCommand
+ * @extends Command
+ */
 window.WgetCommand = class WgetCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "wget",
@@ -36,6 +48,13 @@ window.WgetCommand = class WgetCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'wget' command. It fetches content from a
+   * given URL, handles potential CORS issues, and saves the content to a
+   * specified file or one derived from the URL.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, dependencies } = context;
     const { ErrorHandler, FileSystemManager, UserManager, OutputManager, Utils } = dependencies;

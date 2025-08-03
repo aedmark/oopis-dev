@@ -1,6 +1,18 @@
-// scripts/commands/visudo.js
+/**
+ * @fileoverview This file defines the 'visudo' command, a secure utility for
+ * editing the /etc/sudoers file, ensuring syntax validity before saving.
+ * @module commands/visudo
+ */
 
+/**
+ * Represents the 'visudo' command, a safe editor for the sudoers file.
+ * @class VisudoCommand
+ * @extends Command
+ */
 window.VisudoCommand = class VisudoCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "visudo",
@@ -30,6 +42,14 @@ window.VisudoCommand = class VisudoCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'visudo' command. It ensures the user is
+     * root, then launches the 'edit' application with a special post-save hook.
+     * This hook intercepts the save event, validates the new content's syntax
+     * using the SudoManager, and only allows the save to complete if the syntax is valid.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with the result of the 'edit' command execution.
+     */
     async coreLogic(context) {
         const { currentUser, options, dependencies } = context;
         const {
@@ -47,7 +67,7 @@ window.VisudoCommand = class VisudoCommand extends Command {
 
         if (!options.isInteractive) {
             return ErrorHandler.createError(
-                "visudo: Can only be run in interactive mode."
+                "visudo: Can only be run in an interactive mode."
             );
         }
 

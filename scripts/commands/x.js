@@ -1,6 +1,18 @@
-// scripts/commands/x.js
+/**
+ * @fileoverview This file defines the 'x' command, the primary launcher for the
+ * OopisX Graphical Desktop Environment.
+ * @module commands/x
+ */
 
+/**
+ * Represents the 'x' command, which initializes the desktop environment.
+ * @class XCommand
+ * @extends Command
+ */
 window.XCommand = class XCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "x",
@@ -27,6 +39,13 @@ window.XCommand = class XCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'x' command. It checks if the session is
+     * interactive and if the required desktop modules are loaded, then launches
+     * the DesktopManager to start the graphical user interface.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, dependencies } = context;
         const { ErrorHandler, AppLayerManager, DesktopManager } = dependencies;
