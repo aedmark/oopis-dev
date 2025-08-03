@@ -1,6 +1,20 @@
 // scripts/commands/explore.js
 
+/**
+ * @fileoverview This file defines the 'explore' command, which launches the OopisOS
+ * graphical file explorer application.
+ * @module commands/explore
+ */
+
+/**
+ * Represents the 'explore' command for launching the graphical file explorer.
+ * @class ExploreCommand
+ * @extends Command
+ */
 window.ExploreCommand = class ExploreCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "explore",
@@ -30,6 +44,14 @@ window.ExploreCommand = class ExploreCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'explore' command.
+     * It checks if the session is interactive, ensures the necessary application
+     * modules are loaded, and then launches the ExplorerManager with an optional
+     * starting path.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, dependencies } = context;
         const { ErrorHandler, AppLayerManager, ExplorerManager } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/edit.js
 
+/**
+ * @fileoverview This file defines the 'edit' command, which serves as the entry point for launching
+ * the OopisOS graphical text editor application.
+ * @module commands/edit
+ */
+
+/**
+ * Represents the 'edit' command, launching a powerful text and code editor.
+ * @class EditCommand
+ * @extends Command
+ */
 window.EditCommand = class EditCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "edit",
@@ -42,6 +56,13 @@ window.EditCommand = class EditCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'edit' command.
+     * This function is responsible for validating the execution context, loading the editor
+     * application modules, and launching the editor with the specified file content and path.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, validatedPaths, dependencies } = context;
         const { ErrorHandler, AppLayerManager, EditorManager, EditorUI, App } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/export.js
 
+/**
+ * @fileoverview This file defines the 'export' command, a utility for downloading
+ * files from the OopisOS virtual file system to the user's local machine.
+ * @module commands/export
+ */
+
+/**
+ * Represents the 'export' command.
+ * @class ExportCommand
+ * @extends Command
+ */
 window.ExportCommand = class ExportCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "export",
@@ -32,6 +46,14 @@ window.ExportCommand = class ExportCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'export' command.
+     * It takes a validated file path, creates a Blob from its content,
+     * generates an object URL, and simulates a click on a temporary anchor
+     * element to trigger a browser download.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object.
+     */
     async coreLogic(context) {
         const { validatedPaths, dependencies } = context;
         const { Config, Utils, ErrorHandler } = dependencies;

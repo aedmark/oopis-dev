@@ -1,6 +1,20 @@
 // scripts/commands/grep.js
 
+/**
+ * @fileoverview This file defines the 'grep' command, a powerful utility for searching
+ * plain-text data sets for lines that match a regular expression.
+ * @module commands/grep
+ */
+
+/**
+ * Represents the 'grep' command for pattern searching.
+ * @class GrepCommand
+ * @extends Command
+ */
 window.GrepCommand = class GrepCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "grep",
@@ -44,6 +58,13 @@ window.GrepCommand = class GrepCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'grep' command.
+   * This function handles searching through files, directories (recursively), or standard input
+   * for lines matching a specified regular expression, and formats the output according to flags.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, options, dependencies } = context;
     const { ErrorHandler, FileSystemManager } = dependencies;
@@ -67,6 +88,12 @@ window.GrepCommand = class GrepCommand extends Command {
     const outputLines = [];
     let hadError = false;
 
+    /**
+     * Processes a string of content, finds matching lines, and adds formatted output.
+     * @param {string} content - The text content to search through.
+     * @param {string} filePathForDisplay - The name of the source for display purposes.
+     * @param {boolean} displayFileName - Whether to prefix output lines with the file name.
+     */
     const processContent = (content, filePathForDisplay, displayFileName) => {
       const lines = content.split("\n");
       let fileMatchCount = 0;
@@ -106,6 +133,10 @@ window.GrepCommand = class GrepCommand extends Command {
       }
     };
 
+    /**
+     * Recursively searches through a directory for files to process.
+     * @param {string} directoryPath - The absolute path of the directory to search.
+     */
     async function searchDirectory(directoryPath) {
       const dirNode = FileSystemManager.getNodeByPath(directoryPath);
       if (!dirNode || dirNode.type !== "directory") return;

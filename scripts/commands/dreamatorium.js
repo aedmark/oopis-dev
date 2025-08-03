@@ -1,6 +1,20 @@
 // gem/scripts/commands/dreamatorium.js
 
+/**
+ * @fileoverview This file defines the 'dreamatorium' command, a utility for entering a sandboxed
+ * session where filesystem changes are temporary and discarded upon exit.
+ * @module commands/dreamatorium
+ */
+
+/**
+ * Represents the 'dreamatorium' command for entering a sandboxed session.
+ * @class DreamatoriumCommand
+ * @extends Command
+ */
 window.DreamatoriumCommand = class DreamatoriumCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "dreamatorium",
@@ -34,6 +48,15 @@ window.DreamatoriumCommand = class DreamatoriumCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'dreamatorium' command.
+     * This function saves the current state of the filesystem and session, creates a
+     * deep copy for the sandboxed environment, changes the prompt, and sets up a
+     * special exit handler on the CommandExecutor to restore the original state
+     * when the user types 'exit'.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, dependencies } = context;
         const { FileSystemManager, SessionManager, OutputManager, TerminalUI, ErrorHandler, CommandExecutor, SoundManager, AppLayerManager } = dependencies;

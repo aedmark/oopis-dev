@@ -1,6 +1,20 @@
 // oos-dev/scripts/commands/fsck.js
 
+/**
+ * @fileoverview This file defines the 'fsck' command, a utility for checking
+ * and optionally repairing the integrity of the OopisOS virtual file system.
+ * @module commands/fsck
+ */
+
+/**
+ * Represents the 'fsck' (file system check) command.
+ * @class FsckCommand
+ * @extends Command
+ */
 window.FsckCommand = class FsckCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "fsck",
@@ -36,6 +50,15 @@ window.FsckCommand = class FsckCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'fsck' command.
+     * This function performs a multi-phase audit of the filesystem, checking for
+     * structural integrity, ownership issues, and home directory consistency.
+     * If the '--repair' flag is used, it enters an interactive mode to fix
+     * any detected issues.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, dependencies, options } = context;
         const { FileSystemManager, UserManager, GroupManager, StorageManager, OutputManager, ModalManager, ErrorHandler, Config } = dependencies;
@@ -54,6 +77,10 @@ window.FsckCommand = class FsckCommand extends Command {
 
         await OutputManager.appendToOutput(`Starting filesystem check at '${startPath}'...`);
 
+        /**
+         * Phase 1: Audits the structural integrity of filesystem nodes.
+         * Checks for missing properties and type inconsistencies.
+         */
         const structuralAudit = async () => {
             const auditIssues = [];
             const traverse = (path, node) => {
@@ -93,6 +120,10 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
+        /**
+         * Phase 2: Audits file and directory ownership.
+         * Checks for orphaned owners and invalid group assignments.
+         */
         const ownershipAudit = async () => {
             const auditIssues = [];
             const allUsers = StorageManager.loadItem(Config.STORAGE_KEYS.USER_CREDENTIALS, "User list", {});
@@ -123,6 +154,10 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
+        /**
+         * Phase 3: Audits user home directories.
+         * Checks for missing home directories or incorrect ownership.
+         */
         const homeDirectoryAudit = async () => {
             const auditIssues = [];
             const allUsers = StorageManager.loadItem(Config.STORAGE_KEYS.USER_CREDENTIALS, "User list", {});
@@ -149,6 +184,10 @@ window.FsckCommand = class FsckCommand extends Command {
             }
         };
 
+        /**
+         * Phase 4: Interactive repair mode.
+         * Prompts the user to fix each detected issue.
+         */
         const performRepairs = async () => {
             output.push("\n--- Phase 4: Interactive Repair ---");
             let quitRepair = false;

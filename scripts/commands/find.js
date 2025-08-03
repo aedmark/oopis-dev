@@ -1,6 +1,20 @@
 // scripts/commands/find.js
 
+/**
+ * @fileoverview This file defines the 'find' command, a powerful utility for searching
+ * the file system hierarchy for files and directories that match a set of expressions.
+ * @module commands/find
+ */
+
+/**
+ * Represents the 'find' command for searching the filesystem.
+ * @class FindCommand
+ * @extends Command
+ */
 window.FindCommand = class FindCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "find",
@@ -43,6 +57,13 @@ window.FindCommand = class FindCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'find' command.
+   * This function parses the command-line expression, builds a set of predicates and actions,
+   * recursively traverses the specified directory, and evaluates the expression for each file and directory found.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, currentUser, dependencies } = context;
     const { FileSystemManager, CommandExecutor, Utils, ErrorHandler } = dependencies;
@@ -212,6 +233,12 @@ window.FindCommand = class FindCommand extends Command {
       });
     }
 
+    /**
+     * Evaluates the parsed expression against a given file system node.
+     * @param {object} node - The filesystem node to test.
+     * @param {string} path - The absolute path of the node.
+     * @returns {Promise<boolean>} A promise that resolves to true if the node matches the expression.
+     */
     async function evaluateExpressionForNode(node, path) {
       let overallResult = false;
       let currentAndGroupResult = true;
@@ -238,6 +265,11 @@ window.FindCommand = class FindCommand extends Command {
       return overallResult;
     }
 
+    /**
+     * Recursively traverses the filesystem, applying the expression to each node.
+     * @param {string} currentResolvedPath - The absolute path of the directory to start traversal from.
+     * @param {boolean} isDepthFirst - Whether to process parent directories before their children.
+     */
     async function recurseFind(currentResolvedPath, isDepthFirst) {
       const node = FileSystemManager.getNodeByPath(currentResolvedPath);
       if (!node) {
@@ -255,6 +287,9 @@ window.FindCommand = class FindCommand extends Command {
         return;
       }
 
+      /**
+       * Processes a single node by evaluating the expression and performing actions if it matches.
+       */
       const processNode = async () => {
         if (await evaluateExpressionForNode(node, currentResolvedPath)) {
           for (const groupOrOperator of parsedExpression) {

@@ -1,6 +1,21 @@
 // scripts/commands/du.js
 
+/**
+ * @fileoverview This file defines the 'du' command, a utility for displaying
+ * file and directory disk space usage, with options for human-readable
+ * output and summarization.
+ * @module commands/du
+ */
+
+/**
+ * Represents the 'du' (disk usage) command.
+ * @class DuCommand
+ * @extends Command
+ */
 window.DuCommand = class DuCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "du",
@@ -29,6 +44,14 @@ window.DuCommand = class DuCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'du' command.
+   * It iterates through the specified paths, recursively calculates the size of
+   * all files and subdirectories, and formats the output according to the
+   * provided flags (e.g., summarize or human-readable).
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, dependencies } = context;
     const { FileSystemManager, Utils, ErrorHandler, Config } = dependencies;
@@ -36,6 +59,11 @@ window.DuCommand = class DuCommand extends Command {
     const outputLines = [];
     let hadError = false;
 
+    /**
+     * Formats the size in bytes to a human-readable string if the flag is set.
+     * @param {number} size - The size in bytes.
+     * @returns {string|number} The formatted size string or the original number.
+     */
     const formatSize = (size) => {
       return flags.humanReadable ? Utils.formatBytes(size, 1) : size;
     };
@@ -57,6 +85,11 @@ window.DuCommand = class DuCommand extends Command {
         outputLines.push(`${formatSize(totalSize)}\t${pathArg}`);
       } else {
         const entries = [];
+        /**
+         * Recursively traverses the directory structure to collect size and path information.
+         * @param {object} node - The current filesystem node.
+         * @param {string} path - The path of the current node.
+         */
         const recurse = (node, path) => {
           if (node.type === Config.FILESYSTEM.DEFAULT_DIRECTORY_TYPE) {
             if (

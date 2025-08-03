@@ -1,6 +1,21 @@
 // scripts/commands/gemini.js
 
+/**
+ * @fileoverview This file defines the 'gemini' command, the primary interface for
+ * interacting with AI models in OopisOS. It supports both a single-prompt,
+ * tool-using mode and an interactive chat application.
+ * @module commands/gemini
+ */
+
+/**
+ * Represents the 'gemini' command for AI interaction.
+ * @class GeminiCommand
+ * @extends Command
+ */
 window.GeminiCommand = class GeminiCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "gemini",
@@ -70,6 +85,13 @@ window.GeminiCommand = class GeminiCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic for the 'gemini' command.
+     * It handles two main modes: launching the interactive chat application ('-c' flag)
+     * or performing a single-shot, context-aware query with the AI agent.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
 
         const { args, options, flags, dependencies } = context;

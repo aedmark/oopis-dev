@@ -1,6 +1,20 @@
 // scripts/commands/echo.js
 
+/**
+ * @fileoverview This file defines the 'echo' command, a utility for printing
+ * text to the standard output, with support for backslash escape sequences.
+ * @module commands/echo
+ */
+
+/**
+ * Represents the 'echo' command.
+ * @class EchoCommand
+ * @extends Command
+ */
 window.EchoCommand = class EchoCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "echo",
@@ -39,6 +53,13 @@ window.EchoCommand = class EchoCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'echo' command.
+     * It joins the arguments into a single string and processes backslash
+     * escapes if the '-e' flag is present.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object containing the final output string.
+     */
     async coreLogic(context) {
         const { ErrorHandler } = context.dependencies;
         let output = context.args.join(" ");

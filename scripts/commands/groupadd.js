@@ -1,6 +1,20 @@
 // scripts/commands/groupadd.js
 
+/**
+ * @fileoverview This file defines the 'groupadd' command, a utility restricted
+ * to the root user for creating new user groups within the OopisOS system.
+ * @module commands/groupadd
+ */
+
+/**
+ * Represents the 'groupadd' command for creating new user groups.
+ * @class GroupaddCommand
+ * @extends Command
+ */
 window.GroupaddCommand = class GroupaddCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "groupadd",
@@ -28,6 +42,13 @@ window.GroupaddCommand = class GroupaddCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'groupadd' command.
+     * It ensures the current user is root, checks if the group already exists,
+     * and then creates the new group.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { GroupManager, ErrorHandler } = dependencies;

@@ -1,6 +1,20 @@
-// gem/scripts/commands/diff.js
+// scripts/commands/diff.js
 
+/**
+ * @fileoverview This file defines the 'diff' command, a utility for comparing two files
+ * line by line and displaying the differences in either a simple or unified format.
+ * @module commands/diff
+ */
+
+/**
+ * Represents the 'diff' command for comparing file contents.
+ * @class DiffCommand
+ * @extends Command
+ */
 window.DiffCommand = class DiffCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "diff",
@@ -50,15 +64,16 @@ window.DiffCommand = class DiffCommand extends Command {
 
   /**
    * Creates a diff string in the unified format.
-   * This is the engine of our new feature! It uses a classic algorithm (LCS)
-   * to find differences and formats them into hunks with context.
+   * This function uses a classic longest common subsequence (LCS) algorithm
+   * to find differences and then formats them into hunks with context lines,
+   * making the output compatible with the 'patch' utility.
+   * @private
    * @param {string} text1 - Content of the original file.
    * @param {string} text2 - Content of the new file.
    * @param {string} fileName1 - Name of the original file.
    * @param {string} fileName2 - Name of the new file.
    * @returns {string} The formatted unified diff string.
    */
-
   _createUnifiedDiff(text1, text2, fileName1, fileName2) {
     const lines1 = text1.split('\n');
     const lines2 = text2.split('\n');
@@ -155,6 +170,13 @@ window.DiffCommand = class DiffCommand extends Command {
     return output.join('\n');
   }
 
+  /**
+   * Executes the core logic of the 'diff' command.
+   * It determines whether to generate a simple diff or a unified diff based on the '-u' flag
+   * and returns the result.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success object containing the diff string.
+   */
   async coreLogic(context) {
     const { args, validatedPaths, dependencies } = context;
     const { DiffUtils, ErrorHandler } = dependencies;

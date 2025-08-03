@@ -1,6 +1,20 @@
 // scripts/commands/expr.js
 
+/**
+ * @fileoverview This file defines the 'expr' command, a utility for evaluating
+ * simple mathematical expressions from the command line.
+ * @module commands/expr
+ */
+
+/**
+ * Represents the 'expr' command for evaluating mathematical expressions.
+ * @class ExprCommand
+ * @extends Command
+ */
 window.ExprCommand = class ExprCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "expr",
@@ -22,6 +36,13 @@ window.ExprCommand = class ExprCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'expr' command.
+     * It joins the arguments into a single expression string and uses a
+     * Function constructor to safely evaluate it, returning the result.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object containing the result or an error object.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { ErrorHandler } = dependencies;
@@ -29,6 +50,8 @@ window.ExprCommand = class ExprCommand extends Command {
         const expression = args.join(" ");
 
         try {
+            // Using the Function constructor is a safer way to evaluate a string
+            // than eval(), as it does not have access to the surrounding scope.
             const result = new Function(`return ${expression}`)();
             if (typeof result !== 'number' || !isFinite(result)) {
                 return ErrorHandler.createError(`expr: invalid expression`);

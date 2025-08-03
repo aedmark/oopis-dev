@@ -1,6 +1,20 @@
 // scripts/commands/fg.js
 
+/**
+ * @fileoverview This file defines the 'fg' command, a utility for resuming
+ * a stopped or background job and bringing it to the foreground.
+ * @module commands/fg
+ */
+
+/**
+ * Represents the 'fg' (foreground) command.
+ * @class FgCommand
+ * @extends Command
+ */
 window.FgCommand = class FgCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "fg",
@@ -20,6 +34,13 @@ window.FgCommand = class FgCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'fg' command.
+     * It parses an optional job ID and sends a 'CONT' (continue) signal
+     * to the specified job, or the most recent job if none is specified.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { CommandExecutor, ErrorHandler } = dependencies;

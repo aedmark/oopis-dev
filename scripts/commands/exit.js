@@ -1,6 +1,20 @@
 // scripts/commands/exit.js
 
+/**
+ * @fileoverview This file defines the 'exit' command, which is used to
+ * terminate the current shell session or application.
+ * @module commands/exit
+ */
+
+/**
+ * Represents the 'exit' command.
+ * @class ExitCommand
+ * @extends Command
+ */
 window.ExitCommand = class ExitCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "exit",
@@ -20,6 +34,14 @@ window.ExitCommand = class ExitCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'exit' command.
+     * In the OopisOS simulation, this command functions as an alias for 'logout'
+     * to provide a familiar command for ending sessions. It also provides a specific
+     * message if used within the 'dreamatorium' sandboxed environment.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with the result of the logout command or a specific message.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { CommandExecutor, ErrorHandler } = dependencies;
