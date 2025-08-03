@@ -1,6 +1,20 @@
 // scripts/commands/reboot.js
 
+/**
+ * @fileoverview This file defines the 'reboot' command, a utility for safely
+ * reloading the entire OopisOS virtual machine by refreshing the browser page.
+ * @module commands/reboot
+ */
+
+/**
+ * Represents the 'reboot' command.
+ * @class RebootCommand
+ * @extends Command
+ */
 window.RebootCommand = class RebootCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "reboot",
@@ -23,6 +37,13 @@ window.RebootCommand = class RebootCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'reboot' command.
+     * It displays a reboot message and then triggers a page reload,
+     * effectively restarting the OopisOS environment.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { ErrorHandler, Config } = dependencies;

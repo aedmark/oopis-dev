@@ -1,6 +1,20 @@
 // scripts/commands/play.js
 
+/**
+ * @fileoverview This file defines the 'play' command, a utility for playing
+ * musical notes and chords through the system synthesizer.
+ * @module commands/play
+ */
+
+/**
+ * Represents the 'play' command for playing musical notes.
+ * @class PlayCommand
+ * @extends Command
+ */
 window.PlayCommand = class PlayCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "play",
@@ -22,6 +36,13 @@ window.PlayCommand = class PlayCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'play' command.
+     * It parses the note and duration arguments, ensures the SoundManager is initialized,
+     * triggers the note playback, and waits for the specified duration before completing.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { SoundManager, ErrorHandler } = dependencies;

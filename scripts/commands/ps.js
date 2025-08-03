@@ -1,6 +1,20 @@
 // scripts/commands/ps.js
 
+/**
+ * @fileoverview This file defines the 'ps' command, a utility for reporting
+ * a snapshot of the current background processes.
+ * @module commands/ps
+ */
+
+/**
+ * Represents the 'ps' (process status) command.
+ * @class PsCommand
+ * @extends Command
+ */
 window.PsCommand = class PsCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "ps",
@@ -23,6 +37,13 @@ window.PsCommand = class PsCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'ps' command.
+     * It retrieves the list of active background jobs from the CommandExecutor
+     * and formats them into a table showing their PID, status, and command.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { CommandExecutor, ErrorHandler } = dependencies;

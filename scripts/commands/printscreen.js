@@ -1,6 +1,20 @@
 // scripts/commands/printscreen.js
 
+/**
+ * @fileoverview This file defines the 'printscreen' command, a utility for
+ * capturing the terminal's content as either a downloadable PNG image or a text file.
+ * @module commands/printscreen
+ */
+
+/**
+ * Represents the 'printscreen' command.
+ * @class PrintscreenCommand
+ * @extends Command
+ */
 window.PrintscreenCommand = class PrintscreenCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "printscreen",
@@ -26,6 +40,15 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'printscreen' command.
+     * In interactive mode without a filename, it uses the html2canvas library to
+     * capture a PNG of the terminal and trigger a download.
+     * In non-interactive mode or when an output file is specified, it saves the
+     * terminal's visible text content to the specified file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, currentUser, dependencies } = context;
         const { Utils, OutputManager, ErrorHandler, Config, FileSystemManager, UserManager } = dependencies;

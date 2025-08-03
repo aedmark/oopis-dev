@@ -1,6 +1,20 @@
 // scripts/commands/removeuser.js
 
+/**
+ * @fileoverview This file defines the 'removeuser' command, a utility for
+ * permanently deleting a user account and optionally their home directory.
+ * @module commands/removeuser
+ */
+
+/**
+ * Represents the 'removeuser' command.
+ * @class RemoveuserCommand
+ * @extends Command
+ */
 window.RemoveuserCommand = class RemoveuserCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "removeuser",
@@ -45,6 +59,14 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'removeuser' command.
+     * It performs safety checks, prompts for confirmation unless forced,
+     * and then removes the user's credentials, group memberships, and
+     * optionally their home directory.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, flags, options, dependencies } = context;
         const { UserManager, ModalManager, FileSystemManager, GroupManager, SessionManager, Config, ErrorHandler } = dependencies;

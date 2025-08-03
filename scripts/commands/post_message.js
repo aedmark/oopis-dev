@@ -1,6 +1,20 @@
 // scripts/commands/post_message.js
 
+/**
+ * @fileoverview This file defines the 'post_message' command, a utility for
+ * sending string messages to background jobs for inter-process communication.
+ * @module commands/post_message
+ */
+
+/**
+ * Represents the 'post_message' command.
+ * @class PostMessageCommand
+ * @extends Command
+ */
 window.PostMessageCommand = class PostMessageCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "post_message",
@@ -25,6 +39,13 @@ window.PostMessageCommand = class PostMessageCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'post_message' command.
+     * It parses the job ID and message, validates them, and then uses the
+     * MessageBusManager to post the message to the target job's queue.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { MessageBusManager, ErrorHandler } = dependencies;

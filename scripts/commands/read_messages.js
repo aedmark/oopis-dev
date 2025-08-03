@@ -1,6 +1,20 @@
 // scripts/commands/read_messages.js
 
+/**
+ * @fileoverview This file defines the 'read_messages' command, a utility for
+ * background jobs to retrieve messages from their dedicated message queue.
+ * @module commands/read_messages
+ */
+
+/**
+ * Represents the 'read_messages' command.
+ * @class ReadMessagesCommand
+ * @extends Command
+ */
 window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "read_messages",
@@ -32,6 +46,13 @@ window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'read_messages' command.
+     * It parses the job ID, retrieves all pending messages for that ID from
+     * the MessageBusManager, and returns them as a single space-separated string.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { MessageBusManager, ErrorHandler } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/remix.js
 
+/**
+ * @fileoverview This file defines the 'remix' command, a utility for synthesizing
+ * a new article from two source documents using a configured AI model.
+ * @module commands/remix
+ */
+
+/**
+ * Represents the 'remix' command.
+ * @class RemixCommand
+ * @extends Command
+ */
 window.RemixCommand = class RemixCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "remix",
@@ -55,6 +69,13 @@ window.RemixCommand = class RemixCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'remix' command.
+     * It reads the content of two specified files, constructs a prompt for the AI model,
+     * calls the AIManager to get a synthesized article, and then formats and displays the result.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, flags, validatedPaths, dependencies } = context;
         const { ErrorHandler, AIManager, OutputManager, Config, StorageManager } = dependencies;
