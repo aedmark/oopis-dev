@@ -68,9 +68,7 @@ window.VisudoCommand = class VisudoCommand extends Command {
         }
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "visudo: Can only be run in an interactive mode."
-            );
+            return ErrorHandler.createError({ message: "visudo: Can only be run in an interactive mode." });
         }
 
         const sudoersPath = SudoManager.config.SUDO.SUDOERS_PATH;

@@ -71,9 +71,7 @@ window.UseraddCommand = class UseraddCommand extends Command {
                 onConfirm: (firstPassword) => {
                     if (firstPassword.trim() === "") {
                         resolve(
-                            ErrorHandler.createError(
-                                Config.MESSAGES.EMPTY_PASSWORD_NOT_ALLOWED
-                            )
+                            ErrorHandler.createError({ message: Config.MESSAGES.EMPTY_PASSWORD_NOT_ALLOWED })
                         );
                         return;
                     }
@@ -85,9 +83,7 @@ window.UseraddCommand = class UseraddCommand extends Command {
                         onConfirm: async (confirmedPassword) => {
                             if (firstPassword !== confirmedPassword) {
                                 resolve(
-                                    ErrorHandler.createError(
-                                        Config.MESSAGES.PASSWORD_MISMATCH
-                                    )
+                                    ErrorHandler.createError({ message: Config.MESSAGES.PASSWORD_MISMATCH })
                                 );
                                 return;
                             }

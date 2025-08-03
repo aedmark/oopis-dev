@@ -91,9 +91,7 @@ window.ZipCommand = class ZipCommand extends Command {
             }
         );
         if (!sourceValidationResult.success) {
-            return ErrorHandler.createError(
-                `zip: ${sourceValidationResult.error}`
-            );
+            return ErrorHandler.createError({ message: `zip: ${sourceValidationResult.error}` });
         }
         const sourceValidation = sourceValidationResult.data;
 
@@ -108,18 +106,14 @@ window.ZipCommand = class ZipCommand extends Command {
             !archiveValidationResult.success &&
             archiveValidationResult.data?.node
         ) {
-            return ErrorHandler.createError(
-                `zip: ${archiveValidationResult.error}`
-            );
+            return ErrorHandler.createError({ message: `zip: ${archiveValidationResult.error}` });
         }
         const archiveValidation = archiveValidationResult.data;
         if (
             archiveValidation.node &&
             archiveValidation.node.type === "directory"
         ) {
-            return ErrorHandler.createError(
-                `zip: cannot overwrite directory '${archivePath}' with a file`
-            );
+            return ErrorHandler.createError({ message: `zip: cannot overwrite directory '${archivePath}' with a file` });
         }
 
         await OutputManager.appendToOutput(`Zipping '${sourcePath}'...`);
@@ -140,7 +134,7 @@ window.ZipCommand = class ZipCommand extends Command {
         );
 
         if (!saveResult.success) {
-            return ErrorHandler.createError(`zip: ${saveResult.error}`);
+            return ErrorHandler.createError({ message: `zip: ${saveResult.error}` });
         }
 
         return ErrorHandler.createSuccess(

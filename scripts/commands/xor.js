@@ -76,7 +76,7 @@ window.XorCommand = class XorCommand extends Command {
             );
 
             if (!saveResult.success) {
-                return ErrorHandler.createError(`xor: ${saveResult.error}`);
+                return ErrorHandler.createError({ message: `xor: ${saveResult.error}` });
             }
             return ErrorHandler.createSuccess("", { stateModified: true });
         } else {

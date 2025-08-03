@@ -61,9 +61,7 @@ window.WcCommand = class WcCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "wc: No readable input provided or permission denied."
-            );
+            return ErrorHandler.createError({ message: "wc: No readable input provided or permission denied." });
         }
 
         if (!inputItems || inputItems.length === 0) {

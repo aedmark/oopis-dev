@@ -56,9 +56,7 @@ window.UploadCommand = class UploadCommand extends Command {
         } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "upload: Can only be run in interactive mode."
-            );
+            return ErrorHandler.createError({ message: "upload: Can only be run in interactive mode." });
         }
 
         const input = Utils.createElement("input", { type: "file", multiple: true });
@@ -167,7 +165,7 @@ window.UploadCommand = class UploadCommand extends Command {
 
                 cleanup();
                 if (errorOccurred) {
-                    resolve(ErrorHandler.createError("One or more files failed to upload."));
+                    resolve(ErrorHandler.createError({ message: "One or more files failed to upload." }));
                 } else {
                     resolve(ErrorHandler.createSuccess("", { stateModified: anyFileUploaded }));
                 }

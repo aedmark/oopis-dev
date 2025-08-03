@@ -68,7 +68,7 @@ window.WgetCommand = class WgetCommand extends Command {
           const segments = urlObj.pathname.split("/");
           outputFileName = segments.pop() || "index.html";
         } catch (e) {
-          return ErrorHandler.createError(`wget: Invalid URL '${url}'`);
+          return ErrorHandler.createError({ message: `wget: Invalid URL '${url}'` });
         }
       }
 
@@ -81,15 +81,11 @@ window.WgetCommand = class WgetCommand extends Command {
       );
 
       if (!pathValidationResult.success) {
-        return ErrorHandler.createError(
-            `wget: ${pathValidationResult.error}`
-        );
+        return ErrorHandler.createError({ message: `wget: ${pathValidationResult.error}` });
       }
       const pathValidation = pathValidationResult.data;
       if (pathValidation.node && pathValidation.node.type === "directory") {
-        return ErrorHandler.createError(
-            `wget: '${outputFileName}' is a directory`
-        );
+        return ErrorHandler.createError({ message: `wget: '${outputFileName}' is a directory` });
       }
 
       await OutputManager.appendToOutput(
@@ -105,9 +101,7 @@ window.WgetCommand = class WgetCommand extends Command {
       );
 
       if (!response.ok) {
-        return ErrorHandler.createError(
-            `wget: Server responded with status ${response.status} ${response.statusText}`
-        );
+        return ErrorHandler.createError({ message: `wget: Server responded with status ${response.status} ${response.statusText}` });
       }
 
       const contentLength = response.headers.get("content-length");
@@ -120,9 +114,7 @@ window.WgetCommand = class WgetCommand extends Command {
 
       const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
       if (!primaryGroup) {
-        return ErrorHandler.createError(
-            "wget: critical - could not determine primary group for user."
-        );
+        return ErrorHandler.createError({ message: "wget: critical - could not determine primary group for user." });
       }
 
       const saveResult = await FileSystemManager.createOrUpdateFile(
@@ -135,7 +127,7 @@ window.WgetCommand = class WgetCommand extends Command {
       );
 
       if (!saveResult.success) {
-        return ErrorHandler.createError(`wget: ${saveResult.error}`);
+        return ErrorHandler.createError({ message: `wget: ${saveResult.error}` });
       }
 
       await OutputManager.appendToOutput(`Saving to: ‘${outputFileName}’`);
@@ -149,7 +141,7 @@ window.WgetCommand = class WgetCommand extends Command {
       if (e instanceof TypeError && e.message.includes("Failed to fetch")) {
         errorMsg = `wget: Network request failed. The server may be down, or a CORS policy is blocking the request from the browser.`;
       }
-      return ErrorHandler.createError(errorMsg);
+      return ErrorHandler.createError({ message: errorMsg });
     }
   }
 }

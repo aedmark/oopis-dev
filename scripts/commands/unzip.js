@@ -106,24 +106,20 @@ window.UnzipCommand = class UnzipCommand extends Command {
         const { ErrorHandler, FileSystemManager } = dependencies;
 
         if (!validatedPaths || validatedPaths.length === 0) {
-            return ErrorHandler.createError("unzip: missing file operand");
+            return ErrorHandler.createError({ message: "unzip: missing file operand" });
         }
 
         const { node: archiveNode, arg: archivePath } = validatedPaths[0];
 
         if (!archiveNode || !archivePath.endsWith(".zip")) {
-            return ErrorHandler.createError(
-                "unzip: provided file is not a .zip archive."
-            );
+            return ErrorHandler.createError({ message: "unzip: provided file is not a .zip archive." });
         }
 
         let archiveData;
         try {
             archiveData = JSON.parse(archiveNode.content || "{}");
         } catch (e) {
-            return ErrorHandler.createError(
-                `unzip: cannot process archive, invalid JSON format. ${e.message}`
-            );
+            return ErrorHandler.createError({ message: `unzip: cannot process archive, invalid JSON format. ${e.message}` });
         }
 
         const currentDirectory = FileSystemManager.getCurrentPath();
@@ -143,9 +139,7 @@ window.UnzipCommand = class UnzipCommand extends Command {
                 `Archive '${archivePath}' successfully unzipped.`
             );
         } catch (e) {
-            return ErrorHandler.createError(
-                `unzip: an error occurred during extraction: ${e.message}`
-            );
+            return ErrorHandler.createError({ message: `unzip: an error occurred during extraction: ${e.message}` });
         }
     }
 }

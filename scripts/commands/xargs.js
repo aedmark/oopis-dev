@@ -54,7 +54,7 @@ window.XargsCommand = class XargsCommand extends Command {
     const { CommandExecutor, ErrorHandler, Utils } = dependencies;
 
     if (inputError) {
-      return ErrorHandler.createError("xargs: No readable input provided.");
+      return ErrorHandler.createError({ message: "xargs: No readable input provided." });
     }
 
     if (!inputItems || inputItems.length === 0) {
@@ -87,7 +87,7 @@ window.XargsCommand = class XargsCommand extends Command {
 
         const result = await CommandExecutor.processSingleCommand(commandWithReplacement, options);
         if (!result.success) {
-          return ErrorHandler.createError(result.error);
+          return ErrorHandler.createError({ message: result.error });
         }
       }
     } else {
@@ -98,7 +98,7 @@ window.XargsCommand = class XargsCommand extends Command {
 
         const result = await CommandExecutor.processSingleCommand(fullCommand, options);
         if (!result.success) {
-          return ErrorHandler.createError(result.error);
+          return ErrorHandler.createError({ message: result.error });
         }
       }
     }

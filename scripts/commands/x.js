@@ -51,11 +51,11 @@ window.XCommand = class XCommand extends Command {
         const { ErrorHandler, AppLayerManager, DesktopManager } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError("x: Can only be run in an interactive session.");
+            return ErrorHandler.createError({ message: "x: Can only be run in an interactive session." });
         }
 
         if (typeof DesktopManager === "undefined" || typeof AppLayerManager === "undefined") {
-            return ErrorHandler.createError("x: Desktop application module is not loaded.");
+            return ErrorHandler.createError({ message: "x: Desktop application module is not loaded." });
         }
 
         const desktopDependencies = {
