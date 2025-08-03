@@ -1,6 +1,20 @@
 // scripts/commands/listusers.js
 
+/**
+ * @fileoverview This file defines the 'listusers' command, a utility for displaying
+ * all registered user accounts on the OopisOS system.
+ * @module commands/listusers
+ */
+
+/**
+ * Represents the 'listusers' command.
+ * @class ListusersCommand
+ * @extends Command
+ */
 window.ListusersCommand = class ListusersCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "listusers",
@@ -24,6 +38,13 @@ window.ListusersCommand = class ListusersCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'listusers' command.
+     * It retrieves the list of all registered users from storage, ensures the default
+     * guest user is included, sorts the list, and formats it for display.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { StorageManager, Config, ErrorHandler } = dependencies;

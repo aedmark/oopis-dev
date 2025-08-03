@@ -1,6 +1,20 @@
 // scripts/commands/mkdir.js
 
+/**
+ * @fileoverview This file defines the 'mkdir' command, a utility for creating
+ * new directories, with support for creating parent directories as needed.
+ * @module commands/mkdir
+ */
+
+/**
+ * Represents the 'mkdir' (make directory) command.
+ * @class MkdirCommand
+ * @extends Command
+ */
 window.MkdirCommand = class MkdirCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "mkdir",
@@ -45,6 +59,14 @@ window.MkdirCommand = class MkdirCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'mkdir' command.
+   * It iterates through each path argument, creating directories. If the '-p'
+   * flag is used, it creates parent directories as needed. It handles errors
+   * such as invalid paths or existing files.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, dependencies } = context;
     const { UserManager, FileSystemManager, ErrorHandler } = dependencies;

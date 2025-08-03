@@ -1,6 +1,20 @@
 // scripts/commands/help.js
 
+/**
+ * @fileoverview This file defines the 'help' command, a utility for displaying
+ * a list of all available commands or the syntax for a specific command.
+ * @module commands/help
+ */
+
+/**
+ * Represents the 'help' command.
+ * @class HelpCommand
+ * @extends Command
+ */
 window.HelpCommand = class HelpCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "help",
@@ -18,6 +32,13 @@ window.HelpCommand = class HelpCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'help' command.
+   * If no arguments are provided, it lists all available commands with their descriptions.
+   * If a command name is given, it displays the specific usage syntax for that command.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
 
     const { args, dependencies } = context;

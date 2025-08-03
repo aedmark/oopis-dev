@@ -1,6 +1,20 @@
 // scripts/commands/ln.js
 
+/**
+ * @fileoverview This file defines the 'ln' command, a utility for creating
+ * symbolic links between files in the OopisOS virtual file system.
+ * @module commands/ln
+ */
+
+/**
+ * Represents the 'ln' (link) command.
+ * @class LnCommand
+ * @extends Command
+ */
 window.LnCommand = class LnCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "ln",
@@ -20,6 +34,13 @@ window.LnCommand = class LnCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'ln' command.
+     * It validates that a symbolic link is being created, checks for path validity
+     * and permissions, and then creates the new symbolic link node in the file system.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;

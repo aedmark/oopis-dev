@@ -1,6 +1,20 @@
 // scripts/commands/less.js
 
+/**
+ * @fileoverview This file defines the 'less' command, a pager utility for
+ * displaying content from files or standard input with backward and forward scrolling.
+ * @module commands/less
+ */
+
+/**
+ * Represents the 'less' command, an improved pager for displaying content.
+ * @class LessCommand
+ * @extends Command
+ */
 window.LessCommand = class LessCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "less",
@@ -25,6 +39,14 @@ window.LessCommand = class LessCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'less' command.
+     * It reads content from files or standard input and, if in an interactive session,
+     * opens the PagerManager to display the content. Otherwise, it prints the entire
+     * content to standard output.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, inputItems, inputError, dependencies } = context;
         const { ErrorHandler, PagerManager } = dependencies;

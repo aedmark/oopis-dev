@@ -1,6 +1,20 @@
 // scripts/commands/logout.js
 
+/**
+ * @fileoverview This file defines the 'logout' command, which handles the termination
+ * of the current user's session, returning to a previous session if one exists in the stack.
+ * @module commands/logout
+ */
+
+/**
+ * Represents the 'logout' command.
+ * @class LogoutCommand
+ * @extends Command
+ */
 window.LogoutCommand = class LogoutCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "logout",
@@ -28,6 +42,13 @@ window.LogoutCommand = class LogoutCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'logout' command.
+   * It calls the UserManager's logout method and formats the result,
+   * handling cases where a logout occurs, or where no action is taken.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { dependencies } = context;
     const { UserManager, ErrorHandler, Config } = dependencies;

@@ -1,6 +1,21 @@
 // scripts/commands/log.js
 
+/**
+ * @fileoverview This file defines the 'log' command, which provides a personal,
+ * timestamped journal application with both a quick-add command-line feature
+ * and a full graphical interface.
+ * @module commands/log
+ */
+
+/**
+ * Represents the 'log' command, which can launch the log application or add a quick entry.
+ * @class LogCommand
+ * @extends Command
+ */
 window.LogCommand = class LogCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "log",
@@ -32,6 +47,13 @@ window.LogCommand = class LogCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'log' command.
+   * If an argument is provided, it creates a quick log entry.
+   * Otherwise, it launches the full graphical log application.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
 
     const { args, currentUser, options, dependencies } = context;

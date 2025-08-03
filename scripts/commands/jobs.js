@@ -1,6 +1,20 @@
 // scripts/commands/jobs.js
 
+/**
+ * @fileoverview This file defines the 'jobs' command, a utility for listing
+ * all active background jobs initiated in the current user session.
+ * @module commands/jobs
+ */
+
+/**
+ * Represents the 'jobs' command.
+ * @class JobsCommand
+ * @extends Command
+ */
 window.JobsCommand = class JobsCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "jobs",
@@ -19,6 +33,13 @@ window.JobsCommand = class JobsCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'jobs' command.
+     * It retrieves the list of active background jobs from the CommandExecutor
+     * and formats them for display, showing their ID, status, and command.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { CommandExecutor, ErrorHandler } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/login.js
 
+/**
+ * @fileoverview This file defines the 'login' command, which handles user
+ * authentication and initiates a new, clean session for the specified user.
+ * @module commands/login
+ */
+
+/**
+ * Represents the 'login' command.
+ * @class LoginCommand
+ * @extends Command
+ */
 window.LoginCommand = class LoginCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "login",
@@ -30,6 +44,13 @@ window.LoginCommand = class LoginCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'login' command.
+     * It passes the provided username and optional password to the UserManager to handle
+     * the authentication and session switching, then formats the output for the user.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, dependencies } = context;
         const { UserManager, ErrorHandler, Config } = dependencies;

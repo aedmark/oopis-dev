@@ -1,6 +1,20 @@
 // scripts/commands/groupdel.js
 
+/**
+ * @fileoverview This file defines the 'groupdel' command, a utility restricted
+ * to the root user for creating new user groups within the OopisOS system.
+ * @module commands/groupdel
+ */
+
+/**
+ * Represents the 'groupdel' command for creating new user groups.
+ * @class GroupdelCommand
+ * @extends Command
+ */
 window.GroupdelCommand = class GroupdelCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "groupdel",
@@ -26,6 +40,13 @@ window.GroupdelCommand = class GroupdelCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'groupdel' command.
+     * It ensures the current user is root, checks if the group already exists,
+     * and then creates the new group.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { GroupManager, ErrorHandler } = dependencies;

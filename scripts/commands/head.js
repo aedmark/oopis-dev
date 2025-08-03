@@ -1,6 +1,20 @@
 // scripts/commands/head.js
 
+/**
+ * @fileoverview This file defines the 'head' command, a utility for displaying the
+ * first few lines or bytes of a file or standard input.
+ * @module commands/head
+ */
+
+/**
+ * Represents the 'head' command.
+ * @class HeadCommand
+ * @extends Command
+ */
 window.HeadCommand = class HeadCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "head",
@@ -31,6 +45,13 @@ window.HeadCommand = class HeadCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'head' command.
+     * It processes input from stdin or files and outputs either the first N lines
+     * or the first N bytes based on the provided flags.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler, Utils } = dependencies;

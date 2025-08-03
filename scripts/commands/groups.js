@@ -1,6 +1,20 @@
 // scripts/commands/groups.js
 
+/**
+ * @fileoverview This file defines the 'groups' command, a utility for displaying
+ * the group memberships of a specified user or the current user.
+ * @module commands/groups
+ */
+
+/**
+ * Represents the 'groups' command.
+ * @class GroupsCommand
+ * @extends Command
+ */
 window.GroupsCommand = class GroupsCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "groups",
@@ -23,6 +37,13 @@ window.GroupsCommand = class GroupsCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'groups' command.
+     * It identifies the target user, validates their existence, and then
+     * retrieves and displays a space-separated list of their group memberships.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { UserManager, GroupManager, ErrorHandler } = dependencies;

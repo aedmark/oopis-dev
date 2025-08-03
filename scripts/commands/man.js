@@ -1,5 +1,17 @@
 // scripts/commands/man.js
 
+/**
+ * @fileoverview This file defines the 'man' command, a utility for displaying
+ * the manual page for other commands, providing detailed help and usage information.
+ * @module commands/man
+ */
+
+/**
+ * Formats the definition of a command into a standard man page layout.
+ * @param {string} commandName - The name of the command.
+ * @param {object} commandData - The command's definition object.
+ * @returns {string} The formatted man page as a single string.
+ */
 function formatManPage(commandName, commandData) {
   if (!commandData) {
     return `No manual entry for ${commandName}`;
@@ -55,7 +67,15 @@ function formatManPage(commandName, commandData) {
   return output.join("\n");
 }
 
+/**
+ * Represents the 'man' (manual) command.
+ * @class ManCommand
+ * @extends Command
+ */
 window.ManCommand = class ManCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "man",
@@ -79,6 +99,13 @@ window.ManCommand = class ManCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'man' command.
+   * It ensures the target command is loaded, retrieves its definition,
+   * and then passes it to the formatManPage function to generate the final output.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, dependencies } = context;
     const { CommandExecutor, ErrorHandler } = dependencies;
