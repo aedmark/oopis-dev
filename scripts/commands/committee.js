@@ -56,11 +56,15 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         const { UserManager, GroupManager, FileSystemManager, ErrorHandler, Config } = dependencies;
 
         if (currentUser !== "root") {
-            return ErrorHandler.createError("committee: only root can create a committee.");
+            return ErrorHandler.createError({
+                message: "committee: only root can create a committee."
+            });
         }
 
         if (!flags.create || !flags.members) {
-            return ErrorHandler.createError("committee: --create and --members flags are required.");
+            return ErrorHandler.createError({
+                message: "committee: --create and --members flags are required."
+            });
         }
 
         const committeeName = flags.create;
@@ -69,15 +73,21 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
 
         for (const member of members) {
             if (!(await UserManager.userExists(member))) {
-                return ErrorHandler.createError(`committee: user '${member}' does not exist.`);
+                return ErrorHandler.createError({
+                    message: `committee: user '${member}' does not exist.`
+                });
             }
         }
 
         if (GroupManager.groupExists(committeeName)) {
-            return ErrorHandler.createError(`committee: group '${committeeName}' already exists.`);
+            return ErrorHandler.createError({
+                message: `committee: group '${committeeName}' already exists.`
+            });
         }
         if (FileSystemManager.getNodeByPath(projectPath)) {
-            return ErrorHandler.createError(`committee: directory '${projectPath}' already exists.`);
+            return ErrorHandler.createError({
+                message: `committee: directory '${projectPath}' already exists.`
+            });
         }
 
         GroupManager.createGroup(committeeName);
@@ -89,7 +99,9 @@ window.CommitteeCommand = class CommitteeCommand extends Command {
         );
         if (!mkdirResult.success) {
             GroupManager.deleteGroup(committeeName);
-            return ErrorHandler.createError(`committee: failed to create directory: ${mkdirResult.error}`);
+            return ErrorHandler.createError({
+                message: `committee: failed to create directory: ${mkdirResult.error}`
+            });
         }
 
         const projectNode = FileSystemManager.getNodeByPath(projectPath);

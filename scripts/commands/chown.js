@@ -85,13 +85,17 @@ window.ChownCommand = class ChownCommand extends Command {
         }
 
         if (!(await UserManager.userExists(newOwnerArg)) && newOwnerArg !== Config.USER.DEFAULT_NAME) {
-            return ErrorHandler.createError(`chown: user '${newOwnerArg}' does not exist.`);
+            return ErrorHandler.createError({
+                message: `chown: user '${newOwnerArg}' does not exist.`
+            });
         }
 
         for (const pathArg of paths) {
             const pathDataResult = FileSystemManager.validatePath(pathArg, { allowMissing: false });
             if (!pathDataResult.success) {
-                return ErrorHandler.createError(`chown: cannot access '${pathArg}': ${pathDataResult.error}`);
+                return ErrorHandler.createError({
+                    message: `chown: cannot access '${pathArg}': ${pathDataResult.error}`
+                });
             }
             const { node } = pathDataResult.data;
             if (node.type === 'directory' && flags.recursive) {

@@ -115,7 +115,9 @@ window.DuCommand = class DuCommand extends Command {
     }
 
     if (hadError) {
-      return ErrorHandler.createError(outputLines.join("\n"));
+      return ErrorHandler.createError({
+        message: outputLines.join("\n")
+      });
     }
     return ErrorHandler.createSuccess(outputLines.join("\n"));
   }

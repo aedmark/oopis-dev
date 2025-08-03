@@ -62,7 +62,9 @@ window.DreamatoriumCommand = class DreamatoriumCommand extends Command {
         const { FileSystemManager, SessionManager, OutputManager, TerminalUI, ErrorHandler, CommandExecutor, SoundManager, AppLayerManager } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError("dreamatorium: Can only be run in an interactive session.");
+            return ErrorHandler.createError({
+                message: "dreamatorium: Can only be run in an interactive session."
+            });
         }
 
         await OutputManager.appendToOutput("Initializing Dreamatorium... Reality is on hold.", { typeClass: "text-success" });

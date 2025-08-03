@@ -82,9 +82,9 @@ window.CsplitCommand = class CsplitCommand extends Command {
         const numDigits = flags.digits ? parseInt(flags.digits, 10) : 2;
 
         if (isNaN(numDigits) || numDigits < 1) {
-            return ErrorHandler.createError(
-                `csplit: invalid number of digits: '${flags.digits}'`
-            );
+            return ErrorHandler.createError({
+                message: `csplit: invalid number of digits: '${flags.digits}'`
+            });
         }
 
         const segments = [];
@@ -104,24 +104,24 @@ window.CsplitCommand = class CsplitCommand extends Command {
                         }
                     }
                 } catch (e) {
-                    return ErrorHandler.createError(
-                        `csplit: invalid regular expression: '${pattern}'`
-                    );
+                    return ErrorHandler.createError({
+                        message: `csplit: invalid regular expression: '${pattern}'`
+                    });
                 }
             } else {
                 const lineNum = parseInt(pattern, 10);
                 if (isNaN(lineNum) || lineNum <= 0 || lineNum > lines.length) {
-                    return ErrorHandler.createError(
-                        `csplit: '${pattern}': line number out of range`
-                    );
+                    return ErrorHandler.createError({
+                        message: `csplit: '${pattern}': line number out of range`
+                    });
                 }
                 splitLine = lineNum - 1;
             }
 
             if (splitLine === -1 || splitLine < lastSplitLine) {
-                return ErrorHandler.createError(
-                    `csplit: '${pattern}': pattern not found or out of order`
-                );
+                return ErrorHandler.createError({
+                    message: `csplit: '${pattern}': pattern not found or out of order`
+                });
             }
 
             segments.push(lines.slice(lastSplitLine, splitLine));
@@ -158,9 +158,9 @@ window.CsplitCommand = class CsplitCommand extends Command {
                         });
                     }
                 }
-                return ErrorHandler.createError(
-                    `csplit: failed to write to ${fileName}: ${saveResult.error}`
-                );
+                return ErrorHandler.createError({
+                    message: `csplit: failed to write to ${fileName}: ${saveResult.error}`
+                });
             }
 
             createdFileNames.push(fileName);

@@ -48,7 +48,9 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
         const { FileSystemManager, ModalManager, ErrorHandler, Config } = dependencies;
 
         if (currentUser === 'root') {
-            return ErrorHandler.createError("clearfs: cannot clear the root user's home directory for safety reasons.");
+            return ErrorHandler.createError({
+                message: "clearfs: cannot clear the root user's home directory for safety reasons."
+            });
         }
 
         const confirmed = await new Promise((resolve) => {
@@ -79,7 +81,9 @@ window.ClearfsCommand = class ClearfsCommand extends Command {
             return ErrorHandler.createSuccess("Home directory cleared.", { stateModified: true });
         }
 
-        return ErrorHandler.createError("clearfs: Could not find home directory to clear.");
+        return ErrorHandler.createError({
+            message: "clearfs: Could not find home directory to clear."
+        });
     }
 }
 

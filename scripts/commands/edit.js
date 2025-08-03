@@ -68,15 +68,15 @@ window.EditCommand = class EditCommand extends Command {
         const { ErrorHandler, AppLayerManager, EditorManager, EditorUI, App } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "edit: Can only be run in interactive mode."
-            );
+            return ErrorHandler.createError({
+                message: "edit: Can only be run in interactive mode."
+            });
         }
 
         if (typeof EditorManager === 'undefined' || typeof EditorUI === 'undefined' || typeof App === 'undefined') {
-            return ErrorHandler.createError(
-                "edit: The editor application modules are not loaded."
-            );
+            return ErrorHandler.createError({
+                message: "edit: The editor application modules are not loaded."
+            });
         }
 
         const hasFileArgument = args.length > 0 && validatedPaths.length > 0;

@@ -58,9 +58,9 @@ window.DelayCommand = class DelayCommand extends Command {
         });
 
         if (parsedArg.error) {
-            return ErrorHandler.createError(
-                `delay: Invalid delay time '${args[0]}': ${parsedArg.error}. Must be a positive integer.`
-            );
+            return ErrorHandler.createError({
+                message: `delay: Invalid delay time '${args[0]}': ${parsedArg.error}. Must be a positive integer.`
+            });
         }
 
         const ms = parsedArg.value;
@@ -70,9 +70,9 @@ window.DelayCommand = class DelayCommand extends Command {
         }
 
         if (signal?.aborted) {
-            return ErrorHandler.createError(
-                `delay: Operation already cancelled.`
-            );
+            return ErrorHandler.createError({
+                message: `delay: Operation already cancelled.`
+            });
         }
 
         // Use a safe delay function instead of setTimeout
