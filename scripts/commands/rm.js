@@ -88,11 +88,10 @@ window.RmCommand = class RmCommand extends Command {
       }
 
       if (node.type === "directory" && !flags.recursive) {
-        messages.push(
-            `rm: cannot remove '${pathArg}': Is a directory (use -r or -R)`
-        );
-        allSuccess = false;
-        continue;
+        return ErrorHandler.createError({
+          message: `cannot remove '${pathArg}': Is a directory.`,
+          suggestion: "Use the '-r' flag to remove directories and their contents.",
+        });
       }
 
       const isPromptRequired =

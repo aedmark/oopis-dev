@@ -120,11 +120,10 @@ window.MkdirCommand = class MkdirCommand extends Command {
             { expectedType: "directory", permissions: ["write"] }
         );
         if (!parentValidationResult.success) {
-          messages.push(
-              `mkdir: cannot create directory '${pathArg}': ${parentValidationResult.error.replace(parentPathForTarget + ":", "").trim()}`
-          );
-          allSuccess = false;
-          continue;
+          return ErrorHandler.createError({
+            message: `cannot create directory '${pathArg}': No such file or directory.`,
+            suggestion: "Use the '-p' flag to create parent directories as needed."
+          });
         }
         parentNodeToCreateIn = parentValidationResult.data.node;
       }

@@ -204,6 +204,12 @@ class CommandExecutor {
               );
 
               if (!pathValidationResult.success) {
+                if (definition.commandName === 'cd' && pathValidationResult.error.includes('Is not a directory')) {
+                  return ErrorHandler.createError({
+                    message: `cd: ${pathValidationResult.error}`,
+                    suggestion: "Use 'cat' or 'edit' to view or modify file contents."
+                  });
+                }
                 return ErrorHandler.createError(
                     `${definition.commandName}: ${pathValidationResult.error}`
                 );
@@ -513,7 +519,17 @@ class CommandExecutor {
 
         currentStdin = lastResult.data;
       } else {
-        const err = `${Config.MESSAGES.PIPELINE_ERROR_PREFIX}'${segment.command}': ${lastResult.error || "Unknown"}`;
+        let errorMessage = "Unknown error";
+        if (typeof lastResult.error === 'string') {
+          errorMessage = lastResult.error;
+        } else if (lastResult.error && typeof lastResult.error.message === 'string') {
+          errorMessage = lastResult.error.message;
+          if (lastResult.error.suggestion) {
+            errorMessage += `\nSuggestion: ${lastResult.error.suggestion}`;
+          }
+        }
+
+        const err = `${Config.MESSAGES.PIPELINE_ERROR_PREFIX}'${segment.command}': ${errorMessage}`;
         if (!pipeline.isBackground) {
           await OutputManager.appendToOutput(err, {
             typeClass: Config.CSS_CLASSES.ERROR_MSG,

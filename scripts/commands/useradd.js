@@ -56,9 +56,10 @@ window.UseraddCommand = class UseraddCommand extends Command {
             {}
         );
         if (userCheck[username]) {
-            return ErrorHandler.createError(
-                `useradd: User '${username}' already exists.`
-            );
+            return ErrorHandler.createError({
+                message: `useradd: User '${username}' already exists.`,
+                suggestion: "Use 'listusers' to see all existing users or 'passwd' to change a user's password."
+            });
         }
 
         return new Promise(async (resolve) => {

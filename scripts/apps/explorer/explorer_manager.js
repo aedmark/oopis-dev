@@ -162,7 +162,15 @@ window.ExplorerManager = class ExplorerManager extends App {
                 await FileSystemManager.save();
                 this._updateView(this.currentPath);
               } else {
-                alert(`Error: ${result.error}`);
+                const errorMessage = result.error.message || result.error;
+                const errorSuggestion = result.error.suggestion || "Please check the path and your permissions.";
+                ModalManager.request({
+                  context: "graphical",
+                  type: "confirm",
+                  messageLines: [`Error: ${errorMessage}`, `Suggestion: ${errorSuggestion}`],
+                  confirmText: "OK",
+                  cancelText: null
+                });
               }
             }
           },

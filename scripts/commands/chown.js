@@ -78,7 +78,10 @@ window.ChownCommand = class ChownCommand extends Command {
         let changesMade = false;
 
         if (currentUser !== "root") {
-            return ErrorHandler.createError("chown: you must be root to change ownership.");
+            return ErrorHandler.createError({
+                message: "chown: you must be root to change ownership.",
+                suggestion: "Try running the command with 'sudo'."
+            });
         }
 
         if (!(await UserManager.userExists(newOwnerArg)) && newOwnerArg !== Config.USER.DEFAULT_NAME) {
