@@ -51,9 +51,9 @@ window.PlayCommand = class PlayCommand extends Command {
         if (!SoundManager.isInitialized) {
             await SoundManager.initialize();
             if (!SoundManager.isInitialized) {
-                return ErrorHandler.createError(
-                    "play: AudioContext could not be started. Please click or type first."
-                );
+                return ErrorHandler.createError({
+                    message: "play: AudioContext could not be started. Please click or type first."
+                });
             }
         }
 

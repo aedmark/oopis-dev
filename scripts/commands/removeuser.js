@@ -73,17 +73,17 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
         const usernameToRemove = args[0];
 
         if (usernameToRemove === currentUser) {
-            return ErrorHandler.createError(
-                "removeuser: You cannot remove yourself."
-            );
+            return ErrorHandler.createError({
+                message: "removeuser: You cannot remove yourself."
+            });
         }
         if (
             usernameToRemove === Config.USER.DEFAULT_NAME ||
             usernameToRemove === "root"
         ) {
-            return ErrorHandler.createError(
-                `removeuser: The '${usernameToRemove}' user cannot be removed.`
-            );
+            return ErrorHandler.createError({
+                message: `removeuser: The '${usernameToRemove}' user cannot be removed.`
+            });
         }
 
         if (!(await UserManager.userExists(usernameToRemove))) {
@@ -118,9 +118,9 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
                 });
             });
         } else {
-            return ErrorHandler.createError(
-                `removeuser: '${usernameToRemove}' requires confirmation. Use the -f flag in non-interactive scripts.`
-            );
+            return ErrorHandler.createError({
+                message: `removeuser: '${usernameToRemove}' requires confirmation. Use the -f flag in non-interactive scripts.`
+            });
         }
 
         if (!confirmed) {
@@ -175,9 +175,9 @@ window.RemoveuserCommand = class RemoveuserCommand extends Command {
                 stateModified: changesMade,
             });
         } else {
-            return ErrorHandler.createError(
-                `removeuser: Failed to completely remove user '${usernameToRemove}'. Details: ${errorMessages.join("; ")}`
-            );
+            return ErrorHandler.createError({
+                message: `removeuser: Failed to completely remove user '${usernameToRemove}'. Details: ${errorMessages.join("; ")}`
+            });
         }
     }
 }

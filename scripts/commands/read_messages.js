@@ -61,17 +61,17 @@ window.ReadMessagesCommand = class ReadMessagesCommand extends Command {
             const jobId = parseInt(args[0], 10);
 
             if (isNaN(jobId)) {
-                return ErrorHandler.createError(
-                    `read_messages: invalid job ID: ${args[0]}`
-                );
+                return ErrorHandler.createError({
+                    message: `read_messages: invalid job ID: ${args[0]}`
+                });
             }
 
             const messages = MessageBusManager.getMessages(jobId);
             return ErrorHandler.createSuccess(messages.join(" "));
         } catch (e) {
-            return ErrorHandler.createError(
-                `read_messages: An unexpected error occurred: ${e.message}`
-            );
+            return ErrorHandler.createError({
+                message: `read_messages: An unexpected error occurred: ${e.message}`
+            });
         }
     }
 }

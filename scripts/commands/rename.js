@@ -87,7 +87,7 @@ window.RenameCommand = class RenameCommand extends Command {
         if (mvResult.success) {
             return ErrorHandler.createSuccess("", { stateModified: true });
         } else {
-            return ErrorHandler.createError(`rename: ${mvResult.error.message || mvResult.error}`);
+            return ErrorHandler.createError({ message: `rename: ${mvResult.error.message || mvResult.error}` });
         }
     }
 }

@@ -89,7 +89,7 @@ window.RemixCommand = class RemixCommand extends Command {
         const file2Content = file2Node.content || "";
 
         if (!file1Content.trim() || !file2Content.trim()) {
-            return ErrorHandler.createError("remix: One or both input files are empty.");
+            return ErrorHandler.createError({ message: "remix: One or both input files are empty." });
         }
 
         const userPrompt = `Please synthesize the following two documents into a single, cohesive article. The article should blend the key ideas from both sources into a unique summary formatted in Markdown with paragraphs separated by double newlines.
@@ -111,7 +111,7 @@ ${file2Content}
 
         const apiKeyResult = await AIManager.getApiKey(provider, { isInteractive: true, dependencies });
         if (!apiKeyResult.success) {
-            return ErrorHandler.createError(`remix: ${apiKeyResult.error}`);
+            return ErrorHandler.createError({ message: `remix: ${apiKeyResult.error}` });
         }
         const apiKey = apiKeyResult.data.key;
 
@@ -137,9 +137,9 @@ ${file2Content}
         } else {
             if (llmResult.error === "INVALID_API_KEY" && provider === 'gemini') {
                 StorageManager.removeItem(Config.STORAGE_KEYS.GEMINI_API_KEY);
-                return ErrorHandler.createError("remix: Invalid API Key. The key has been removed. Please try again.");
+                return ErrorHandler.createError({ message: "remix: Invalid API Key. The key has been removed. Please try again." });
             }
-            return ErrorHandler.createError(`remix: The AI failed to process the documents. Reason: ${llmResult.error}`);
+            return ErrorHandler.createError({ message: `remix: The AI failed to process the documents. Reason: ${llmResult.error}` });
         }
     }
 }

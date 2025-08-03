@@ -56,7 +56,7 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
 
         if (!options.isInteractive || outputFilename) {
             if (!outputFilename) {
-                return ErrorHandler.createError("printscreen: output file is required in non-interactive mode.");
+                return ErrorHandler.createError({ message: "printscreen: output file is required in non-interactive mode." });
             }
             const terminalElement = document.getElementById("terminal");
             const screenText = terminalElement ? terminalElement.innerText || "" : "Error: Could not find terminal element.";
@@ -76,7 +76,7 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
                 await FileSystemManager.save();
                 return ErrorHandler.createSuccess(`Screen content saved to '${absolutePath}'`, { stateModified: true });
             } else {
-                return ErrorHandler.createError(`printscreen: ${saveResult.error}`);
+                return ErrorHandler.createError({ message: `printscreen: ${saveResult.error}` });
             }
         }
 
@@ -92,7 +92,7 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
             const { html2canvas } = window;
             if (typeof html2canvas === "undefined") {
                 if (terminalElement) terminalElement.classList.remove("no-cursor");
-                return ErrorHandler.createError("printscreen: html2canvas library not loaded.");
+                return ErrorHandler.createError({ message: "printscreen: html2canvas library not loaded." });
             }
 
             const canvas = await html2canvas(terminalElement, {
@@ -121,7 +121,7 @@ window.PrintscreenCommand = class PrintscreenCommand extends Command {
             if (document.getElementById("terminal")) {
                 document.getElementById("terminal").classList.remove("no-cursor");
             }
-            return ErrorHandler.createError(`printscreen: Failed to capture screen. ${e.message}`);
+            return ErrorHandler.createError({ message: `printscreen: Failed to capture screen. ${e.message}` });
         }
     }
 }

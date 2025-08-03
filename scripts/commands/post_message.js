@@ -55,13 +55,13 @@ window.PostMessageCommand = class PostMessageCommand extends Command {
             const message = args[1];
 
             if (isNaN(jobId)) {
-                return ErrorHandler.createError(
-                    `post_message: invalid job ID: ${args[0]}`
-                );
+                return ErrorHandler.createError({
+                    message: `post_message: invalid job ID: ${args[0]}`
+                });
             }
 
             if (typeof message !== "string") {
-                return ErrorHandler.createError("post_message: message must be a string");
+                return ErrorHandler.createError({ message: "post_message: message must be a string" });
             }
 
             const result = MessageBusManager.postMessage(jobId, message);
@@ -69,14 +69,14 @@ window.PostMessageCommand = class PostMessageCommand extends Command {
             if (result.success) {
                 return ErrorHandler.createSuccess("");
             } else {
-                return ErrorHandler.createError(
-                    result.error || `Failed to post message to job ${jobId}.`
-                );
+                return ErrorHandler.createError({
+                    message: result.error || `Failed to post message to job ${jobId}.`
+                });
             }
         } catch (e) {
-            return ErrorHandler.createError(
-                `post_message: An unexpected error occurred: ${e.message}`
-            );
+            return ErrorHandler.createError({
+                message: `post_message: An unexpected error occurred: ${e.message}`
+            });
         }
     }
 }
