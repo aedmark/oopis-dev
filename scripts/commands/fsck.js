@@ -68,7 +68,7 @@ window.FsckCommand = class FsckCommand extends Command {
 
         const pathValidation = FileSystemManager.validatePath(startPath, { expectedType: 'directory' });
         if (!pathValidation.success) {
-            return ErrorHandler.createError(`fsck: Cannot start check at '${startPath}': ${pathValidation.error}`);
+            return ErrorHandler.createError({ message: `fsck: Cannot start check at '${startPath}': ${pathValidation.error}` });
         }
 
         const output = [];

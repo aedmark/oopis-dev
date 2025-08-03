@@ -190,9 +190,9 @@ window.FindCommand = class FindCommand extends Command {
         if (i + 1 < expressionArgs.length) {
           term.arg = expressionArgs[++i];
         } else {
-          return ErrorHandler.createError(
-              `find: missing argument to \`${token}\``
-          );
+          return ErrorHandler.createError({
+            message: `find: missing argument to \`${token}\``
+          });
         }
       } else if (actions[token]) {
         term.type = "ACTION";
@@ -204,14 +204,14 @@ window.FindCommand = class FindCommand extends Command {
           while (i < expressionArgs.length && expressionArgs[i] !== ";")
             term.commandParts.push(expressionArgs[i++]);
           if (i >= expressionArgs.length || expressionArgs[i] !== ";")
-            return ErrorHandler.createError(
-                "find: missing terminating ';' for -exec"
-            );
+            return ErrorHandler.createError({
+              message: "find: missing terminating ';' for -exec"
+            });
         }
       } else {
-        return ErrorHandler.createError(
-            `find: unknown predicate '${token}'`
-        );
+        return ErrorHandler.createError({
+          message: `find: unknown predicate '${token}'`
+        });
       }
       currentTermGroup.push(term);
       i++;
@@ -329,9 +329,9 @@ window.FindCommand = class FindCommand extends Command {
     const startNode = FileSystemManager.getNodeByPath(startPathResolved);
 
     if (!startNode) {
-      return ErrorHandler.createError(
-          `find: '${startPathArg}': No such file or directory`
-      );
+      return ErrorHandler.createError({
+        message: `find: '${startPathArg}': No such file or directory`
+      });
     }
 
     const impliesDepth = parsedExpression.some(
@@ -341,7 +341,7 @@ window.FindCommand = class FindCommand extends Command {
     await recurseFind(startPathResolved, impliesDepth);
 
     if (hadError || !filesProcessedSuccessfully) {
-      return ErrorHandler.createError(outputLines.join("\n"));
+      return ErrorHandler.createError({ message: outputLines.join("\n") });
     }
     return ErrorHandler.createSuccess(outputLines.join("\n"), {
       stateModified: anyChangeMadeDuringFind,

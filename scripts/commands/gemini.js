@@ -99,18 +99,18 @@ window.GeminiCommand = class GeminiCommand extends Command {
 
         if (flags.chat) {
             if (!options.isInteractive) {
-                return ErrorHandler.createError(
-                    "gemini: Chat mode can only be run in interactive mode."
-                );
+                return ErrorHandler.createError({
+                    message: "gemini: Chat mode can only be run in interactive mode."
+                });
             }
             if (
                 typeof GeminiChatManager === "undefined" ||
                 typeof GeminiChatUI === "undefined" ||
                 typeof App === "undefined"
             ) {
-                return ErrorHandler.createError(
-                    "gemini: The GeminiChat application modules are not loaded."
-                );
+                return ErrorHandler.createError({
+                    message: "gemini: The GeminiChat application modules are not loaded."
+                });
             }
             AppLayerManager.show(new GeminiChatManager(), {
                 provider: flags.provider,
@@ -121,9 +121,9 @@ window.GeminiCommand = class GeminiCommand extends Command {
         }
 
         if (args.length === 0) {
-            return ErrorHandler.createError(
-                'Insufficient arguments. Usage: gemini [-p provider] [-m model] "<prompt>"'
-            );
+            return ErrorHandler.createError({
+                message: 'Insufficient arguments. Usage: gemini [-p provider] [-m model] "<prompt>"'
+            });
         }
 
         const userPrompt = args.join(" ");
@@ -174,7 +174,9 @@ window.GeminiCommand = class GeminiCommand extends Command {
             });
             return ErrorHandler.createSuccess(finalAnswer);
         } else {
-            return ErrorHandler.createError(`gemini: ${agentResult.error}`);
+            return ErrorHandler.createError({
+                message: `gemini: ${agentResult.error}`
+            });
         }
 
     }

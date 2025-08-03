@@ -50,9 +50,9 @@ window.GroupsCommand = class GroupsCommand extends Command {
         const targetUser = args.length > 0 ? args[0] : currentUser;
 
         if (!(await UserManager.userExists(targetUser))) {
-            return ErrorHandler.createError(
-                `groups: user '${targetUser}' does not exist`
-            );
+            return ErrorHandler.createError({
+                message: `groups: user '${targetUser}' does not exist`
+            });
         }
 
         const userGroups = GroupManager.getGroupsForUser(targetUser);

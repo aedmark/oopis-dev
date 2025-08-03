@@ -54,11 +54,15 @@ window.ExprCommand = class ExprCommand extends Command {
             // than eval(), as it does not have access to the surrounding scope.
             const result = new Function(`return ${expression}`)();
             if (typeof result !== 'number' || !isFinite(result)) {
-                return ErrorHandler.createError(`expr: invalid expression`);
+                return ErrorHandler.createError({
+                    message: `expr: invalid expression`
+                });
             }
             return ErrorHandler.createSuccess(String(result));
         } catch (e) {
-            return ErrorHandler.createError(`expr: invalid expression`);
+            return ErrorHandler.createError({
+                message: `expr: invalid expression`
+            });
         }
     }
 }

@@ -63,9 +63,9 @@ window.HelpCommand = class HelpCommand extends Command {
         const commandInstance = await CommandExecutor._ensureCommandLoaded(cmdName);
 
         if (!commandInstance) {
-          return ErrorHandler.createError(
-              `help: command not found: ${cmdName}`
-          );
+          return ErrorHandler.createError({
+            message: `help: command not found: ${cmdName}`
+          });
         }
 
         let output = "";
@@ -82,16 +82,16 @@ window.HelpCommand = class HelpCommand extends Command {
           }
           output += `\n\nFor more details, run 'man ${cmdName}'`;
         } else {
-          return ErrorHandler.createError(
-              `help: command not found: ${args[0]}`
-          );
+          return ErrorHandler.createError({
+            message: `help: command not found: ${args[0]}`
+          });
         }
         return ErrorHandler.createSuccess(output);
       }
     } catch (e) {
-      return ErrorHandler.createError(
-          `help: An unexpected error occurred: ${e.message}`
-      );
+      return ErrorHandler.createError({
+        message: `help: An unexpected error occurred: ${e.message}`
+      });
     }
   }
 }

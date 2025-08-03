@@ -57,9 +57,9 @@ window.HeadCommand = class HeadCommand extends Command {
         const { ErrorHandler, Utils } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "head: No readable input provided or permission denied."
-            );
+            return ErrorHandler.createError({
+                message: "head: No readable input provided or permission denied."
+            });
         }
 
         if (!inputItems || inputItems.length === 0) {
@@ -67,7 +67,7 @@ window.HeadCommand = class HeadCommand extends Command {
         }
 
         if (flags.lines && flags.bytes) {
-            return ErrorHandler.createError("head: cannot use both -n and -c");
+            return ErrorHandler.createError({ message: "head: cannot use both -n and -c" });
         }
 
         const input = inputItems.map((item) => item.content).join("\n");
@@ -79,9 +79,9 @@ window.HeadCommand = class HeadCommand extends Command {
                 allowNegative: false,
             });
             if (linesResult.error) {
-                return ErrorHandler.createError(
-                    `head: invalid number of lines: '${flags.lines}'`
-                );
+                return ErrorHandler.createError({
+                    message: `head: invalid number of lines: '${flags.lines}'`
+                });
             }
             lineCount = linesResult.value;
         }
@@ -93,9 +93,9 @@ window.HeadCommand = class HeadCommand extends Command {
                 allowNegative: false,
             });
             if (bytesResult.error) {
-                return ErrorHandler.createError(
-                    `head: invalid number of bytes: '${flags.bytes}'`
-                );
+                return ErrorHandler.createError({
+                    message: `head: invalid number of bytes: '${flags.bytes}'`
+                });
             }
             byteCount = bytesResult.value;
         }

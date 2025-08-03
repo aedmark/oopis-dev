@@ -55,15 +55,15 @@ window.GroupaddCommand = class GroupaddCommand extends Command {
         const groupName = args[0];
 
         if (currentUser !== "root") {
-            return ErrorHandler.createError(
-                "groupadd: only root can add groups."
-            );
+            return ErrorHandler.createError({
+                message: "groupadd: only root can add groups."
+            });
         }
 
         if (GroupManager.groupExists(groupName)) {
-            return ErrorHandler.createError(
-                `groupadd: group '${groupName}' already exists.`
-            );
+            return ErrorHandler.createError({
+                message: `groupadd: group '${groupName}' already exists.`
+            });
         }
 
         GroupManager.createGroup(groupName);

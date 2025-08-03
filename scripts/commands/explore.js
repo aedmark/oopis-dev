@@ -57,18 +57,18 @@ window.ExploreCommand = class ExploreCommand extends Command {
         const { ErrorHandler, AppLayerManager, ExplorerManager } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "explore: Can only be run in an interactive session."
-            );
+            return ErrorHandler.createError({
+                message: "explore: Can only be run in an interactive session."
+            });
         }
 
         if (
             typeof ExplorerManager === "undefined" ||
             typeof AppLayerManager === "undefined"
         ) {
-            return ErrorHandler.createError(
-                "explore: Explorer application module is not loaded."
-            );
+            return ErrorHandler.createError({
+                message: "explore: Explorer application module is not loaded."
+            });
         }
 
         const startPath = args.length > 0 ? args[0] : null;
