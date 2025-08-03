@@ -1,5 +1,16 @@
-// scripts/commands/zip.js
+/**
+ * @fileoverview This file defines the 'zip' command, a utility for creating a
+ * JSON-based archive of a file or directory structure.
+ * @module commands/zip
+ */
 
+/**
+ * Recursively creates an object representation of a filesystem node for archiving.
+ * @param {object} node - The filesystem node to archive.
+ * @param {object} dependencies - The dependency injection container.
+ * @returns {Promise<object|null>} A promise that resolves to an archive-ready object, or null.
+ * @private
+ */
 async function _archiveNode(node, dependencies) {
     const { Config } = dependencies;
     if (node.type === Config.FILESYSTEM.DEFAULT_FILE_TYPE) {
@@ -24,7 +35,15 @@ async function _archiveNode(node, dependencies) {
     return null;
 }
 
+/**
+ * Represents the 'zip' command for creating file and directory archives.
+ * @class ZipCommand
+ * @extends Command
+ */
 window.ZipCommand = class ZipCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "zip",
@@ -48,6 +67,13 @@ window.ZipCommand = class ZipCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'zip' command. It validates the source
+     * and destination paths, recursively builds a JSON representation of the
+     * source file or directory, and saves it to the destination archive file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { ErrorHandler, FileSystemManager, OutputManager, UserManager } = dependencies;

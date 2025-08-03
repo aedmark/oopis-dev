@@ -1,6 +1,18 @@
-// scripts/commands/xor.js
+/**
+ * @fileoverview This file defines the 'xor' command, a utility for applying a
+ * simple, repeating-key XOR cipher to a file, for educational purposes.
+ * @module commands/xor
+ */
 
+/**
+ * Represents the 'xor' command for simple symmetric encryption.
+ * @class XorCommand
+ * @extends Command
+ */
 window.XorCommand = class XorCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "xor",
@@ -31,6 +43,13 @@ window.XorCommand = class XorCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'xor' command. It reads the content of an
+     * input file, applies a repeating-key XOR cipher to it, and then either
+     * writes the result to an output file or prints it to standard output.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, validatedPaths, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
