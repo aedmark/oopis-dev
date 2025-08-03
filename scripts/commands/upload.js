@@ -1,6 +1,18 @@
-// gem/scripts/commands/upload.js
+/**
+ * @fileoverview This file defines the 'upload' command, a utility that allows
+ * users to upload files from their local machine into the OopisOS virtual file system.
+ * @module commands/upload
+ */
 
+/**
+ * Represents the 'upload' command.
+ * @class UploadCommand
+ * @extends Command
+ */
 window.UploadCommand = class UploadCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "upload",
@@ -23,6 +35,14 @@ window.UploadCommand = class UploadCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'upload' command. It dynamically creates a
+     * hidden file input element, triggers a click to open the native file
+     * dialog, and then handles the selected files by reading their content and
+     * saving them into the virtual file system at the current directory.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, currentUser, dependencies } = context;
         const {

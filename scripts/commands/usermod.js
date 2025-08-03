@@ -1,6 +1,18 @@
-// scripts/commands/usermod.js
+/**
+ * @fileoverview This file defines the 'usermod' command, a utility for modifying
+ * a user account, primarily to add them to supplementary groups.
+ * @module commands/usermod
+ */
 
+/**
+ * Represents the 'usermod' (user modify) command.
+ * @class UsermodCommand
+ * @extends Command
+ */
 window.UsermodCommand = class UsermodCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "usermod",
@@ -31,6 +43,13 @@ window.UsermodCommand = class UsermodCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'usermod' command. It performs checks to
+     * ensure the current user is root and that the target user and group exist.
+     * If all checks pass, it adds the user to the specified group.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
         const { ErrorHandler, GroupManager, UserManager, Config } = dependencies;

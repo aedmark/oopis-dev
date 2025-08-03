@@ -1,5 +1,20 @@
-// scripts/commands/unzip.js
+/**
+ * @fileoverview This file defines the 'unzip' command, a utility for extracting
+ * the contents of a JSON-based .zip archive created by the 'zip' command.
+ * @module commands/unzip
+ */
 
+/**
+ * Recursively restores a file or directory structure from an archive object.
+ * @param {string} name - The name of the current node to restore.
+ * @param {object} nodeData - The object representing the file or directory from the archive.
+ * @param {string} parentPath - The absolute path of the parent directory to restore into.
+ * @param {object} dependencies - The dependency injection container.
+ * @param {string} currentUser - The name of the user executing the command.
+ * @returns {Promise<void>}
+ * @private
+ * @throws {Error} If file or directory creation fails.
+ */
 async function _restoreNode(name, nodeData, parentPath, dependencies, currentUser) {
     const { FileSystemManager, UserManager } = dependencies;
     const fullPath = FileSystemManager.getAbsolutePath(name, parentPath);
@@ -37,8 +52,15 @@ async function _restoreNode(name, nodeData, parentPath, dependencies, currentUse
     }
 }
 
-
+/**
+ * Represents the 'unzip' command for extracting .zip archives.
+ * @class UnzipCommand
+ * @extends Command
+ */
 window.UnzipCommand = class UnzipCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "unzip",
@@ -72,6 +94,13 @@ window.UnzipCommand = class UnzipCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'unzip' command. It reads the specified
+     * .zip file, parses its JSON content, and then recursively recreates the
+     * archived file and directory structure in the current working directory.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { currentUser, validatedPaths, dependencies } = context;
         const { ErrorHandler, FileSystemManager } = dependencies;

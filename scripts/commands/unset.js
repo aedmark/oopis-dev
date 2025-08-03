@@ -1,6 +1,18 @@
-// scripts/commands/unset.js
+/**
+ * @fileoverview This file defines the 'unset' command, a utility for
+ * removing environment variables from the current shell session.
+ * @module commands/unset
+ */
 
+/**
+ * Represents the 'unset' command for removing environment variables.
+ * @class UnsetCommand
+ * @extends Command
+ */
 window.UnsetCommand = class UnsetCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "unset",
@@ -24,6 +36,13 @@ window.UnsetCommand = class UnsetCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'unset' command. It iterates through
+     * the provided variable names and removes each one from the current
+     * environment using the EnvironmentManager.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { EnvironmentManager, ErrorHandler } = dependencies;

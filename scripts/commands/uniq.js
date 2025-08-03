@@ -1,6 +1,18 @@
-// scripts/commands/uniq.js
+/**
+ * @fileoverview This file defines the 'uniq' command, a utility for filtering
+ * or reporting on repeated adjacent lines in a file or standard input.
+ * @module commands/uniq
+ */
 
+/**
+ * Represents the 'uniq' command for filtering adjacent duplicate lines.
+ * @class UniqCommand
+ * @extends Command
+ */
 window.UniqCommand = class UniqCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "uniq",
@@ -35,6 +47,14 @@ window.UniqCommand = class UniqCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'uniq' command. It reads from an input
+     * stream, iterates through the lines, and based on the provided flags,
+     * either filters out duplicate adjacent lines, shows only the duplicates,
+     * shows only the unique lines, or counts the occurrences of each line.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

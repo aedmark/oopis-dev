@@ -1,6 +1,18 @@
-// scripts/commands/useradd.js
+/**
+ * @fileoverview This file defines the 'useradd' command, a utility for
+ * creating new user accounts with secure password prompts.
+ * @module commands/useradd
+ */
 
+/**
+ * Represents the 'useradd' command for creating new user accounts.
+ * @class UseraddCommand
+ * @extends Command
+ */
 window.UseraddCommand = class UseraddCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "useradd",
@@ -25,6 +37,14 @@ window.UseraddCommand = class UseraddCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'useradd' command. It initiates an
+     * interactive, two-step password creation process using the ModalManager.
+     * After securely obtaining and confirming the new password, it calls the
+     * UserManager to register the new user and create their home directory.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, dependencies } = context;
         const { UserManager, ErrorHandler, ModalManager, Config, StorageManager } = dependencies;

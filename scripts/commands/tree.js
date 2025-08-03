@@ -1,6 +1,18 @@
-// scripts/commands/tree.js
+/**
+ * @fileoverview This file defines the 'tree' command, a utility for displaying
+ * the contents of a directory and its subdirectories in a tree-like format.
+ * @module commands/tree
+ */
 
+/**
+ * Represents the 'tree' command.
+ * @class TreeCommand
+ * @extends Command
+ */
 window.TreeCommand = class TreeCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "tree",
@@ -40,6 +52,14 @@ window.TreeCommand = class TreeCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'tree' command. It recursively traverses
+     * the specified directory, building a string representation of the file
+     * structure. It respects depth limits and options to show only directories,
+     * and concludes with a summary of the files and directories found.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { ErrorHandler, FileSystemManager, Utils, Config } = dependencies;

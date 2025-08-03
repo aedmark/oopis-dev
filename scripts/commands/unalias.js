@@ -1,6 +1,18 @@
-// scripts/commands/unalias.js
+/**
+ * @fileoverview This file defines the 'unalias' command, a utility for
+ * removing previously defined command aliases from the current session.
+ * @module commands/unalias
+ */
 
+/**
+ * Represents the 'unalias' command.
+ * @class UnaliasCommand
+ * @extends Command
+ */
 window.UnaliasCommand = class UnaliasCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "unalias",
@@ -23,6 +35,13 @@ window.UnaliasCommand = class UnaliasCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'unalias' command. It iterates through
+     * the provided alias names, attempts to remove each one using the
+     * AliasManager, and reports any errors if an alias does not exist.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { AliasManager, ErrorHandler } = dependencies;
