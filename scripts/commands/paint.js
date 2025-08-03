@@ -1,6 +1,20 @@
 // scripts/commands/paint.js
 
+/**
+ * @fileoverview This file defines the 'paint' command, which launches the OopisOS
+ * graphical character-based art editor application.
+ * @module commands/paint
+ */
+
+/**
+ * Represents the 'paint' command for launching the art editor.
+ * @class PaintCommand
+ * @extends Command
+ */
 window.PaintCommand = class PaintCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "paint",
@@ -32,6 +46,14 @@ window.PaintCommand = class PaintCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'paint' command.
+   * It ensures the session is interactive, validates the file path (ensuring
+   * it has a '.oopic' extension), loads the file content if it exists, and then
+   * launches the PaintManager application.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
 
     const { args, options, dependencies } = context;

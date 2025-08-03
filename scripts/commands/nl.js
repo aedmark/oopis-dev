@@ -1,6 +1,20 @@
 // scripts/commands/nl.js
 
+/**
+ * @fileoverview This file defines the 'nl' command, a utility for numbering
+ * the lines of files or standard input.
+ * @module commands/nl
+ */
+
+/**
+ * Represents the 'nl' (number lines) command.
+ * @class NlCommand
+ * @extends Command
+ */
 window.NlCommand = class NlCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "nl",
@@ -23,6 +37,13 @@ window.NlCommand = class NlCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'nl' command.
+     * It reads content from files or standard input, iterates through each line,
+     * and prepends a formatted line number to all non-empty lines.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

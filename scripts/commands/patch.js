@@ -1,6 +1,20 @@
 // gem/scripts/commands/patch.js
 
+/**
+ * @fileoverview This file defines the 'patch' command, a utility for applying
+ * a unified diff file (a "patch") to a target file, thereby updating it.
+ * @module commands/patch
+ */
+
+/**
+ * Represents the 'patch' command.
+ * @class PatchCommand
+ * @extends Command
+ */
 window.PatchCommand = class PatchCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "patch",
@@ -42,11 +56,11 @@ window.PatchCommand = class PatchCommand extends Command {
      * Parses a unified diff format string into an array of hunk objects.
      * Each hunk object contains information about a specific change.
      * This is designed to be compatible with a standard patch utility.
+     * @private
      * @param {string} patchContent The string content of the patch file.
      * @returns {Array<Object>} An array of hunk objects.
      * @throws {Error} If the patch format is invalid.
      */
-
     _parsePatch(patchContent) {
 
         const lines = patchContent.split('\n');
@@ -96,6 +110,13 @@ window.PatchCommand = class PatchCommand extends Command {
         return hunks;
     }
 
+    /**
+     * Executes the core logic of the 'patch' command.
+     * It reads the target and patch files, parses the patch content into actionable hunks,
+     * applies these changes to the target file's content, and saves the modified file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, validatedPaths, currentUser, dependencies } = context;
         const { FileSystemManager, UserManager, ErrorHandler, PatchUtils } = dependencies;

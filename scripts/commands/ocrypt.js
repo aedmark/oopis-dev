@@ -1,6 +1,12 @@
 // scripts/commands/ocrypt.js
 
 /**
+ * @fileoverview This file defines the 'ocrypt' command, a secure utility for
+ * encrypting and decrypting files using the Web Cryptography API with AES-GCM.
+ * @module commands/ocrypt
+ */
+
+/**
  * A utility for encrypting and decrypting files using the Web Cryptography API with AES-GCM.
  * This is a secure, modern implementation intended for robust data protection.
  *
@@ -8,6 +14,9 @@
  * @extends Command
  */
 window.OcryptCommand = class OcryptCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "ocrypt",
@@ -137,7 +146,10 @@ window.OcryptCommand = class OcryptCommand extends Command {
   }
 
   /**
-   * Main logic for the ocrypt command.
+   * Executes the core logic for the ocrypt command.
+   * It determines whether to encrypt or decrypt based on the '-d' flag,
+   * performs the cryptographic operation, and then either prints the result
+   * to standard output or saves it to a specified output file.
    * @param {object} context - The command execution context.
    * @returns {Promise<object>} The result of the command execution.
    */

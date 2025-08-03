@@ -1,6 +1,20 @@
 // scripts/commands/ping.js
 
+/**
+ * @fileoverview This file defines the 'ping' command, a utility for checking
+ * network connectivity to both standard web hosts and other OopisOS instances.
+ * @module commands/ping
+ */
+
+/**
+ * Represents the 'ping' command.
+ * @class PingCommand
+ * @extends Command
+ */
 window.PingCommand = class PingCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "ping",
@@ -27,6 +41,14 @@ window.PingCommand = class PingCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'ping' command.
+     * It checks if the target is an OopisOS instance ID or a standard hostname.
+     * For instances, it uses the NetworkManager to send a ping. For hostnames,
+     * it performs an HTTP HEAD request to measure response time.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { ErrorHandler, OutputManager, Config, NetworkManager } = dependencies;

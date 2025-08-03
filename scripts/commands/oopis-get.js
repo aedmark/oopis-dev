@@ -1,6 +1,20 @@
 // scripts/commands/oopis-get.js
 
+/**
+ * @fileoverview This file defines the 'oopis-get' command, the package manager
+ * for OopisOS, responsible for listing, installing, and removing packages.
+ * @module commands/oopis-get
+ */
+
+/**
+ * Represents the 'oopis-get' command for package management.
+ * @class OopisGetCommand
+ * @extends Command
+ */
 window.OopisGetCommand = class OopisGetCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "oopis-get",
@@ -20,6 +34,12 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         this.TEMP_MANIFEST_PATH = "/tmp/packages.json";
     }
 
+    /**
+     * Executes the core logic for the 'oopis-get' command. It acts as a router,
+     * directing execution to the appropriate handler based on the provided sub-command.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { ErrorHandler, CommandExecutor } = dependencies;
@@ -45,6 +65,12 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         }
     }
 
+    /**
+     * Fetches the remote package manifest, saves it temporarily, and parses it.
+     * @private
+     * @param {object} dependencies - The system dependencies.
+     * @returns {Promise<{manifest?: object, error?: string}>} A promise resolving to an object with the parsed manifest or an error.
+     */
     async _fetchAndParseManifest(dependencies) {
         const { CommandExecutor, ErrorHandler } = dependencies;
 
@@ -74,6 +100,14 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         }
     }
 
+    /**
+     * Updates the local package manifest file at /etc/pkg_manifest.json to add or remove a package name.
+     * @private
+     * @param {string} packageName - The name of the package to add or remove.
+     * @param {'add'|'remove'} action - The action to perform.
+     * @param {object} dependencies - The system dependencies.
+     * @returns {Promise<object>} A success or error object from the ErrorHandler.
+     */
     async _updatePackageManifest(packageName, action, dependencies) {
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
         const manifestPath = '/etc/pkg_manifest.json';
@@ -118,6 +152,12 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         }
     }
 
+    /**
+     * Handles the 'list' sub-command. Fetches and displays all available packages from the repository.
+     * @private
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A success or error object from the ErrorHandler.
+     */
     async _handleList(context) {
         const { dependencies } = context;
         const { ErrorHandler, OutputManager } = dependencies;
@@ -136,6 +176,12 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         return ErrorHandler.createSuccess(output);
     }
 
+    /**
+     * Handles the 'install' sub-command. Downloads a package, installs it in /bin, and sets permissions.
+     * @private
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A success or error object from the ErrorHandler.
+     */
     async _handleInstall(context) {
         const { args, dependencies } = context;
         const { CommandExecutor, ErrorHandler, OutputManager } = dependencies;
@@ -185,10 +231,22 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         return ErrorHandler.createSuccess(`Successfully installed '${packageName}'. Please reboot the system for the command to become available.`);
     }
 
+    /**
+     * Handles the 'update' sub-command. (Currently a placeholder).
+     * @private
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A success object from the ErrorHandler.
+     */
     async _handleUpdate(context) {
         return context.dependencies.ErrorHandler.createSuccess("Placeholder: update sub-command reached.");
     }
 
+    /**
+     * Handles the 'remove' sub-command. Deletes a package file from the /bin directory.
+     * @private
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A success or error object from the ErrorHandler.
+     */
     async _handleRemove(context) {
         const { args, dependencies } = context;
         const { CommandExecutor, FileSystemManager, ErrorHandler, OutputManager } = dependencies;
