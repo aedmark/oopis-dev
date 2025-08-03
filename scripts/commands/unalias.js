@@ -62,7 +62,10 @@ window.UnaliasCommand = class UnaliasCommand extends Command {
         if (allSuccess) {
             return ErrorHandler.createSuccess("", { stateModified: changesMade });
         } else {
-            return ErrorHandler.createError(errorMessages.join("\n"));
+            return ErrorHandler.createError({
+                message: errorMessages.join("\n"),
+                suggestion: "Run 'alias' to see the list of currently defined aliases.",
+            });
         }
     }
 }

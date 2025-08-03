@@ -114,7 +114,10 @@ window.ManCommand = class ManCommand extends Command {
     const commandInstance = await CommandExecutor._ensureCommandLoaded(commandName);
 
     if (!commandInstance) {
-      return ErrorHandler.createError(`No manual entry for ${commandName}`);
+      return ErrorHandler.createError({
+        message: `No manual entry for ${commandName}`,
+        suggestion: "Use 'help' to see a list of available commands.",
+      });
     }
 
     const commandData = commandInstance.definition;

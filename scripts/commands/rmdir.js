@@ -63,11 +63,10 @@ window.RmdirCommand = class RmdirCommand extends Command {
       const { node, resolvedPath } = pathData;
 
       if (Object.keys(node.children).length > 0) {
-        errorMessages.push(
-            `rmdir: failed to remove '${pathData.arg}': Directory not empty`
-        );
-        allSuccess = false;
-        continue;
+        return ErrorHandler.createError({
+          message: `failed to remove '${pathData.arg}': Directory not empty`,
+          suggestion: "Use 'rm -r' to remove directories and their contents.",
+        });
       }
 
       const parentPath = resolvedPath.substring(

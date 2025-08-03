@@ -108,6 +108,10 @@ window.CpCommand = class CpCommand extends Command {
         const operationsPlan = planResult.data;
 
         for (const operation of operationsPlan) {
+            if (operation.sourceAbsPath === operation.destinationAbsPath) {
+                continue;
+            }
+
             if (
                 operation.willOverwrite &&
                 (flags.interactive || (options.isInteractive && !flags.force))
@@ -115,6 +119,7 @@ window.CpCommand = class CpCommand extends Command {
                 const confirmed = await new Promise((resolve) => {
                     ModalManager.request({
                         context: "terminal",
+                        type: "confirm",
                         messageLines: [`Overwrite '${operation.destinationAbsPath}'?`],
                         onConfirm: () => resolve(true),
                         onCancel: () => resolve(false),
@@ -190,10 +195,10 @@ window.CpCommand = class CpCommand extends Command {
                 }
             } else if (sourceNode.type === "directory") {
                 if (!flags.recursive) {
-                    await OutputManager.appendToOutput(
-                        `cp: omitting directory '${finalName}'`
-                    );
-                    return ErrorHandler.createSuccess({ changed: false });
+                    return ErrorHandler.createError({
+                        message: `omitting directory '${finalName}'`,
+                        suggestion: "Use the -r or -R flag to copy directories.",
+                    });
                 }
 
                 const newDirNode = FileSystemManager._createNewDirectoryNode(

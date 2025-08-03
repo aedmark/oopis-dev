@@ -24,6 +24,7 @@ window.VisudoCommand = class VisudoCommand extends Command {
       /etc/sudoers file in the 'edit' application. Upon saving, visudo
       parses the file to check for syntax errors before installing it.
       If errors are found, the changes are not saved, and the user is
+
       prompted to re-edit or quit.
       This prevents syntax errors in the sudoers file from locking users
       out of the 'sudo' command.
@@ -60,9 +61,10 @@ window.VisudoCommand = class VisudoCommand extends Command {
         } = dependencies;
 
         if (currentUser !== "root") {
-            return ErrorHandler.createError(
-                "visudo: sorry, you must be root to run this command."
-            );
+            return ErrorHandler.createError({
+                message: "sorry, you must be root to run this command.",
+                suggestion: "Try running this command with 'sudo'.",
+            });
         }
 
         if (!options.isInteractive) {

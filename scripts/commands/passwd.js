@@ -62,15 +62,17 @@ window.PasswdCommand = class PasswdCommand extends Command {
         const targetUsername = args[0] || currentUser;
 
         if (currentUser !== "root" && currentUser !== targetUsername) {
-            return ErrorHandler.createError(
-                "passwd: you may only change your own password."
-            );
+            return ErrorHandler.createError({
+                message: "you may only change your own password.",
+                suggestion: "Use 'sudo' to change other users' passwords.",
+            });
         }
 
         if (!(await UserManager.userExists(targetUsername))) {
-            return ErrorHandler.createError(
-                `passwd: user '${targetUsername}' does not exist.`
-            );
+            return ErrorHandler.createError({
+                message: `user '${targetUsername}' does not exist.`,
+                suggestion: "Use 'listusers' to see all available users.",
+            });
         }
 
         return new Promise((resolve) => {

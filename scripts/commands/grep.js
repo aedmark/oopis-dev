@@ -80,9 +80,10 @@ window.GrepCommand = class GrepCommand extends Command {
     try {
       regex = new RegExp(patternStr, flags.ignoreCase ? "i" : "");
     } catch (e) {
-      return ErrorHandler.createError(
-          `grep: invalid regular expression '${patternStr}': ${e.message}`
-      );
+      return ErrorHandler.createError({
+        message: `grep: invalid regular expression '${patternStr}'`,
+        suggestion: "Check your regex syntax. Special characters may need to be escaped.",
+      });
     }
 
     const outputLines = [];
@@ -190,8 +191,10 @@ window.GrepCommand = class GrepCommand extends Command {
         if (node.type === "directory" && flags.recursive) {
           await searchDirectory(resolvedPath);
         } else if (node.type === "directory" && !flags.recursive) {
-          outputLines.push(`grep: ${pathArg}: is a directory`);
-          hadError = true;
+          return ErrorHandler.createError({
+            message: `grep: ${pathArg}: is a directory`,
+            suggestion: "Use the -r or -R flag to search directories recursively.",
+          });
         } else {
           processContent(node.content || "", pathArg, filePaths.length > 1);
         }

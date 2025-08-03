@@ -92,9 +92,10 @@ window.CurlCommand = class CurlCommand extends Command {
             response.headers.has("location")
         ) {
           if (!flags.location) {
-            return ErrorHandler.createError(
-                `curl: Redirected to ${response.headers.get("location")}. Use -L to follow.`
-            );
+            return ErrorHandler.createError({
+              message: `Redirected to ${response.headers.get("location")}`,
+              suggestion: "Use the -L flag to follow redirects.",
+            });
           }
           currentUrl = new URL(response.headers.get("location"), currentUrl)
               .href;
@@ -167,13 +168,15 @@ window.CurlCommand = class CurlCommand extends Command {
 
       return ErrorHandler.createError("curl: Too many redirects.");
     } catch (e) {
-      let errorMsg = `curl: (7) Failed to connect to host. This is often a network issue or a CORS policy preventing access.`;
-      if (e instanceof TypeError && e.message.includes("Failed to fetch")) {
-        errorMsg = `curl: (7) Couldn't connect to server. The server may be down, or a CORS policy is blocking the request from the browser.`;
-      } else if (e instanceof URIError) {
-        errorMsg = `curl: (3) URL using bad/illegal format or missing URL`;
+      let error = {
+        message: "Failed to connect to host.",
+        suggestion: "This is often a network issue or a CORS policy preventing access from the browser."
+      };
+      if (e instanceof URIError) {
+        error.message = `URL using bad/illegal format or missing URL`;
+        error.suggestion = `Check the syntax of your URL: ${currentUrl}`;
       }
-      return ErrorHandler.createError(errorMsg);
+      return ErrorHandler.createError(error);
     }
   }
 }

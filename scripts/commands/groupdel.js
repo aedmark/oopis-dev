@@ -49,13 +49,23 @@ window.GroupdelCommand = class GroupdelCommand extends Command {
      */
     async coreLogic(context) {
         const { args, currentUser, dependencies } = context;
-        const { GroupManager, ErrorHandler } = dependencies;
+        const { GroupManager, ErrorHandler, StorageManager } = dependencies;
         const groupName = args[0];
 
         if (currentUser !== "root") {
             return ErrorHandler.createError(
                 "groupdel: only root can delete groups."
             );
+        }
+
+        const users = StorageManager.loadItem(dependencies.Config.STORAGE_KEYS.USER_CREDENTIALS, "User list", {});
+        const primaryUser = Object.keys(users).find(user => users[user].primaryGroup === groupName);
+
+        if (primaryUser) {
+            return ErrorHandler.createError({
+                message: `cannot remove group '${groupName}': it is the primary group of user '${primaryUser}'`,
+                suggestion: `Delete the user '${primaryUser}' first, or change their primary group.`,
+            });
         }
 
         const result = GroupManager.deleteGroup(groupName);

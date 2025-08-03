@@ -64,18 +64,20 @@ window.RenameCommand = class RenameCommand extends Command {
         const { node: sourceNode, resolvedPath: sourcePath } = validatedPaths[0];
 
         if (newName.includes(FileSystemManager.config.FILESYSTEM.PATH_SEPARATOR)) {
-            return ErrorHandler.createError(
-                `rename: Invalid new name. Use 'mv' to move files to a different directory.`
-            );
+            return ErrorHandler.createError({
+                message: "Invalid new name. Cannot contain path separators.",
+                suggestion: "Use the 'mv' command to move files to a different directory.",
+            });
         }
 
         const parentPath = sourcePath.substring(0, sourcePath.lastIndexOf('/')) || '/';
         const newPath = FileSystemManager.getAbsolutePath(newName, parentPath);
 
         if (FileSystemManager.getNodeByPath(newPath)) {
-            return ErrorHandler.createError(
-                `rename: cannot rename '${oldName}' to '${newName}': File exists`
-            );
+            return ErrorHandler.createError({
+                message: `cannot rename '${oldName}' to '${newName}': File exists`,
+                suggestion: "Choose a different name or use 'ls' to check the directory's contents.",
+            });
         }
 
         const mvResult = await dependencies.CommandExecutor.processSingleCommand(
@@ -85,7 +87,7 @@ window.RenameCommand = class RenameCommand extends Command {
         if (mvResult.success) {
             return ErrorHandler.createSuccess("", { stateModified: true });
         } else {
-            return ErrorHandler.createError(`rename: ${mvResult.error}`);
+            return ErrorHandler.createError(`rename: ${mvResult.error.message || mvResult.error}`);
         }
     }
 }

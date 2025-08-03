@@ -59,30 +59,34 @@ window.UsermodCommand = class UsermodCommand extends Command {
         const username = args[2];
 
         if (currentUser !== "root") {
-            return ErrorHandler.createError(
-                "usermod: only root can modify user groups."
-            );
+            return ErrorHandler.createError({
+                message: "only root can modify user groups.",
+                suggestion: "Try running this command with 'sudo'.",
+            });
         }
 
         if (flag !== "-aG") {
-            return ErrorHandler.createError(
-                "usermod: invalid flag. Only '-aG' is supported."
-            );
+            return ErrorHandler.createError({
+                message: `invalid flag: ${flag}`,
+                suggestion: "The only supported flag combination is '-aG'. See 'man usermod'.",
+            });
         }
 
         if (!GroupManager.groupExists(groupName)) {
-            return ErrorHandler.createError(
-                `usermod: group '${groupName}' does not exist.`
-            );
+            return ErrorHandler.createError({
+                message: `group '${groupName}' does not exist.`,
+                suggestion: "Use 'groupadd' to create the group first.",
+            });
         }
 
         if (
             !(await UserManager.userExists(username)) &&
             username !== Config.USER.DEFAULT_NAME
         ) {
-            return ErrorHandler.createError(
-                `usermod: user '${username}' does not exist.`
-            );
+            return ErrorHandler.createError({
+                message: `user '${username}' does not exist.`,
+                suggestion: "Use 'listusers' to see all available users.",
+            });
         }
 
         const userAdded = GroupManager.addUserToGroup(username, groupName);
