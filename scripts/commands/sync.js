@@ -51,9 +51,7 @@ window.SyncCommand = class SyncCommand extends Command {
           "File system cache synchronized with persistent storage."
       );
     } catch (e) {
-      return ErrorHandler.createError(
-          `sync: An error occurred during synchronization: ${e.message}`
-      );
+      return ErrorHandler.createError({ message: `sync: An error occurred during synchronization: ${e.message}` });
     }
   }
 }

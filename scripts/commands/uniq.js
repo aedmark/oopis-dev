@@ -60,15 +60,11 @@ window.UniqCommand = class UniqCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "uniq: One or more input files could not be read."
-            );
+            return ErrorHandler.createError({ message: "uniq: One or more input files could not be read." });
         }
 
         if (flags.repeated && flags.unique) {
-            return ErrorHandler.createError(
-                "uniq: printing only unique and repeated lines is mutually exclusive"
-            );
+            return ErrorHandler.createError({ message: "uniq: printing only unique and repeated lines is mutually exclusive" });
         }
 
         if (!inputItems || inputItems.length === 0) {

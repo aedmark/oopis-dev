@@ -64,7 +64,7 @@ window.TouchCommand = class TouchCommand extends Command {
     const timestampResult =
         TimestampParser.resolveTimestampFromCommandFlags(flags, "touch");
     if (timestampResult.error)
-      return ErrorHandler.createError(timestampResult.error);
+      return ErrorHandler.createError({ message: timestampResult.error });
 
     const timestampToUse = timestampResult.timestampISO;
     let allSuccess = true;
@@ -135,9 +135,9 @@ window.TouchCommand = class TouchCommand extends Command {
     }
 
     if (!allSuccess)
-      return ErrorHandler.createError(
-          messages.join("\\n") || "touch: Not all operations were successful."
-      );
+      return ErrorHandler.createError({
+        message: messages.join("\\n") || "touch: Not all operations were successful."
+      });
 
     return ErrorHandler.createSuccess("", { stateModified: changesMade });
   }

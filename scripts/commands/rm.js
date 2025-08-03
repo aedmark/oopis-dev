@@ -1,3 +1,5 @@
+// scripts/commands/rm.js
+
 /**
  * @fileoverview This file defines the 'rm' command, a utility for removing
  * files and directories, with support for recursive, interactive, and forced deletion.
@@ -135,9 +137,7 @@ window.RmCommand = class RmCommand extends Command {
 
     const finalOutput = messages.filter((m) => m).join("\n");
     if (!allSuccess) {
-      return ErrorHandler.createError(
-          finalOutput || "Unknown error during rm operation."
-      );
+      return ErrorHandler.createError({ message: finalOutput || "Unknown error during rm operation." });
     }
     return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
   }

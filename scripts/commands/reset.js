@@ -56,9 +56,7 @@ window.ResetCommand = class ResetCommand extends Command {
         const { ModalManager, SessionManager, OutputManager, Config, ErrorHandler } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError({
-                message: "reset: Can only be run in interactive mode."
-            });
+            return ErrorHandler.createError({ message: "reset: Can only be run in interactive mode." });
         }
 
         const confirmed = await new Promise((resolve) =>

@@ -111,10 +111,10 @@ window.TrCommand = class TrCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError("tr: No readable input provided.");
+            return ErrorHandler.createError({ message: "tr: No readable input provided." });
         }
         if (args.length === 0) {
-            return ErrorHandler.createError("tr: missing operand");
+            return ErrorHandler.createError({ message: "tr: missing operand" });
         }
 
         const content = (inputItems || []).map(item => item.content).join('\n');
@@ -131,7 +131,7 @@ window.TrCommand = class TrCommand extends Command {
 
         if (flags.delete) {
             if (args.length > 2 || (args.length === 2 && !flags.squeeze)) {
-                return ErrorHandler.createError("tr: extra operand with -d");
+                return ErrorHandler.createError({ message: "tr: extra operand with -d" });
             }
             const deleteSet = new Set(this._expandSet(set1Str));
             processedContent = [...content].filter(char => !deleteSet.has(char)).join('');
@@ -150,7 +150,7 @@ window.TrCommand = class TrCommand extends Command {
         if (flags.squeeze) {
             const squeezeSetStr = flags.delete ? set2Str : (set2Str || set1Str);
             if (!squeezeSetStr) {
-                return ErrorHandler.createError("tr: missing operand for -s");
+                return ErrorHandler.createError({ message: "tr: missing operand for -s" });
             }
             const squeezeSet = new Set(this._expandSet(squeezeSetStr));
             let squeezedResult = "";

@@ -54,9 +54,7 @@ window.TopCommand = class TopCommand extends Command {
             typeof TopManager === "undefined" ||
             typeof AppLayerManager === "undefined"
         ) {
-            return ErrorHandler.createError(
-                "top: Top application module is not loaded."
-            );
+            return ErrorHandler.createError({ message: "top: Top application module is not loaded." });
         }
 
         if (options.isInteractive) {

@@ -88,17 +88,13 @@ window.ShufCommand = class ShufCommand extends Command {
         if (flags.inputRange) {
             const rangeParts = flags.inputRange.split("-");
             if (rangeParts.length !== 2) {
-                return ErrorHandler.createError(
-                    "shuf: invalid input range format for -i. Expected LO-HI."
-                );
+                return ErrorHandler.createError({ message: "shuf: invalid input range format for -i. Expected LO-HI." });
             }
             const lo = parseInt(rangeParts[0], 10);
             const hi = parseInt(rangeParts[1], 10);
 
             if (isNaN(lo) || isNaN(hi) || lo > hi) {
-                return ErrorHandler.createError(
-                    "shuf: invalid numeric range for -i."
-                );
+                return ErrorHandler.createError({ message: "shuf: invalid numeric range for -i." });
             }
             for (let i = lo; i <= hi; i++) {
                 lines.push(String(i));
@@ -107,9 +103,7 @@ window.ShufCommand = class ShufCommand extends Command {
             lines = args;
         } else {
             if (inputError) {
-                return ErrorHandler.createError(
-                    "shuf: No readable input provided or permission denied."
-                );
+                return ErrorHandler.createError({ message: "shuf: No readable input provided or permission denied." });
             }
             if (inputItems && inputItems.length > 0) {
                 lines = inputItems
@@ -127,9 +121,7 @@ window.ShufCommand = class ShufCommand extends Command {
                 allowNegative: false,
             });
             if (countResult.error) {
-                return ErrorHandler.createError(
-                    `shuf: invalid count for -n: ${countResult.error}`
-                );
+                return ErrorHandler.createError({ message: `shuf: invalid count for -n: ${countResult.error}` });
             }
             outputCount = countResult.value;
         }

@@ -91,7 +91,7 @@ window.RmdirCommand = class RmdirCommand extends Command {
     }
 
     if (!allSuccess) {
-      return ErrorHandler.createError(errorMessages.join("\n"));
+      return ErrorHandler.createError({ message: errorMessages.join("\n") });
     }
     return ErrorHandler.createSuccess("", { stateModified: anyChangeMade });
   }

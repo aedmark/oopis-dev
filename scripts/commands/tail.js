@@ -59,9 +59,7 @@ window.TailCommand = class TailCommand extends Command {
         const { ErrorHandler, Utils, FileSystemManager, OutputManager, Config } = dependencies;
 
         if (inputError && (!args || args.length === 0)) {
-            return ErrorHandler.createError(
-                "tail: No readable input provided or permission denied."
-            );
+            return ErrorHandler.createError({ message: "tail: No readable input provided or permission denied." });
         }
 
         let lineCount = 10;
@@ -71,18 +69,14 @@ window.TailCommand = class TailCommand extends Command {
                 allowNegative: false,
             });
             if (linesResult.error) {
-                return ErrorHandler.createError(
-                    `tail: invalid number of lines: '${flags.lines}'`
-                );
+                return ErrorHandler.createError({ message: `tail: invalid number of lines: '${flags.lines}'` });
             }
             lineCount = linesResult.value;
         }
 
         if (flags.follow) {
             if (args.length !== 1) {
-                return ErrorHandler.createError(
-                    "tail: -f option can only be used with a single file argument."
-                );
+                return ErrorHandler.createError({ message: "tail: -f option can only be used with a single file argument." });
             }
             const filePath = args[0];
             const pathValidation = FileSystemManager.validatePath(filePath, {
@@ -90,7 +84,7 @@ window.TailCommand = class TailCommand extends Command {
                 permissions: ["read"],
             });
             if (!pathValidation.success) {
-                return ErrorHandler.createError(`tail: ${pathValidation.error}`);
+                return ErrorHandler.createError({ message: `tail: ${pathValidation.error}` });
             }
 
             let lastContent = pathValidation.data.node.content || "";
@@ -110,7 +104,7 @@ window.TailCommand = class TailCommand extends Command {
                     if (!currentNode) {
                         clearInterval(checkInterval);
                         resolve(
-                            ErrorHandler.createError("tail: file deleted or moved")
+                            ErrorHandler.createError({ message: "tail: file deleted or moved" })
                         );
                         return;
                     }

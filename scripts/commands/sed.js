@@ -49,10 +49,10 @@ window.SedCommand = class SedCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError("sed: No readable input or permission denied.");
+            return ErrorHandler.createError({ message: "sed: No readable input or permission denied." });
         }
         if (args.length === 0) {
-            return ErrorHandler.createError("sed: no script specified.");
+            return ErrorHandler.createError({ message: "sed: no script specified." });
         }
 
         const script = args[0];
@@ -60,7 +60,7 @@ window.SedCommand = class SedCommand extends Command {
         const match = script.match(substitutionRegex);
 
         if (!match) {
-            return ErrorHandler.createError(`sed: invalid script: ${script}`);
+            return ErrorHandler.createError({ message: `sed: invalid script: ${script}` });
         }
 
         const [, pattern, replacement, flags] = match;

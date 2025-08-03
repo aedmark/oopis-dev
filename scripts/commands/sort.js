@@ -57,9 +57,7 @@ window.SortCommand = class SortCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "sort: No readable input provided or permission denied."
-            );
+            return ErrorHandler.createError({ message: "sort: No readable input provided or permission denied." });
         }
 
         if (!inputItems || inputItems.length === 0) {

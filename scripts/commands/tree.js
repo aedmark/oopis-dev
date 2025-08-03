@@ -72,9 +72,7 @@ window.TreeCommand = class TreeCommand extends Command {
         });
 
         if (!pathValidationResult.success) {
-            return ErrorHandler.createError(
-                `tree: cannot access '${pathArg}': ${pathValidationResult.error}`
-            );
+            return ErrorHandler.createError({ message: `tree: cannot access '${pathArg}': ${pathValidationResult.error}` });
         }
         const { resolvedPath } = pathValidationResult.data;
 
@@ -83,9 +81,7 @@ window.TreeCommand = class TreeCommand extends Command {
             : { value: Infinity };
 
         if (flags.level && (maxDepth.error || maxDepth.value === null))
-            return ErrorHandler.createError(
-                `tree: invalid level value for -L: '${flags.level}' ${maxDepth.error || ""}`
-            );
+            return ErrorHandler.createError({ message: `tree: invalid level value for -L: '${flags.level}' ${maxDepth.error || ""}` });
 
         const outputLines = [resolvedPath];
         let dirCount = 0;

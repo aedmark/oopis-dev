@@ -1,3 +1,5 @@
+// scripts/commands/run.js
+
 /**
  * @fileoverview This file defines the 'run' command, a utility for executing
  * a script file containing a sequence of OopisOS shell commands.
@@ -64,7 +66,7 @@ window.RunCommand = class RunCommand extends Command {
     for (const line of lines) {
       const sanitized = Utils.sanitizeForExecution(line, { context: "script" });
       if (!sanitized.isValid) {
-        return ErrorHandler.createError(`run: security error in script: ${sanitized.error}`);
+        return ErrorHandler.createError({ message: `run: security error in script: ${sanitized.error}` });
       }
     }
 
@@ -74,7 +76,7 @@ window.RunCommand = class RunCommand extends Command {
       });
       return ErrorHandler.createSuccess("We did it!");
     } catch (e) {
-      return ErrorHandler.createError(`run: ${e.message}`);
+      return ErrorHandler.createError({ message: `run: ${e.message}` });
     }
   }
 }

@@ -64,7 +64,7 @@ window.SetCommand = class SetCommand extends Command {
         if (result.success) {
             return ErrorHandler.createSuccess("");
         } else {
-            return ErrorHandler.createError(`set: ${result.error}`);
+            return ErrorHandler.createError({ message: `set: ${result.error}` });
         }
     }
 }
