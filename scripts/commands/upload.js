@@ -1,6 +1,8 @@
+// scripts/commands/upload.js
+
 /**
  * @fileoverview This file defines the 'upload' command, a utility that allows
- * users to upload files from their local machine into the OopisOS virtual file system.
+ * users to upload files or entire directories from their local machine into the OopisOS virtual file system.
  * @module commands/upload
  */
 
@@ -16,22 +18,33 @@ window.UploadCommand = class UploadCommand extends Command {
     constructor() {
         super({
             commandName: "upload",
-            description: "Uploads one or more files from your local machine to the current OopisOS directory.",
-            helpText: `Usage: upload
-      Initiate a file upload from your local machine.
+            description: "Uploads files or directories from your local machine to the current OopisOS directory.",
+            helpText: `Usage: upload [-d]
+      Initiate a file or directory upload from your local machine.
+
       DESCRIPTION
       The upload command opens your computer's native file selection
-      dialog, allowing you to choose one or more files to upload into
-      the OopisOS virtual file system.
-      Selected files will be placed in the current working directory.
-      If a file with the same name already exists, you will be prompted
-      to confirm the overwrite for that specific file.
+      dialog. By default, it allows you to choose one or more files.
+      With the -d flag, it allows you to choose a single directory to
+      upload recursively.
+
+      Uploaded content will be placed in the current working directory.
+      If an item with the same name already exists, you will be prompted
+      to confirm the overwrite for that specific item.
+
+      OPTIONS
+      -d, --directory
+            Upload an entire directory and its contents.
+
       NOTE: This command is only available in interactive sessions.`,
             validations: {
                 args: {
                     exact: 0
                 }
             },
+            flagDefinitions: [
+                { name: "directory", short: "-d", long: "--directory" },
+            ]
         });
     }
 
@@ -44,7 +57,7 @@ window.UploadCommand = class UploadCommand extends Command {
      * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
      */
     async coreLogic(context) {
-        const { options, currentUser, dependencies } = context;
+        const { flags, options, currentUser, dependencies } = context;
         const {
             FileSystemManager,
             UserManager,
@@ -59,7 +72,16 @@ window.UploadCommand = class UploadCommand extends Command {
             return ErrorHandler.createError({ message: "upload: Can only be run in interactive mode." });
         }
 
-        const input = Utils.createElement("input", { type: "file", multiple: true });
+        const inputAttrs = { type: "file" };
+        if (flags.directory) {
+            inputAttrs.webkitdirectory = true;
+            inputAttrs.mozdirectory = true;
+            inputAttrs.directory = true;
+        } else {
+            inputAttrs.multiple = true;
+        }
+
+        const input = Utils.createElement("input", inputAttrs);
         input.style.display = 'none';
         document.body.appendChild(input);
 
@@ -96,10 +118,11 @@ window.UploadCommand = class UploadCommand extends Command {
 
                 let anyFileUploaded = false;
                 let errorOccurred = false;
+                const currentPath = FileSystemManager.getCurrentPath();
 
                 for (const file of files) {
-                    const currentPath = FileSystemManager.getCurrentPath();
-                    const newFilePath = `${currentPath === "/" ? "" : currentPath}/${file.name}`;
+                    const relativePath = flags.directory ? (file.webkitRelativePath || file.name) : file.name;
+                    const newFilePath = `${currentPath === "/" ? "" : currentPath}/${relativePath}`;
                     const existingNode = FileSystemManager.getNodeByPath(newFilePath);
 
                     if (existingNode) {
@@ -107,7 +130,7 @@ window.UploadCommand = class UploadCommand extends Command {
                             ModalManager.request({
                                 context: "terminal",
                                 type: "confirm",
-                                messageLines: [`'${file.name}' already exists. Overwrite it?`],
+                                messageLines: [`'${relativePath}' already exists. Overwrite it?`],
                                 onConfirm: () => confirmResolve(true),
                                 onCancel: () => confirmResolve(false),
                                 options,
@@ -115,7 +138,7 @@ window.UploadCommand = class UploadCommand extends Command {
                         });
 
                         if (!confirmed) {
-                            await OutputManager.appendToOutput(`Skipping '${file.name}'.`);
+                            await OutputManager.appendToOutput(`Skipping '${relativePath}'.`);
                             continue;
                         }
                     }
@@ -134,33 +157,36 @@ window.UploadCommand = class UploadCommand extends Command {
 
                             if (saveResult.success) {
                                 await OutputManager.appendToOutput(
-                                    `${Config.MESSAGES.UPLOAD_SUCCESS_PREFIX}${file.name}${Config.MESSAGES.UPLOAD_SUCCESS_MIDDLE}${newFilePath}${Config.MESSAGES.UPLOAD_SUCCESS_SUFFIX}`
+                                    `${Config.MESSAGES.UPLOAD_SUCCESS_PREFIX}${relativePath}${Config.MESSAGES.UPLOAD_SUCCESS_MIDDLE}${newFilePath}${Config.MESSAGES.UPLOAD_SUCCESS_SUFFIX}`
                                 );
                                 anyFileUploaded = true;
                                 fileResolve(true);
                             } else {
-                                await OutputManager.appendToOutput(`Error uploading '${file.name}': ${saveResult.error}`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
+                                await OutputManager.appendToOutput(`Error uploading '${relativePath}': ${saveResult.error}`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
                                 errorOccurred = true;
                                 fileResolve(false);
                             }
                         };
                         reader.onerror = () => {
-                            OutputManager.appendToOutput(`Error reading file '${file.name}'.`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
+                            OutputManager.appendToOutput(`Error reading file '${relativePath}'.`, { typeClass: Config.CSS_CLASSES.ERROR_MSG });
                             errorOccurred = true;
                             fileResolve(false);
                         };
 
-                        const binaryExtensions = ['mxl'];
+                        const stringifiableExtensions = ['txt', 'md', 'html', 'sh', 'js', 'css', 'json', '']; // Whitelist known text-based types
                         const extension = file.name.split('.').pop().toLowerCase();
-                        if (binaryExtensions.includes(extension)) {
-                            reader.readAsArrayBuffer(file);
+                        if (!stringifiableExtensions.includes(extension)) {
+                            OutputManager.appendToOutput(`Skipping binary or unsupported file '${file.name}': This version of OopisOS only supports text-based file uploads.`, { typeClass: Config.CSS_CLASSES.WARNING_MSG });
+                            fileResolve(true); // Resolve as success to continue processing other files
                         } else {
                             reader.readAsText(file);
                         }
-
                     });
-
                     await uploadPromise;
+                }
+
+                if (anyFileUploaded) {
+                    await FileSystemManager.save();
                 }
 
                 cleanup();

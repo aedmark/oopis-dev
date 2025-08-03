@@ -213,7 +213,7 @@ class ConfigManager {
         "less", "listusers", "log", "login", "logout", "ls", "ln", "man", "more", "mkdir", "mv", "mxml2sh",
         "nc", "netstat", "nl", "ocrypt", "oopis-get", "paint", "passwd", "patch", "ping", "play", "printscreen",
         "ps", "pwd", "reboot", "remix", "removeuser", "rename", "reset", "restore", "rm", "rmdir",
-        "run", "sed", "set", "shuf", "sort", "su", "sudo", "sync","tail", "top", "touch", "tr",
+        "run", "sed", "set", "shuf", "sort", "storyboard", "su", "sudo", "sync","tail", "top", "touch", "tr",
         "tree", "unalias", "uniq", "unset", "unzip", "upload", "useradd", "usermod", "visudo",
         "wc", "wget", "whoami", "xor", "zip", "xargs", "x"
       ],
