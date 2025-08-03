@@ -1,6 +1,20 @@
 // scripts/commands/reset.js
 
+/**
+ * @fileoverview This file defines the 'reset' command, a powerful utility for
+ * completely resetting the OopisOS environment to its factory default state.
+ * @module commands/reset
+ */
+
+/**
+ * Represents the 'reset' command.
+ * @class ResetCommand
+ * @extends Command
+ */
 window.ResetCommand = class ResetCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "reset",
@@ -29,6 +43,14 @@ window.ResetCommand = class ResetCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'reset' command.
+     * It prompts the user for confirmation and, if confirmed, proceeds to
+     * clear all browser cache and local storage associated with the application,
+     * effectively performing a factory reset.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, dependencies } = context;
         const { ModalManager, SessionManager, OutputManager, Config, ErrorHandler } = dependencies;

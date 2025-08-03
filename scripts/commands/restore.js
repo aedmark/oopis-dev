@@ -1,6 +1,20 @@
 // scripts/commands/restore.js
 
+/**
+ * @fileoverview This file defines the 'restore' command, a powerful utility for
+ * overwriting the current system state with data from a backup file.
+ * @module commands/restore
+ */
+
+/**
+ * Represents the 'restore' command.
+ * @class RestoreCommand
+ * @extends Command
+ */
 window.RestoreCommand = class RestoreCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "restore",
@@ -33,6 +47,14 @@ window.RestoreCommand = class RestoreCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'restore' command.
+     * It validates the backup file, verifies its checksum, prompts the user for
+     * confirmation, and then proceeds to wipe the current system state and
+     * replace it with the data from the backup file.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, validatedPaths, dependencies } = context;
         const {

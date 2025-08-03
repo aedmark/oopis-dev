@@ -1,6 +1,20 @@
 // scripts/commands/rename.js
 
+/**
+ * @fileoverview This file defines the 'rename' command, a utility for renaming
+ * a single file or directory within its current location.
+ * @module commands/rename
+ */
+
+/**
+ * Represents the 'rename' command.
+ * @class RenameCommand
+ * @extends Command
+ */
 window.RenameCommand = class RenameCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "rename",
@@ -34,6 +48,13 @@ window.RenameCommand = class RenameCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'rename' command.
+     * It validates that the new name is not a path and does not already exist,
+     * then uses the 'mv' command internally to perform the rename operation.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, validatedPaths, dependencies } = context;
         const { FileSystemManager, ErrorHandler } = dependencies;
