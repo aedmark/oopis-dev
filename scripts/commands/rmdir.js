@@ -1,6 +1,18 @@
-// scripts/commands/rmdir.js
+/**
+ * @fileoverview This file defines the 'rmdir' command, a utility for removing
+ * empty directories from the filesystem.
+ * @module commands/rmdir
+ */
 
+/**
+ * Represents the 'rmdir' (remove directory) command.
+ * @class RmdirCommand
+ * @extends Command
+ */
 window.RmdirCommand = class RmdirCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "rmdir",
@@ -33,6 +45,13 @@ window.RmdirCommand = class RmdirCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'rmdir' command. It iterates through
+   * the provided directory paths, verifies that each is empty, and then
+   * removes it from its parent directory in the filesystem.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { validatedPaths, dependencies } = context;
     const { FileSystemManager, ErrorHandler } = dependencies;

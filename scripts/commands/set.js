@@ -1,6 +1,18 @@
-// scripts/commands/set.js
+/**
+ * @fileoverview This file defines the 'set' command, a utility for displaying
+ * and managing shell environment variables.
+ * @module commands/set
+ */
 
+/**
+ * Represents the 'set' command for environment variable management.
+ * @class SetCommand
+ * @extends Command
+ */
 window.SetCommand = class SetCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "set",
@@ -25,6 +37,14 @@ window.SetCommand = class SetCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'set' command. If no arguments are
+     * provided, it lists all current environment variables. If arguments are
+     * given, it parses them as a key-value pair and sets or updates the
+     * corresponding environment variable.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, dependencies } = context;
         const { EnvironmentManager, Utils, ErrorHandler } = dependencies;

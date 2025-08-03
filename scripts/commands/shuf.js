@@ -1,5 +1,14 @@
-// scripts/commands/shuf.js
+/**
+ * @fileoverview This file defines the 'shuf' command, a utility for
+ * generating random permutations of lines from various input sources.
+ * @module commands/shuf
+ */
 
+/**
+ * Shuffles an array in place using the Fisher-Yates algorithm.
+ * @param {Array<any>} array The array to shuffle.
+ * @returns {Array<any>} The shuffled array.
+ */
 function fisherYatesShuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -8,7 +17,15 @@ function fisherYatesShuffle(array) {
     return array;
 }
 
+/**
+ * Represents the 'shuf' command for generating random permutations.
+ * @class ShufCommand
+ * @extends Command
+ */
 window.ShufCommand = class ShufCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "shuf",
@@ -53,6 +70,14 @@ window.ShufCommand = class ShufCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'shuf' command. It gathers lines from
+     * one of several possible sources (input stream, echo flag, or input range flag),
+     * shuffles them, optionally truncates the list to a specified count, and
+     * returns the result.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler, Utils } = dependencies;
@@ -127,4 +152,3 @@ window.ShufCommand = class ShufCommand extends Command {
 }
 
 window.CommandRegistry.register(new ShufCommand());
-

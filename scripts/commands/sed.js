@@ -1,6 +1,18 @@
-// scripts/commands/sed.js
+/**
+ * @fileoverview This file defines the 'sed' command, a stream editor for
+ * filtering and transforming text from standard input or files.
+ * @module commands/sed
+ */
 
+/**
+ * Represents the 'sed' (stream editor) command.
+ * @class SedCommand
+ * @extends Command
+ */
 window.SedCommand = class SedCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "sed",
@@ -25,6 +37,13 @@ window.SedCommand = class SedCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'sed' command. It parses a substitution
+     * script from the arguments, creates a regular expression from it, and
+     * applies the transformation to each line of the input content.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

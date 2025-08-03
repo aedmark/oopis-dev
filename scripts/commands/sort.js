@@ -1,6 +1,18 @@
-// scripts/commands/sort.js
+/**
+ * @fileoverview This file defines the 'sort' command, a utility for sorting
+ * lines of text from files or standard input alphabetically or numerically.
+ * @module commands/sort
+ */
 
+/**
+ * Represents the 'sort' command.
+ * @class SortCommand
+ * @extends Command
+ */
 window.SortCommand = class SortCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "sort",
@@ -33,6 +45,13 @@ window.SortCommand = class SortCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'sort' command. It takes lines from an
+     * input stream, sorts them based on the provided flags (numeric, reverse, unique),
+     * and returns the sorted string.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

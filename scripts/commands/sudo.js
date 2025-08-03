@@ -1,6 +1,19 @@
-// scripts/commands/sudo.js
+/**
+ * @fileoverview This file defines the 'sudo' command, a critical utility for
+ * executing commands with superuser (root) privileges, handling password
+ * authentication and sudoers policy checks.
+ * @module commands/sudo
+ */
 
+/**
+ * Represents the 'sudo' (superuser do) command.
+ * @class SudoCommand
+ * @extends Command
+ */
 window.SudoCommand = class SudoCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "sudo",
@@ -22,6 +35,14 @@ window.SudoCommand = class SudoCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'sudo' command. It checks if the user is
+   * permitted to run the specified command as root based on the sudoers file.
+   * If a password is required, it prompts for it interactively. On successful
+   * authentication, it executes the command with root privileges.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, currentUser, options, dependencies } = context;
     const { ErrorHandler, CommandExecutor, SudoManager, UserManager, ModalManager } = dependencies;

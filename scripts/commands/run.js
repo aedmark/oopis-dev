@@ -1,6 +1,18 @@
-// scripts/commands/run.js
+/**
+ * @fileoverview This file defines the 'run' command, a utility for executing
+ * a script file containing a sequence of OopisOS shell commands.
+ * @module commands/run
+ */
 
+/**
+ * Represents the 'run' command for executing script files.
+ * @class RunCommand
+ * @extends Command
+ */
 window.RunCommand = class RunCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "run",
@@ -33,6 +45,14 @@ window.RunCommand = class RunCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'run' command. It reads the content of the
+   * specified script file, sanitizes each line for basic security, and then
+   * passes the lines to the CommandExecutor to be executed sequentially in a
+   * non-interactive context.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { validatedPaths, dependencies } = context;
     const { CommandExecutor, ErrorHandler, Utils } = dependencies;

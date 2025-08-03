@@ -1,6 +1,18 @@
-// scripts/commands/rm.js
+/**
+ * @fileoverview This file defines the 'rm' command, a utility for removing
+ * files and directories, with support for recursive, interactive, and forced deletion.
+ * @module commands/rm
+ */
 
+/**
+ * Represents the 'rm' (remove) command.
+ * @class RmCommand
+ * @extends Command
+ */
 window.RmCommand = class RmCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "rm",
@@ -43,6 +55,14 @@ window.RmCommand = class RmCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'rm' command. It processes a list of paths,
+   * handling flags for recursive, forced, or interactive deletion. It prompts
+   * for confirmation where necessary and uses the FileSystemManager to
+   * perform the actual file system modifications.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { flags, currentUser, options, validatedPaths, dependencies } = context;
     const { ErrorHandler, FileSystemManager, ModalManager, Config } = dependencies;

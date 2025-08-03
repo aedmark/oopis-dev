@@ -1,6 +1,18 @@
-// scripts/commands/su.js
+/**
+ * @fileoverview This file defines the 'su' command, a utility for switching
+ * to another user account and stacking the new session on top of the current one.
+ * @module commands/su
+ */
 
+/**
+ * Represents the 'su' (substitute user) command.
+ * @class SuCommand
+ * @extends Command
+ */
 window.SuCommand = class SuCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "su",
@@ -31,6 +43,13 @@ window.SuCommand = class SuCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'su' command. It determines the target
+     * user and passes the credentials to the UserManager to handle the session
+     * switch. It then formats a welcome message for the new user session.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, dependencies } = context;
         const { UserManager, ErrorHandler, Config } = dependencies;
