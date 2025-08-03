@@ -1,6 +1,20 @@
 // scripts/commands/nc.js
 
+/**
+ * @fileoverview This file defines the 'nc' (netcat) command, a utility for
+ * sending and receiving messages between OopisOS instances over the network.
+ * @module commands/nc
+ */
+
+/**
+ * Represents the 'nc' command for network communication.
+ * @class NcCommand
+ * @extends Command
+ */
 window.NcCommand = class NcCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "nc",
@@ -33,6 +47,13 @@ window.NcCommand = class NcCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'nc' command.
+     * It handles two main modes: listening for incoming messages (with an optional
+     * command execution feature for root) and sending a direct message to another instance.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, currentUser, dependencies } = context;
         const { NetworkManager, ErrorHandler, CommandExecutor } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/netstat.js
 
+/**
+ * @fileoverview This file defines the 'netstat' command, a utility for displaying
+ * the current network status and discovered OopisOS instances.
+ * @module commands/netstat
+ */
+
+/**
+ * Represents the 'netstat' command for displaying network status.
+ * @class NetstatCommand
+ * @extends Command
+ */
 window.NetstatCommand = class NetstatCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "netstat",
@@ -21,6 +35,14 @@ window.NetstatCommand = class NetstatCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'netstat' command.
+     * It retrieves the local instance ID and a list of discovered remote instances
+     * from the NetworkManager, formats this information into a readable list,
+     * and returns it for display.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { dependencies } = context;
         const { NetworkManager, ErrorHandler } = dependencies;

@@ -1,6 +1,20 @@
 // scripts/commands/more.js
 
+/**
+ * @fileoverview This file defines the 'more' command, a simple pager utility
+ * for displaying content from files or standard input one screen at a time.
+ * @module commands/more
+ */
+
+/**
+ * Represents the 'more' command, a pager for displaying content.
+ * @class MoreCommand
+ * @extends Command
+ */
 window.MoreCommand = class MoreCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "more",
@@ -25,6 +39,13 @@ window.MoreCommand = class MoreCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'more' command.
+     * It takes content from files or standard input and either prints it all at once
+     * (in non-interactive mode) or opens the PagerManager to display it screen by screen.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, inputItems, inputError, dependencies } = context;
         const { ErrorHandler, PagerManager } = dependencies;

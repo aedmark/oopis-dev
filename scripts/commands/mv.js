@@ -1,6 +1,20 @@
 // scripts/commands/mv.js
 
+/**
+ * @fileoverview This file defines the 'mv' command, a utility for moving and renaming
+ * files and directories within the OopisOS virtual file system.
+ * @module commands/mv
+ */
+
+/**
+ * Represents the 'mv' (move) command.
+ * @class MvCommand
+ * @extends Command
+ */
 window.MvCommand = class MvCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "mv",
@@ -40,6 +54,13 @@ window.MvCommand = class MvCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'mv' command.
+     * It prepares a plan of move operations, handles interactive confirmation for overwrites,
+     * and then executes the moves by manipulating the in-memory file system structure.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, options, flags, dependencies } = context;
         const { FileSystemManager, ErrorHandler, ModalManager, Utils } = dependencies;

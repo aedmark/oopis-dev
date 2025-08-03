@@ -1,6 +1,20 @@
 // scripts/commands/mxml2sh.js
 
+/**
+ * @fileoverview Defines the 'mxml2sh' command, a utility for converting
+ * MusicXML files into executable OopisOS scripts that use the 'play' command.
+ * @module commands/mxml2sh
+ */
+
+/**
+ * Represents the 'mxml2sh' command.
+ * @class Mxml2shCommand
+ * @extends Command
+ */
 window.Mxml2shCommand = class Mxml2shCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "mxml2sh",
@@ -22,6 +36,14 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'mxml2sh' command.
+     * It reads a MusicXML or compressed .mxl file, parses its musical data,
+     * converts it into a sequence of 'play' and 'delay' commands, and saves
+     * the result as a new executable shell script.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, validatedPaths, dependencies } = context;
         const { ErrorHandler, Utils, FileSystemManager, UserManager, CommandExecutor, OutputManager } = dependencies;
@@ -38,13 +60,13 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
 
         try {
             await OutputManager.appendToOutput("Converting MusicXML to script...");
-            
+
             let xmlContent = inputFileNode.content;
             if (extension === 'mxl') {
                 await OutputManager.appendToOutput("Decompressing .mxl file...");
                 const JSZip = window.JSZip;
                 const zip = await JSZip.loadAsync(xmlContent);
-                const mainXmlFile = Object.keys(zip.files).find(name => 
+                const mainXmlFile = Object.keys(zip.files).find(name =>
                     !name.startsWith('META-INF') && (name.endsWith('.musicxml') || name.endsWith('.xml'))
                 );
                 if (!mainXmlFile) throw new Error("No valid .musicxml file found in archive");
@@ -56,7 +78,7 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
 
             const scriptContent = this._generateScript(notes, divisions);
             const absOutputPath = FileSystemManager.getAbsolutePath(outputFilePath);
-            
+
             const saveResult = await FileSystemManager.createOrUpdateFile(absOutputPath, scriptContent, {
                 currentUser: UserManager.getCurrentUser().name,
                 primaryGroup: UserManager.getPrimaryGroupForUser(UserManager.getCurrentUser().name)
@@ -72,6 +94,12 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         }
     }
 
+    /**
+     * Parses a MusicXML string to extract musical notes, rests, and timing information.
+     * @private
+     * @param {string} xmlString - The XML content of the music file.
+     * @returns {{notes: Array<object>, divisions: number}} An object containing an array of note/rest objects and the time divisions per quarter note.
+     */
     _parseMusicXML(xmlString) {
         const notes = [];
         let divisions = 1;
@@ -105,6 +133,13 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         return { notes, divisions };
     }
 
+    /**
+     * Generates an OopisOS shell script string from parsed musical data.
+     * @private
+     * @param {Array<object>} notes - The array of note/rest objects.
+     * @param {number} divisions - The number of divisions per quarter note.
+     * @returns {string} The content of the executable shell script.
+     */
     _generateScript(notes, divisions) {
         const lines = ["#!/bin/oopis_shell", "# Converted from MusicXML by mxml2sh"];
         let i = 0;
@@ -134,6 +169,13 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         return lines.join('\n');
     }
 
+    /**
+     * Converts a MusicXML duration value into a Tone.js-compatible duration string.
+     * @private
+     * @param {number} duration - The duration value from the MusicXML.
+     * @param {number} divisions - The number of divisions per quarter note.
+     * @returns {string} A Tone.js duration string (e.g., "4n", "8n").
+     */
     _durationToToneJS(duration, divisions) {
         const quarterNote = duration / divisions;
         if (quarterNote >= 4) return "1n";
