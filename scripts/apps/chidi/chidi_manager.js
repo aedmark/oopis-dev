@@ -127,7 +127,6 @@ window.ChidiManager = class ChidiManager extends App {
         this.state.model,
         chatHistory,
         apiKey,
-        this.dependencies,
         systemPrompt
     );
     return result;

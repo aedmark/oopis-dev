@@ -44,7 +44,7 @@ window.StoryboardCommand = class StoryboardCommand extends Command {
 
         storyboard --ask "Which file handles user authentication?"
         Analyzes the current directory to answer a specific question.`,
-            isInputStream: true,
+            isInputStream: true, // Required to accept piped input
             completionType: "paths",
             flagDefinitions: [
                 { name: "mode", short: "-m", long: "--mode", takesValue: true },
@@ -52,38 +52,30 @@ window.StoryboardCommand = class StoryboardCommand extends Command {
                 { name: "ask", long: "--ask", takesValue: true },
             ]
         });
+        this.SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html", "js", "sh", "css", "json"]);
     }
 
     /**
      * Recursively traverses a directory to find all supported files for analysis.
      * @param {string} startPath - The absolute path to start the search from.
      * @param {object} startNode - The filesystem node corresponding to the startPath.
-     * @param {object} context - The command context, containing user info and dependencies.
+     * @param {object} context - The command context.
      * @returns {Promise<Array<object>>} A promise resolving to an array of file objects.
      * @private
      */
-    async _getFilesForAnalysis(startPath, startNode, context) {
+    async _getFilesFromDirectory(startPath, startNode, context) {
         const { currentUser, dependencies } = context;
         const { FileSystemManager, Utils } = dependencies;
         const files = [];
         const visited = new Set();
-        const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html", "js", "sh", "css", "json"]);
 
-        async function recurse(currentPath, node) {
-            if (visited.has(currentPath)) return;
+        const recurse = async (currentPath, node) => {
+            if (visited.has(currentPath) || !node) return;
             visited.add(currentPath);
 
             if (!FileSystemManager.hasPermission(node, currentUser, "read")) return;
 
-            if (node.type === "file") {
-                if (SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(currentPath))) {
-                    files.push({
-                        name: currentPath.split("/").pop(),
-                        path: currentPath,
-                        content: node.content || "",
-                    });
-                }
-            } else if (node.type === "directory") {
+            if (node.type === "directory") {
                 if (!FileSystemManager.hasPermission(node, currentUser, "execute")) return;
                 for (const childName of Object.keys(node.children || {}).sort()) {
                     await recurse(
@@ -91,49 +83,80 @@ window.StoryboardCommand = class StoryboardCommand extends Command {
                         node.children[childName]
                     );
                 }
+            } else if (node.type === "file") {
+                if (this.SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(currentPath))) {
+                    files.push({
+                        name: currentPath.split("/").pop(),
+                        path: currentPath,
+                        content: node.content || "",
+                    });
+                }
             }
-        }
+        };
 
         await recurse(startPath, startNode);
         return files;
     }
 
     /**
-     * Main logic for the 'storyboard' command. This will be where the magic happens.
+     * Main logic for the 'storyboard' command.
      * @param {object} context - The command execution context.
      * @returns {Promise<object>} The result of the command execution.
      */
     async coreLogic(context) {
         const { args, flags, dependencies, inputItems, currentUser } = context;
-        const { ErrorHandler, OutputManager, FileSystemManager, Utils, AIManager } = dependencies;
+        const { ErrorHandler, OutputManager, FileSystemManager, Utils, AIManager, Config } = dependencies;
 
         let filesToAnalyze = [];
         let hadErrors = false;
 
-        if (inputItems && inputItems.length > 0 && inputItems[0].content) {
-            // Piped Mode
-            const pathsFromPipe = inputItems[0].content.trim().split("\n");
-            for (const path of pathsFromPipe) {
-                if (!path.trim()) continue;
-                const pathResult = FileSystemManager.validatePath(path, { permissions: ['read'] });
-                if (!pathResult.success) {
-                    hadErrors = true;
-                    continue;
-                }
-                filesToAnalyze.push({
-                    name: pathResult.data.resolvedPath.split("/").pop(),
-                    path: pathResult.data.resolvedPath,
-                    content: pathResult.data.node.content || "",
-                });
-            }
-        } else {
+        if (args.length > 0) {
             // Path Argument Mode
-            const startPathArg = args.length > 0 ? args[0] : ".";
+            const startPathArg = args[0];
             const pathResult = FileSystemManager.validatePath(startPathArg, { permissions: ['read'] });
             if (!pathResult.success) {
                 return ErrorHandler.createError(`storyboard: ${pathResult.error}`);
             }
-            filesToAnalyze = await this._getFilesForAnalysis(pathResult.data.resolvedPath, pathResult.data.node, context);
+
+            const { node, resolvedPath } = pathResult.data;
+
+            if (node.type === 'file') {
+                if (this.SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(resolvedPath))) {
+                    filesToAnalyze.push({
+                        name: resolvedPath.split("/").pop(),
+                        path: resolvedPath,
+                        content: node.content || "",
+                    });
+                }
+            } else if (node.type === 'directory') {
+                filesToAnalyze = await this._getFilesFromDirectory(resolvedPath, node, context);
+            }
+        } else if (inputItems && inputItems.length > 0 && inputItems[0].content) {
+            // Piped Mode
+            const pathsFromPipe = inputItems[0].content.trim().split('\n');
+            for (const path of pathsFromPipe) {
+                if (!path.trim()) continue;
+                const pathValidationResult = FileSystemManager.validatePath(path, {
+                    expectedType: "file",
+                    permissions: ["read"],
+                });
+                if (!pathValidationResult.success) {
+                    await OutputManager.appendToOutput(
+                        `storyboard: Skipping invalid or unreadable path from pipe: ${path}`,
+                        { typeClass: Config.CSS_CLASSES.WARNING_MSG }
+                    );
+                    hadErrors = true;
+                    continue;
+                }
+                const pathValidation = pathValidationResult.data;
+                if (this.SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(pathValidation.resolvedPath))) {
+                    filesToAnalyze.push({
+                        name: pathValidation.resolvedPath.split("/").pop(),
+                        path: pathValidation.resolvedPath,
+                        content: pathValidation.node.content || "",
+                    });
+                }
+            }
         }
 
         if (filesToAnalyze.length === 0) {
@@ -142,18 +165,19 @@ window.StoryboardCommand = class StoryboardCommand extends Command {
 
         await OutputManager.appendToOutput(`Found ${filesToAnalyze.length} relevant files. Consulting the AI Project Historian...`, { typeClass: "text-info" });
 
-        const apiKey = await AIManager.getApiKey('gemini');
-        if (!apiKey) {
-            return ErrorHandler.createError("storyboard: API key for 'gemini' not found. Use 'set --apikey gemini <key>'.");
+        const apiKeyResult = await AIManager.getApiKey('gemini', { isInteractive: true, dependencies });
+        if (!apiKeyResult.success) {
+            return ErrorHandler.createError(`storyboard: ${apiKeyResult.error}`);
         }
+        const apiKey = apiKeyResult.data.key;
 
         const fileContextString = filesToAnalyze
-            .map(file => `--- START FILE: ${file.path} ---\n${file.content}\n--- END FILE: ${file.path} ---`)
-            .join("\n\n")
+            .map(file => `--- START FILE: ${file.path} ---\\n${file.content}\\n--- END FILE: ${file.path} ---`)
+            .join("\\n\\n")
             .substring(0, 15000);
 
         let userPrompt;
-        const mode = flags.mode || 'code'; // Default to code mode
+        const mode = flags.mode || 'code';
 
         if (flags.ask) {
             userPrompt = `Using the provided file contents as context, answer the following question: "${flags.ask}"`;
@@ -163,14 +187,14 @@ window.StoryboardCommand = class StoryboardCommand extends Command {
             userPrompt = `Based on the following files and their content, describe the story and relationship between them. Analyze them in '${mode}' mode to explain the project's architecture and purpose. Present your findings in clear, well-structured Markdown.`;
         }
 
-        const fullPrompt = `${userPrompt}\n\nFILE CONTEXT:\n${fileContextString}`;
+        const fullPrompt = `${userPrompt}\\n\\nFILE CONTEXT:\\n${fileContextString}`;
         const systemPrompt = "You are a helpful AI Project Historian. Your task is to analyze a collection of files and explain their collective story, structure, and purpose based ONLY on the provided content.";
 
         const result = await AIManager.callLlmApi(
             'gemini',
-            null, // We'll let the AIManager pick the default model.
+            null,
             [{ role: "user", parts: [{ text: fullPrompt }] }],
-            apiKey, // The API key is now in the correct spot!
+            apiKey,
             systemPrompt
         );
 

@@ -5,51 +5,6 @@
  */
 
 /**
- * Recursively traverses a directory structure to find all supported files for analysis.
- * @param {string} startPath - The absolute path to start the search from.
- * @param {object} startNode - The filesystem node corresponding to the startPath.
- * @param {string} currentUser - The name of the user running the command, for permission checks.
- * @param {FileSystemManager} FileSystemManager - The filesystem manager instance.
- * @param {Utils} Utils - The utility class instance.
- * @returns {Promise<Array<object>>} A promise that resolves to an array of file objects, each containing the name, path, and content.
- * @private
- */
-async function _getFilesForAnalysis(startPath, startNode, currentUser, FileSystemManager, Utils) {
-  const files = [];
-  const visited = new Set();
-  const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html"]);
-
-  async function recurse(currentPath, node) {
-    if (visited.has(currentPath)) return;
-    visited.add(currentPath);
-
-    if (!FileSystemManager.hasPermission(node, currentUser, "read")) return;
-
-    if (node.type === "file") {
-      if (SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(currentPath))) {
-        files.push({
-          name: currentPath.split("/").pop(),
-          path: currentPath,
-          content: node.content || "",
-        });
-      }
-    } else if (node.type === "directory") {
-      if (!FileSystemManager.hasPermission(node, currentUser, "execute"))
-        return;
-      for (const childName of Object.keys(node.children || {}).sort()) {
-        await recurse(
-            FileSystemManager.getAbsolutePath(childName, currentPath),
-            node.children[childName]
-        );
-      }
-    }
-  }
-
-  await recurse(startPath, startNode);
-  return files;
-}
-
-/**
  * Represents the 'chidi' command, the entry point for the AI document analyst application.
  * @class ChidiCommand
  * @extends Command
@@ -122,6 +77,52 @@ window.ChidiCommand = class ChidiCommand extends Command {
       },
     });
   }
+
+  /**
+   * Recursively traverses a directory structure to find all supported files for analysis.
+   * @param {string} startPath - The absolute path to start the search from.
+   * @param {object} startNode - The filesystem node corresponding to the startPath.
+   * @param {string} currentUser - The name of the user running the command, for permission checks.
+   * @param {FileSystemManager} FileSystemManager - The filesystem manager instance.
+   * @param {Utils} Utils - The utility class instance.
+   * @returns {Promise<Array<object>>} A promise that resolves to an array of file objects, each containing the name, path, and content.
+   * @private
+   */
+  async _getFilesForAnalysis(startPath, startNode, currentUser, FileSystemManager, Utils) {
+    const files = [];
+    const visited = new Set();
+    const SUPPORTED_EXTENSIONS = new Set(["md", "txt", "html"]);
+
+    async function recurse(currentPath, node) {
+      if (visited.has(currentPath)) return;
+      visited.add(currentPath);
+
+      if (!FileSystemManager.hasPermission(node, currentUser, "read")) return;
+
+      if (node.type === "file") {
+        if (SUPPORTED_EXTENSIONS.has(Utils.getFileExtension(currentPath))) {
+          files.push({
+            name: currentPath.split("/").pop(),
+            path: currentPath,
+            content: node.content || "",
+          });
+        }
+      } else if (node.type === "directory") {
+        if (!FileSystemManager.hasPermission(node, currentUser, "execute"))
+          return;
+        for (const childName of Object.keys(node.children || {}).sort()) {
+          await recurse(
+              FileSystemManager.getAbsolutePath(childName, currentPath),
+              node.children[childName]
+          );
+        }
+      }
+    }
+
+    await recurse(startPath, startNode);
+    return files;
+  }
+
 
   /**
    * Main logic for the 'chidi' command. It gathers files from either a path argument or standard input,
@@ -221,7 +222,7 @@ window.ChidiCommand = class ChidiCommand extends Command {
           );
         }
         const pathValidation = pathValidationResult.data;
-        files = await _getFilesForAnalysis(
+        files = await this._getFilesForAnalysis(
             pathValidation.resolvedPath,
             pathValidation.node,
             currentUser,
@@ -257,7 +258,6 @@ window.ChidiCommand = class ChidiCommand extends Command {
           `chidi: An unexpected error occurred: ${e.message}`
       );
     }
-
   }
 }
 
