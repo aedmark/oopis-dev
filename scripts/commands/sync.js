@@ -1,6 +1,18 @@
-// scripts/commands/sync.js
+/**
+ * @fileoverview This file defines the 'sync' command, a utility for manually
+ * forcing the in-memory file system to be saved to persistent storage.
+ * @module commands/sync
+ */
 
+/**
+ * Represents the 'sync' command.
+ * @class SyncCommand
+ * @extends Command
+ */
 window.SyncCommand = class SyncCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "sync",
@@ -22,6 +34,13 @@ window.SyncCommand = class SyncCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'sync' command. It calls the
+   * FileSystemManager's save method to write the current state of the
+   * virtual filesystem to persistent storage.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { dependencies, currentUser } = context;
     const { FileSystemManager, ErrorHandler } = dependencies;

@@ -1,6 +1,18 @@
-// scripts/commands/tr.js
+/**
+ * @fileoverview This file defines the 'tr' command, a utility for translating,
+ * squeezing, and deleting characters from standard input.
+ * @module commands/tr
+ */
 
+/**
+ * Represents the 'tr' (translate) command.
+ * @class TrCommand
+ * @extends Command
+ */
 window.TrCommand = class TrCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "tr",
@@ -44,6 +56,12 @@ window.TrCommand = class TrCommand extends Command {
         });
     }
 
+    /**
+     * Expands a set string, including character classes and ranges, into an array of characters.
+     * @private
+     * @param {string} setStr - The string representing the character set (e.g., 'a-z[:digit:]').
+     * @returns {string[]} An array of individual characters in the set.
+     */
     _expandSet(setStr) {
         const charClasses = {
             '[:alnum:]': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
@@ -81,6 +99,13 @@ window.TrCommand = class TrCommand extends Command {
         return expanded;
     }
 
+    /**
+     * Executes the core logic of the 'tr' command. It processes input from
+     * stdin and performs character translation, deletion, or squeezing based
+     * on the provided character sets and flags.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { args, flags, inputItems, inputError, dependencies } = context;
         const { ErrorHandler } = dependencies;

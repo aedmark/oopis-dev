@@ -1,6 +1,18 @@
-// scripts/commands/top.js
+/**
+ * @fileoverview This file defines the 'top' command, which launches a full-screen
+ * application to display a real-time view of running background processes.
+ * @module commands/top
+ */
 
+/**
+ * Represents the 'top' command for launching the process viewer application.
+ * @class TopCommand
+ * @extends Command
+ */
 window.TopCommand = class TopCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "top",
@@ -26,6 +38,14 @@ window.TopCommand = class TopCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'top' command. In an interactive session,
+     * it launches the TopManager application, which provides a dynamic view of
+     * running processes. In a non-interactive context, it returns a promise
+     * that can be aborted, as the graphical application cannot be displayed.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { options, signal, dependencies } = context;
         const { ErrorHandler, AppLayerManager, TopManager } = dependencies;

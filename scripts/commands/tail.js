@@ -1,6 +1,18 @@
-// scripts/commands/tail.js
+/**
+ * @fileoverview This file defines the 'tail' command, a utility for displaying the
+ * last few lines of a file or standard input, with an option to follow file changes.
+ * @module commands/tail
+ */
 
+/**
+ * Represents the 'tail' command for outputting the last part of files.
+ * @class TailCommand
+ * @extends Command
+ */
 window.TailCommand = class TailCommand extends Command {
+    /**
+     * @constructor
+     */
     constructor() {
         super({
             commandName: "tail",
@@ -35,6 +47,13 @@ window.TailCommand = class TailCommand extends Command {
         });
     }
 
+    /**
+     * Executes the core logic of the 'tail' command. It processes input from
+     * stdin or files and outputs the last N lines. It also handles the '-f'
+     * (follow) flag to continuously output new data as a file grows.
+     * @param {object} context - The command execution context.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+     */
     async coreLogic(context) {
         const { flags, args, inputItems, inputError, signal, dependencies } = context;
         const { ErrorHandler, Utils, FileSystemManager, OutputManager, Config } = dependencies;

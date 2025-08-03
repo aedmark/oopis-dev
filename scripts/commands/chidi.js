@@ -98,7 +98,7 @@ window.ChidiCommand = class ChidiCommand extends Command {
     conversational memory from the current session.
     SUPPORTED FILE TYPES
     Chidi can analyze text-based files with the following extensions:
-    .md, .txt, .js, .sh
+    .md, .txt, .html, .sh
     EXAMPLES
     chidi ./docs
     Opens Chidi and loads all supported files from the 'docs'
@@ -106,8 +106,8 @@ window.ChidiCommand = class ChidiCommand extends Command {
     chidi -p ollama ./src
     Opens Chidi using the local 'ollama' provider to analyze
     the 'src' directory, avoiding the need for a Gemini API key.
-    find . -name "*.js" | chidi
-    Finds all JavaScript files in the current directory and its
+    find . -name "*.html" | chidi
+    Finds all HTML files in the current directory and its
     subdirectories, then opens Chidi with that specific list
     of files for analysis.`,
       completionType: "paths",

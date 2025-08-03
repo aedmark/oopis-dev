@@ -1,6 +1,18 @@
-// scripts/commands/touch.js
+/**
+ * @fileoverview This file defines the 'touch' command, a utility for updating
+ * file modification timestamps or creating new, empty files.
+ * @module commands/touch
+ */
 
+/**
+ * Represents the 'touch' command.
+ * @class TouchCommand
+ * @extends Command
+ */
 window.TouchCommand = class TouchCommand extends Command {
+  /**
+   * @constructor
+   */
   constructor() {
     super({
       commandName: "touch",
@@ -37,6 +49,14 @@ window.TouchCommand = class TouchCommand extends Command {
     });
   }
 
+  /**
+   * Executes the core logic of the 'touch' command. It processes a list of
+   * file paths, updating the modification timestamp for existing files or
+   * creating new, empty files for paths that do not exist (unless the -c
+   * flag is specified). It also handles custom timestamps via the -d and -t flags.
+   * @param {object} context - The command execution context.
+   * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
+   */
   async coreLogic(context) {
     const { args, flags, currentUser, dependencies } = context;
     const { ErrorHandler, TimestampParser, UserManager, FileSystemManager, Config } = dependencies;
