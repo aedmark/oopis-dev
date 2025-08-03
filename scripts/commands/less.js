@@ -52,9 +52,9 @@ window.LessCommand = class LessCommand extends Command {
         const { ErrorHandler, PagerManager } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "less: Could not read one or more sources."
-            );
+            return ErrorHandler.createError({
+                message: "less: Could not read one or more sources."
+            });
         }
 
         if (!inputItems || inputItems.length === 0) {

@@ -80,7 +80,7 @@ window.KillCommand = class KillCommand extends Command {
     });
 
     if (signalsProvided.length > 1) {
-      return ErrorHandler.createError("kill: only one signal may be specified.");
+      return ErrorHandler.createError({ message: "kill: only one signal may be specified." });
     }
     if (signalsProvided.length === 1) {
       signal = signalsProvided[0];
@@ -88,14 +88,14 @@ window.KillCommand = class KillCommand extends Command {
 
     const validSignals = ["KILL", "TERM", "STOP", "CONT"];
     if (!validSignals.includes(signal)) {
-      return ErrorHandler.createError(`kill: invalid signal: ${signal}`);
+      return ErrorHandler.createError({ message: `kill: invalid signal: ${signal}` });
     }
 
     const jobIdArg = args[0];
     const parsedJobId = Utils.parseNumericArg(jobIdArg, { allowFloat: false, allowNegative: false });
 
     if (parsedJobId.error) {
-      return ErrorHandler.createError(`kill: invalid job ID: ${jobIdArg}`);
+      return ErrorHandler.createError({ message: `kill: invalid job ID: ${jobIdArg}` });
     }
     const jobId = parsedJobId.value;
 
@@ -104,7 +104,7 @@ window.KillCommand = class KillCommand extends Command {
     if (result.success) {
       return ErrorHandler.createSuccess(result.data || "");
     } else {
-      return ErrorHandler.createError(result.error || "Failed to send signal to job.");
+      return ErrorHandler.createError({ message: result.error || "Failed to send signal to job." });
     }
   }
 }

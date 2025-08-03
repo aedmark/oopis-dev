@@ -77,9 +77,9 @@ window.MkdirCommand = class MkdirCommand extends Command {
 
     const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);
     if (!primaryGroup) {
-      return ErrorHandler.createError(
-          `mkdir: critical - could not determine primary group for user '${currentUser}'`
-      );
+      return ErrorHandler.createError({
+        message: `mkdir: critical - could not determine primary group for user '${currentUser}'`
+      });
     }
 
     for (const pathArg of args) {
@@ -152,7 +152,7 @@ window.MkdirCommand = class MkdirCommand extends Command {
     }
 
     if (!allSuccess) {
-      return ErrorHandler.createError(messages.join("\n"));
+      return ErrorHandler.createError({ message: messages.join("\n") });
     }
     return ErrorHandler.createSuccess("", { stateModified: changesMade });
   }

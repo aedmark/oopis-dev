@@ -77,7 +77,7 @@ window.MvCommand = class MvCommand extends Command {
         );
 
         if (!planResult.success) {
-            return ErrorHandler.createError(`mv: ${planResult.error}`);
+            return ErrorHandler.createError({ message: `mv: ${planResult.error}` });
         }
 
         const operationsPlan = planResult.data;

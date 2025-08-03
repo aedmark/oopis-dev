@@ -51,9 +51,9 @@ window.MoreCommand = class MoreCommand extends Command {
         const { ErrorHandler, PagerManager } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError(
-                "more: Could not read one or more sources."
-            );
+            return ErrorHandler.createError({
+                message: "more: Could not read one or more sources."
+            });
         }
 
         if (!inputItems || inputItems.length === 0) {

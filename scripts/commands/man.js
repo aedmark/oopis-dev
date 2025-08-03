@@ -123,7 +123,7 @@ window.ManCommand = class ManCommand extends Command {
     const commandData = commandInstance.definition;
 
     if (!commandData) {
-      return ErrorHandler.createError(`No manual entry for ${commandName}`);
+      return ErrorHandler.createError({ message: `No manual entry for ${commandName}` });
     }
 
     const manPage = formatManPage(commandName, commandData);

@@ -199,16 +199,16 @@ async function listSinglePathContents(
   const pathValidationResult = FileSystemManager.validatePath(targetPathArg, { resolveLastSymlink: false });
 
   if (!pathValidationResult.success) {
-    return ErrorHandler.createError(
-        `ls: cannot access '${targetPathArg}': No such file or directory`
-    );
+    return ErrorHandler.createError({
+      message: `ls: cannot access '${targetPathArg}': No such file or directory`
+    });
   }
   const { node: targetNode, resolvedPath } = pathValidationResult.data;
 
   if (!FileSystemManager.hasPermission(targetNode, currentUser, "read")) {
-    return ErrorHandler.createError(
-        `ls: cannot open directory '${targetPathArg}': Permission denied`
-    );
+    return ErrorHandler.createError({
+      message: `ls: cannot open directory '${targetPathArg}': Permission denied`
+    });
   }
 
   let itemDetailsList = [];
@@ -367,7 +367,7 @@ window.LsCommand = class LsCommand extends Command {
             dependencies
         );
         if (!listResult.success) {
-          outputBlocks.push(listResult.error);
+          outputBlocks.push(listResult.error.message);
           overallSuccess = false;
         } else {
           const { output, items, isDir } = listResult.data;
@@ -398,7 +398,7 @@ window.LsCommand = class LsCommand extends Command {
         const listResult = await listSinglePathContents(path, effectiveFlags, currentUser, options, dependencies);
 
         if (!listResult.success) {
-          errorBlocks.push(listResult.error);
+          errorBlocks.push(listResult.error.message);
         } else {
           const { output, items, isDir } = listResult.data;
           if (isDir && !effectiveFlags.dirsOnly) {
@@ -437,13 +437,13 @@ window.LsCommand = class LsCommand extends Command {
       });
 
       if (errorBlocks.length > 0) {
-        return ErrorHandler.createError(finalOutputBlocks.join("\n"));
+        return ErrorHandler.createError({ message: finalOutputBlocks.join("\n") });
       }
       return ErrorHandler.createSuccess(finalOutputBlocks.join("\n"));
     }
 
     if (!overallSuccess) {
-      return ErrorHandler.createError(outputBlocks.join("\n"));
+      return ErrorHandler.createError({ message: outputBlocks.join("\n") });
     }
     return ErrorHandler.createSuccess(outputBlocks.join("\n"));
   }

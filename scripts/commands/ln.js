@@ -46,7 +46,7 @@ window.LnCommand = class LnCommand extends Command {
         const { FileSystemManager, UserManager, ErrorHandler } = dependencies;
 
         if (!flags.symbolic) {
-            return ErrorHandler.createError("ln: only symbolic links (-s) are supported.");
+            return ErrorHandler.createError({ message: "ln: only symbolic links (-s) are supported." });
         }
 
         const target = args[0];
@@ -56,16 +56,16 @@ window.LnCommand = class LnCommand extends Command {
         const parentDir = linkPath.substring(0, linkPath.lastIndexOf('/')) || '/';
 
         if (FileSystemManager.getNodeByPath(linkPath)) {
-            return ErrorHandler.createError(`ln: failed to create symbolic link '${linkName}': File exists`);
+            return ErrorHandler.createError({ message: `ln: failed to create symbolic link '${linkName}': File exists` });
         }
 
         const parentNode = FileSystemManager.getNodeByPath(parentDir);
         if (!parentNode || parentNode.type !== 'directory') {
-            return ErrorHandler.createError(`ln: cannot create symbolic link in '${parentDir}': No such file or directory`);
+            return ErrorHandler.createError({ message: `ln: cannot create symbolic link in '${parentDir}': No such file or directory` });
         }
 
         if (!FileSystemManager.hasPermission(parentNode, currentUser, 'write')) {
-            return ErrorHandler.createError(`ln: cannot create symbolic link in '${parentDir}': Permission denied`);
+            return ErrorHandler.createError({ message: `ln: cannot create symbolic link in '${parentDir}': Permission denied` });
         }
 
         const primaryGroup = UserManager.getPrimaryGroupForUser(currentUser);

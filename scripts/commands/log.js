@@ -61,9 +61,9 @@ window.LogCommand = class LogCommand extends Command {
 
     try {
       if (!options.isInteractive) {
-        return ErrorHandler.createError(
-            "log: Can only be run in interactive mode."
-        );
+        return ErrorHandler.createError({
+          message: "log: Can only be run in interactive mode."
+        });
       }
 
       if (
@@ -71,9 +71,9 @@ window.LogCommand = class LogCommand extends Command {
           typeof LogUI === "undefined" ||
           typeof App === "undefined"
       ) {
-        return ErrorHandler.createError(
-            "log: The Log application module is not loaded."
-        );
+        return ErrorHandler.createError({
+          message: "log: The Log application module is not loaded."
+        });
       }
 
       const logManager = new LogManager();
@@ -88,7 +88,7 @@ window.LogCommand = class LogCommand extends Command {
             stateModified: true
           });
         } else {
-          return ErrorHandler.createError(result.error);
+          return ErrorHandler.createError({ message: result.error });
         }
       }
 
@@ -96,11 +96,10 @@ window.LogCommand = class LogCommand extends Command {
 
       return ErrorHandler.createSuccess("");
     } catch (e) {
-      return ErrorHandler.createError(
-          `log: An unexpected error occurred: ${e.message}`
-      );
+      return ErrorHandler.createError({
+        message: `log: An unexpected error occurred: ${e.message}`
+      });
     }
-
   }
 }
 
