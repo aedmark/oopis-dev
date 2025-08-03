@@ -49,7 +49,7 @@ window.NlCommand = class NlCommand extends Command {
         const { ErrorHandler } = dependencies;
 
         if (inputError) {
-            return ErrorHandler.createError("nl: No readable input provided or permission denied.");
+            return ErrorHandler.createError({ message: "nl: No readable input provided or permission denied." });
         }
         if (!inputItems || inputItems.length === 0) {
             return ErrorHandler.createSuccess("");

@@ -122,7 +122,7 @@ window.PatchCommand = class PatchCommand extends Command {
         const { FileSystemManager, UserManager, ErrorHandler, PatchUtils } = dependencies;
 
         if (!PatchUtils || !PatchUtils.applyPatch) {
-            return ErrorHandler.createError("patch: Patch utility is not available.");
+            return ErrorHandler.createError({ message: "patch: Patch utility is not available." });
         }
 
         const targetFileNode = validatedPaths[0].node;
@@ -149,12 +149,12 @@ window.PatchCommand = class PatchCommand extends Command {
             );
 
             if (!saveResult.success) {
-                return ErrorHandler.createError(`patch: ${saveResult.error}`);
+                return ErrorHandler.createError({ message: `patch: ${saveResult.error}` });
             }
 
             return ErrorHandler.createSuccess(`Successfully patched '${args[0]}'.`, { stateModified: true });
         } catch (e) {
-            return ErrorHandler.createError(`patch: Failed to apply patch. Error: ${e.message}`);
+            return ErrorHandler.createError({ message: `patch: Failed to apply patch. Error: ${e.message}` });
         }
     }
 };

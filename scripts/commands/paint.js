@@ -61,9 +61,9 @@ window.PaintCommand = class PaintCommand extends Command {
 
     try {
       if (!options.isInteractive) {
-        return ErrorHandler.createError(
-            "paint: Can only be run in interactive mode."
-        );
+        return ErrorHandler.createError({
+          message: "paint: Can only be run in interactive mode."
+        });
       }
 
       if (
@@ -71,9 +71,9 @@ window.PaintCommand = class PaintCommand extends Command {
           typeof PaintUI === "undefined" ||
           typeof App === "undefined"
       ) {
-        return ErrorHandler.createError(
-            "paint: The Paint application module is not loaded."
-        );
+        return ErrorHandler.createError({
+          message: "paint: The Paint application module is not loaded."
+        });
       }
 
       const pathArg =
@@ -85,13 +85,13 @@ window.PaintCommand = class PaintCommand extends Command {
       });
 
       if (!pathValidationResult.success && pathValidationResult.data?.node) {
-        return ErrorHandler.createError(
-            `paint: ${pathValidationResult.error}`
-        );
+        return ErrorHandler.createError({
+          message: `paint: ${pathValidationResult.error}`
+        });
       }
       const pathValidation = pathValidationResult.data;
       if (Utils.getFileExtension(pathValidation.resolvedPath) !== "oopic") {
-        return ErrorHandler.createError(`paint: can only edit .oopic files.`);
+        return ErrorHandler.createError({ message: `paint: can only edit .oopic files.` });
       }
 
       const fileContent = pathValidation.node
@@ -106,9 +106,9 @@ window.PaintCommand = class PaintCommand extends Command {
 
       return ErrorHandler.createSuccess("");
     } catch (e) {
-      return ErrorHandler.createError(
-          `paint: An unexpected error occurred: ${e.message}`
-      );
+      return ErrorHandler.createError({
+        message: `paint: An unexpected error occurred: ${e.message}`
+      });
     }
 
   }

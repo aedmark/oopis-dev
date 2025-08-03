@@ -46,7 +46,10 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         const subCommand = args[0];
 
         if (!subCommand) {
-            return ErrorHandler.createError("oopis-get: missing sub-command. See 'help oopis-get'.");
+            return ErrorHandler.createError({
+                message: "oopis-get: missing sub-command.",
+                suggestion: "See 'help oopis-get'."
+            });
         }
 
         await CommandExecutor.processSingleCommand("mkdir -p /tmp", { isInteractive: false });
@@ -61,7 +64,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             case "remove":
                 return this._handleRemove(context);
             default:
-                return ErrorHandler.createError(`oopis-get: unknown sub-command '${subCommand}'.`);
+                return ErrorHandler.createError({ message: `oopis-get: unknown sub-command '${subCommand}'.` });
         }
     }
 
@@ -119,7 +122,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             try {
                 manifestData = JSON.parse(manifestNode.content || '{"packages":[]}');
             } catch (e) {
-                return ErrorHandler.createError("Failed to parse package manifest.");
+                return ErrorHandler.createError({ message: "Failed to parse package manifest." });
             }
         } else {
             manifestData = { packages: [] };
@@ -148,7 +151,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
             await FileSystemManager.save();
             return ErrorHandler.createSuccess();
         } else {
-            return ErrorHandler.createError(`Failed to update package manifest: ${saveResult.error}`);
+            return ErrorHandler.createError({ message: `Failed to update package manifest: ${saveResult.error}` });
         }
     }
 
@@ -166,7 +169,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
 
         const result = await this._fetchAndParseManifest(dependencies);
         if (result.error) {
-            return ErrorHandler.createError(`oopis-get: ${result.error}`);
+            return ErrorHandler.createError({ message: `oopis-get: ${result.error}` });
         }
 
         let output = "Available Packages:\n";
@@ -188,19 +191,19 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         const packageName = args[1];
 
         if (!packageName) {
-            return ErrorHandler.createError("oopis-get: install requires a package name.");
+            return ErrorHandler.createError({ message: "oopis-get: install requires a package name." });
         }
 
         await OutputManager.appendToOutput(`Attempting to install '${packageName}'...`);
 
         const result = await this._fetchAndParseManifest(dependencies);
         if (result.error) {
-            return ErrorHandler.createError(`oopis-get: ${result.error}`);
+            return ErrorHandler.createError({ message: `oopis-get: ${result.error}` });
         }
 
         const pkg = result.manifest.packages.find(p => p.name === packageName);
         if (!pkg) {
-            return ErrorHandler.createError(`oopis-get: package not found: ${packageName}`);
+            return ErrorHandler.createError({ message: `oopis-get: package not found: ${packageName}` });
         }
 
         const installPath = `/bin/${pkg.name}`;
@@ -213,7 +216,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         );
 
         if (!downloadResult.success) {
-            return ErrorHandler.createError(`oopis-get: failed to download package. ${downloadResult.error}`);
+            return ErrorHandler.createError({ message: `oopis-get: failed to download package. ${downloadResult.error}` });
         }
 
         await OutputManager.appendToOutput("Setting permissions...");
@@ -223,7 +226,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         );
 
         if (!chmodResult.success) {
-            return ErrorHandler.createError(`oopis-get: failed to set permissions. ${chmodResult.error}`);
+            return ErrorHandler.createError({ message: `oopis-get: failed to set permissions. ${chmodResult.error}` });
         }
 
         await this._updatePackageManifest(pkg.name, 'add', dependencies);
@@ -253,14 +256,14 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         const packageName = args[1];
 
         if (!packageName) {
-            return ErrorHandler.createError("oopis-get: remove requires a package name.");
+            return ErrorHandler.createError({ message: "oopis-get: remove requires a package name." });
         }
 
         const packagePath = `/bin/${packageName}`;
 
         const pathValidation = FileSystemManager.validatePath(packagePath, { allowMissing: true });
         if (!pathValidation.data.node) {
-            return ErrorHandler.createError(`oopis-get: package '${packageName}' is not installed.`);
+            return ErrorHandler.createError({ message: `oopis-get: package '${packageName}' is not installed.` });
         }
 
         await OutputManager.appendToOutput(`Removing '${packageName}'...`);
@@ -270,7 +273,7 @@ window.OopisGetCommand = class OopisGetCommand extends Command {
         );
 
         if (!rmResult.success) {
-            return ErrorHandler.createError(`oopis-get: failed to remove package file. ${rmResult.error}`);
+            return ErrorHandler.createError({ message: `oopis-get: failed to remove package file. ${rmResult.error}` });
         }
 
         await this._updatePackageManifest(packageName, 'remove', dependencies);

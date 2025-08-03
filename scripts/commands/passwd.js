@@ -54,9 +54,9 @@ window.PasswdCommand = class PasswdCommand extends Command {
         const { UserManager, ErrorHandler, ModalManager, Config } = dependencies;
 
         if (!options.isInteractive) {
-            return ErrorHandler.createError(
-                "passwd: can only be run in interactive mode."
-            );
+            return ErrorHandler.createError({
+                message: "passwd: can only be run in interactive mode."
+            });
         }
 
         const targetUsername = args[0] || currentUser;
@@ -85,9 +85,7 @@ window.PasswdCommand = class PasswdCommand extends Command {
                     onConfirm: (newPassword) => {
                         if (!newPassword) {
                             resolve(
-                                ErrorHandler.createError(
-                                    Config.MESSAGES.EMPTY_PASSWORD_NOT_ALLOWED
-                                )
+                                ErrorHandler.createError({ message: Config.MESSAGES.EMPTY_PASSWORD_NOT_ALLOWED })
                             );
                             return;
                         }
@@ -99,9 +97,7 @@ window.PasswdCommand = class PasswdCommand extends Command {
                             onConfirm: async (confirmPassword) => {
                                 if (newPassword !== confirmPassword) {
                                     resolve(
-                                        ErrorHandler.createError(
-                                            Config.MESSAGES.PASSWORD_MISMATCH
-                                        )
+                                        ErrorHandler.createError({ message: Config.MESSAGES.PASSWORD_MISMATCH })
                                     );
                                     return;
                                 }

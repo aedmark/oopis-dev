@@ -60,7 +60,7 @@ window.NcCommand = class NcCommand extends Command {
 
         if (flags.listen) {
             if (flags.exec && currentUser !== 'root') {
-                return ErrorHandler.createError("nc: --exec requires root privileges.");
+                return ErrorHandler.createError({ message: "nc: --exec requires root privileges." });
             }
 
             const mode = flags.exec ? 'execute' : 'print';
@@ -80,7 +80,7 @@ window.NcCommand = class NcCommand extends Command {
         }
 
         if (args.length !== 2) {
-            return ErrorHandler.createError("Usage: nc <targetId> \"<message>\"");
+            return ErrorHandler.createError({ message: "Usage: nc <targetId> \"<message>\"" });
         }
 
         const targetId = args[0];

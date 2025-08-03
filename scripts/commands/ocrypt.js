@@ -181,14 +181,14 @@ window.OcryptCommand = class OcryptCommand extends Command {
         );
 
         if (!saveResult.success) {
-          return ErrorHandler.createError(`ocrypt: ${saveResult.error}`);
+          return ErrorHandler.createError({ message: `ocrypt: ${saveResult.error}` });
         }
         return ErrorHandler.createSuccess("", { stateModified: true });
       } else {
         return ErrorHandler.createSuccess(outputContent);
       }
     } catch (e) {
-      return ErrorHandler.createError(`ocrypt: ${e.message}`);
+      return ErrorHandler.createError({ message: `ocrypt: ${e.message}` });
     }
   }
 }

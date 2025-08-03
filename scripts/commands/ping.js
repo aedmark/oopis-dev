@@ -63,7 +63,7 @@ window.PingCommand = class PingCommand extends Command {
                     { messageType: Config.CSS_CLASSES.SUCCESS_MSG }
                 );
             } catch (e) {
-                return ErrorHandler.createError(`Request to ${target} timed out.`);
+                return ErrorHandler.createError({ message: `Request to ${target} timed out.` });
             }
         }
 
@@ -76,7 +76,7 @@ window.PingCommand = class PingCommand extends Command {
         try {
             url = new URL(host);
         } catch (e) {
-            return ErrorHandler.createError(`ping: invalid URL: ${host}`);
+            return ErrorHandler.createError({ message: `ping: invalid URL: ${host}` });
         }
 
         await OutputManager.appendToOutput(`PING ${url.hostname} (${url.origin})...`);
@@ -91,9 +91,9 @@ window.PingCommand = class PingCommand extends Command {
             );
         } catch (e) {
             if (e instanceof TypeError) {
-                return ErrorHandler.createError(`Request to ${url.hostname} failed: No route to host.`);
+                return ErrorHandler.createError({ message: `Request to ${url.hostname} failed: No route to host.` });
             }
-            return ErrorHandler.createError(`ping: an unexpected error occurred: ${e.message}`);
+            return ErrorHandler.createError({ message: `ping: an unexpected error occurred: ${e.message}` });
         }
     }
 }

@@ -53,7 +53,7 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
         const extension = Utils.getFileExtension(inputFilePath);
 
         if (!['musicxml', 'mxl', 'xml'].includes(extension)) {
-            return ErrorHandler.createError("mxml2sh: Input file must be a .musicxml, .xml, or .mxl file.");
+            return ErrorHandler.createError({ message: "mxml2sh: Input file must be a .musicxml, .xml, or .mxl file." });
         }
 
         const outputFilePath = args.length === 2 ? args[1] : inputFilePath.replace(/\.(musicxml|mxl|xml)$/, '.sh');
@@ -90,7 +90,7 @@ window.Mxml2shCommand = class Mxml2shCommand extends Command {
 
             return ErrorHandler.createSuccess(`Script saved to ${absOutputPath}`);
         } catch (error) {
-            return ErrorHandler.createError(`mxml2sh: ${error.message}`);
+            return ErrorHandler.createError({ message: `mxml2sh: ${error.message}` });
         }
     }
 
