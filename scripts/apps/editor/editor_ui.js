@@ -132,10 +132,19 @@ window.EditorUI = class EditorUI {
         this.elements.preview.appendChild(iframe);
       }
 
-      const iframeDoc = iframe.contentWindow.document;
-      iframeDoc.open();
-      iframeDoc.write(DOMPurify.sanitize(content));
-      iframeDoc.close();
+      // Defer writing to the iframe to ensure its contentWindow is available.
+      // A zero-delay setTimeout pushes this task to the end of the event queue,
+      // after the browser has had a chance to render the new iframe and create its window.
+      setTimeout(() => {
+        if (iframe.contentWindow) {
+          const iframeDoc = iframe.contentWindow.document;
+          iframeDoc.open();
+          iframeDoc.write(DOMPurify.sanitize(content));
+          iframeDoc.close();
+        } else {
+          console.error("Editor UI: Could not access iframe contentWindow to render preview.");
+        }
+      }, 0);
     }
   }
 
