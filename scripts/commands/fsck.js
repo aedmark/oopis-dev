@@ -19,7 +19,7 @@ window.FsckCommand = class FsckCommand extends Command {
         super({
             commandName: "fsck",
             description: "Checks and optionally repairs filesystem integrity.",
-            helpText: `Usage: fsck [--repair] [path]
+            helpText: `Usage: fsck [--repair] [--yes] [path]
       Checks the integrity of the OopisOS filesystem.
 
       DESCRIPTION
@@ -32,17 +32,28 @@ window.FsckCommand = class FsckCommand extends Command {
       - Ownership: Checks for valid user and group ownership.
       - User Homes: Confirms every user has a valid home directory.
       - Symbolic Links: Identifies broken or dangling symbolic links.
+      - Permission Sanity: Checks for common permission vulnerabilities.
 
       OPTIONS
       --repair
             After scanning, prompts the user interactively to fix any
             issues that were found.
+      -y, --yes
+            Automatically apply safe, default repairs without prompting.
+            This will:
+            - Delete dangling symlinks and malformed nodes.
+            - Reassign orphaned files/directories to 'root'.
+            - Create missing home directories.
+            - Correct home directory ownership.
+            - Apply safe permission fixes (e.g., removing world-writable
+              permissions on sensitive files).
 
       WARNING: Running with --repair can result in data loss if used
       improperly. It is recommended to run without this flag first to
       review the potential changes.`,
             flagDefinitions: [
                 { name: "repair", long: "--repair" },
+                { name: "yes", short: "-y", long: "--yes" }
             ],
             argValidation: {
                 max: 1,
@@ -64,7 +75,8 @@ window.FsckCommand = class FsckCommand extends Command {
         const { FileSystemManager, UserManager, GroupManager, StorageManager, OutputManager, ModalManager, ErrorHandler, Config } = dependencies;
 
         const startPath = args[0] || '/';
-        const repairMode = flags.repair || false;
+        const repairMode = flags.repair || flags.yes;
+        const autoYes = flags.yes || false;
 
         const pathValidation = FileSystemManager.validatePath(startPath, { expectedType: 'directory' });
         if (!pathValidation.success) {
@@ -185,11 +197,69 @@ window.FsckCommand = class FsckCommand extends Command {
         };
 
         /**
-         * Phase 4: Interactive repair mode.
-         * Prompts the user to fix each detected issue.
+         * Phase 4: Permission Sanity Check.
+         * Scans for common permission mistakes.
+         */
+        const permissionSanityAudit = async () => {
+            const auditIssues = [];
+            const sensitiveDirs = ['/etc'];
+
+            const traverse = (path, node) => {
+                // Check for world-writable files in sensitive directories
+                if (sensitiveDirs.some(dir => path.startsWith(dir)) && (node.mode & 0o002)) {
+                    auditIssues.push({
+                        type: 'WORLD_WRITABLE_SENSITIVE',
+                        path,
+                        issue: `Sensitive file or directory is world-writable (mode ${node.mode.toString(8)}).`,
+                        data: { node }
+                    });
+                }
+
+                // Check for publicly readable private files (e.g., in .journal)
+                if (path.includes('/.journal/') && (node.mode & 0o004)) {
+                    auditIssues.push({
+                        type: 'PUBLICLY_READABLE_PRIVATE',
+                        path,
+                        issue: `Private file is publicly readable (mode ${node.mode.toString(8)}).`,
+                        data: { node }
+                    });
+                }
+
+                // Check for non-executable scripts in /bin
+                if (path.startsWith('/bin/') && node.type === 'file' && !(node.mode & 0o111)) {
+                    auditIssues.push({
+                        type: 'NON_EXECUTABLE_SCRIPT',
+                        path,
+                        issue: `Script in /bin is not executable (mode ${node.mode.toString(8)}).`,
+                        data: { node }
+                    });
+                }
+
+                if (node.type === 'directory' && node.children) {
+                    for (const childName in node.children) {
+                        const childPath = FileSystemManager.getAbsolutePath(childName, path);
+                        traverse(childPath, node.children[childName]);
+                    }
+                }
+            };
+
+            output.push("\n--- Phase 4: Permission Sanity Check ---");
+            traverse(pathValidation.data.resolvedPath, pathValidation.data.node);
+
+            if (auditIssues.length > 0) {
+                auditIssues.forEach(iss => output.push(`[PERMISSION ISSUE] at ${iss.path}: ${iss.issue}`));
+                issues.push(...auditIssues);
+            } else {
+                output.push("  ✅ No common permission issues found.");
+            }
+        };
+
+        /**
+         * Phase 5: Interactive or automatic repair mode.
+         * Prompts the user to fix each detected issue, or fixes them automatically with -y.
          */
         const performRepairs = async () => {
-            output.push("\n--- Phase 4: Interactive Repair ---");
+            output.push("\n--- Phase 5: Interactive Repair ---");
             let quitRepair = false;
             for (const issue of issues) {
                 if (quitRepair) break;
@@ -199,6 +269,9 @@ window.FsckCommand = class FsckCommand extends Command {
                 let actionResult = { success: false, message: "No action taken." };
 
                 const getChoice = async (prompt) => {
+                    if (autoYes) {
+                        return '1'; // Default safe action for all prompts
+                    }
                     return new Promise(resolve => ModalManager.request({
                         context: 'terminal', type: 'input', messageLines: prompt,
                         onConfirm: val => resolve(val.trim().toLowerCase()),
@@ -210,6 +283,7 @@ window.FsckCommand = class FsckCommand extends Command {
                 switch (issue.type) {
                     case 'DANGLING_SYMLINK':
                     case 'MALFORMED_NODE':
+                    case 'TYPE_INCONSISTENCY':
                         choice = await getChoice(["[1] Delete node", "[2] Ignore", "[q] Quit Repair"]);
                         if (choice === '1') {
                             const rmResult = await FileSystemManager.deleteNodeRecursive(issue.path, { force: true, currentUser: 'root' });
@@ -217,10 +291,26 @@ window.FsckCommand = class FsckCommand extends Command {
                         }
                         break;
                     case 'ORPHANED_OWNER':
-                        choice = await getChoice(["[1] Reassign owner to 'root'", "[2] Ignore", "[q] Quit Repair"]);
+                        choice = autoYes ? '1' : await getChoice(["[1] Assign to 'root'", "[2] Assign to another user", "[3] Delete", "[4] Ignore", "[q] Quit Repair"]);
                         if (choice === '1') {
                             issue.data.node.owner = 'root';
                             actionResult = { success: true, message: "Owner reassigned to 'root'." };
+                        } else if (choice === '2') {
+                            const newOwner = await new Promise(resolve => ModalManager.request({
+                                context: 'terminal', type: 'input', messageLines: ["Enter new owner's username:"],
+                                onConfirm: val => resolve(val.trim()),
+                                onCancel: () => resolve(null),
+                                options
+                            }));
+                            if (newOwner && await UserManager.userExists(newOwner)) {
+                                issue.data.node.owner = newOwner;
+                                actionResult = { success: true, message: `Owner reassigned to '${newOwner}'.` };
+                            } else {
+                                actionResult = { success: false, message: `User '${newOwner}' not found. No action taken.` };
+                            }
+                        } else if (choice === '3') {
+                            const rmResult = await FileSystemManager.deleteNodeRecursive(issue.path, { force: true, currentUser: 'root' });
+                            actionResult = { success: rmResult.success, message: rmResult.success ? `Deleted '${issue.path}'.` : `Failed to delete.` };
                         }
                         break;
                     case 'INVALID_GROUP':
@@ -237,6 +327,18 @@ window.FsckCommand = class FsckCommand extends Command {
                             actionResult = { success: true, message: `Created '${issue.path}'.` };
                         }
                         break;
+                    case 'INCORRECT_HOME_TYPE':
+                        choice = await getChoice(["[1] Delete incorrect item and create directory", "[2] Ignore", "[q] Quit Repair"]);
+                        if (choice === '1') {
+                            const rmResult = await FileSystemManager.deleteNodeRecursive(issue.path, { force: true, currentUser: 'root' });
+                            if (rmResult.success) {
+                                await FileSystemManager.createUserHomeDirectory(issue.data.username);
+                                actionResult = { success: true, message: `Replaced incorrect home item with directory for '${issue.data.username}'.` };
+                            } else {
+                                actionResult = { success: false, message: `Could not remove incorrect home item for '${issue.data.username}'.` };
+                            }
+                        }
+                        break;
                     case 'INCORRECT_HOME_OWNER':
                         choice = await getChoice(["[1] Correct ownership", "[2] Ignore", "[q] Quit Repair"]);
                         if (choice === '1') {
@@ -245,13 +347,35 @@ window.FsckCommand = class FsckCommand extends Command {
                             actionResult = { success: true, message: `Ownership of '${issue.path}' corrected.` };
                         }
                         break;
+                    case 'WORLD_WRITABLE_SENSITIVE':
+                        choice = await getChoice(["[1] Remove world-writable permission (safe fix)", "[2] Ignore", "[q] Quit Repair"]);
+                        if (choice === '1') {
+                            issue.data.node.mode &= ~0o002; // Remove write permission for 'others'
+                            actionResult = { success: true, message: `Removed world-writable permission from '${issue.path}'.` };
+                        }
+                        break;
+                    case 'PUBLICLY_READABLE_PRIVATE':
+                        choice = await getChoice(["[1] Remove public read permission (safe fix)", "[2] Ignore", "[q] Quit Repair"]);
+                        if (choice === '1') {
+                            issue.data.node.mode &= ~0o004; // Remove read permission for 'others'
+                            actionResult = { success: true, message: `Removed public read permission from '${issue.path}'.` };
+                        }
+                        break;
+                    case 'NON_EXECUTABLE_SCRIPT':
+                        choice = await getChoice(["[1] Make script executable (safe fix)", "[2] Ignore", "[q] Quit Repair"]);
+                        if (choice === '1') {
+                            issue.data.node.mode |= 0o111; // Add execute permission for all
+                            actionResult = { success: true, message: `Made script '${issue.path}' executable.` };
+                        }
+                        break;
                     default:
                         actionResult = { success: true, message: `No automatic repair available for this issue type.` };
                         break;
                 }
 
                 await OutputManager.appendToOutput(actionResult.message, { typeClass: actionResult.success ? Config.CSS_CLASSES.SUCCESS_MSG : Config.CSS_CLASSES.ERROR_MSG });
-                if(actionResult.success) changesMade = true;
+                if (actionResult.success && choice !== '2' && choice !== '4' && choice !== 'ignore' && !autoYes) changesMade = true;
+                if (autoYes && actionResult.success) changesMade = true;
                 if (choice === 'q') quitRepair = true;
             }
             if (quitRepair) output.push("\nRepair process quit by user.");
@@ -260,6 +384,7 @@ window.FsckCommand = class FsckCommand extends Command {
         await structuralAudit();
         await ownershipAudit();
         await homeDirectoryAudit();
+        await permissionSanityAudit();
 
         if (repairMode && issues.length > 0) {
             await performRepairs();
@@ -280,7 +405,7 @@ window.FsckCommand = class FsckCommand extends Command {
             await FileSystemManager.save();
         }
 
-        return ErrorHandler.createSuccess(output.join('\n'));
+        return ErrorHandler.createSuccess(output.join('\n'), { stateModified: changesMade });
     }
 }
 
