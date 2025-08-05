@@ -33,7 +33,7 @@ class ConfigManager {
        */
       DATABASE: {
         NAME: "OopisOsDB",
-        VERSION: 51,
+        VERSION: 52,
         FS_STORE_NAME: "FileSystemsStore",
         UNIFIED_FS_KEY: "OopisOS_SharedFS",
       },
@@ -43,7 +43,7 @@ class ConfigManager {
        */
       OS: {
         NAME: "OopisOs",
-        VERSION: "5.1",
+        VERSION: "5.2",
         DEFAULT_HOST_NAME: "OopisOs",
       },
       /**

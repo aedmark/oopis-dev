@@ -14,7 +14,7 @@
                     |__/  A Browser-Based OS Simulation
 ```
 
-# OopisOS v5.1 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
+# OopisOS v5.2 : **A Pocket-Sized, AI-Powered, Web-Based Operating System**
 
 Welcome, friend, to OopisOS! You're about to embark on an incredible journey into a world of productivity, creativity, and cutting-edge technology, all running right here in your browser. This guide is your trusted companion, your roadmap to becoming an OopisOS power-user. Let's dive in!
 ## Recent Changes
