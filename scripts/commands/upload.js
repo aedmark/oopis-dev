@@ -173,7 +173,7 @@ window.UploadCommand = class UploadCommand extends Command {
                             fileResolve(false);
                         };
 
-                        const stringifiableExtensions = ['txt', 'md', 'html', 'sh', 'js', 'css', 'json', '']; // Whitelist known text-based types
+                        const stringifiableExtensions = ['txt', 'md', 'html', 'sh', 'js', 'css', 'json', 'xml']; // Whitelist known text-based types
                         const extension = file.name.split('.').pop().toLowerCase();
                         if (!stringifiableExtensions.includes(extension)) {
                             OutputManager.appendToOutput(`Skipping binary or unsupported file '${file.name}': This version of OopisOS only supports text-based file uploads.`, { typeClass: Config.CSS_CLASSES.WARNING_MSG });
