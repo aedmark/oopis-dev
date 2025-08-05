@@ -495,6 +495,17 @@ class CommandExecutor {
       }
 
       if (lastResult.success) {
+        const { AuditManager, UserManager } = this.dependencies;
+        const commandName = segment.command?.toLowerCase();
+        const auditableCommands = new Set([
+          'useradd', 'removeuser', 'passwd', 'groupadd', 'groupdel',
+          'usermod', 'chmod', 'chown', 'chgrp'
+        ]);
+
+        if (auditableCommands.has(commandName)) {
+          const details = `${commandName} ${segment.args.join(' ')}`;
+          AuditManager.log(UserManager.getCurrentUser().name, `CMD_${commandName}`, details);
+        }
         if (lastResult.stateModified) {
           const saveResult = await FileSystemManager.save();
           if (!saveResult.success) {

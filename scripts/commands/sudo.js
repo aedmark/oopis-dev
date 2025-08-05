@@ -71,6 +71,8 @@ window.SudoCommand = class SudoCommand extends Command {
     }
 
     if (SudoManager.isUserTimestampValid(currentUser)) {
+      const { AuditManager } = dependencies;
+      AuditManager.log(currentUser, 'sudo_exec', `COMMAND: ${fullCommandStr}`);
       const result = await UserManager.sudoExecute(fullCommandStr, options);
       if (result.success) {
         return ErrorHandler.createSuccess(result.output);

@@ -104,6 +104,14 @@ class FileSystemManager {
                     group: "towncrier",
                     mode: 0o666,
                     mtime: nowISO,
+                  },
+                  'audit.log': {
+                    type: this.config.FILESYSTEM.DEFAULT_FILE_TYPE,
+                    content: `# OopisOS Audit Log v1.0\n`,
+                    owner: "root",
+                    group: "root",
+                    mode: 0o640, // rw-r-----
+                    mtime: nowISO,
                   }
                 },
                 owner: "root",

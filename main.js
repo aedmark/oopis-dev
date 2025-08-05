@@ -202,6 +202,7 @@ window.onload = async () => {
   const networkManager = new NetworkManager();
   const soundManager = new SoundManager();
   const storageHAL = new IndexedDBStorageHAL();
+  const auditManager = new AuditManager();
 
   const dependencies = {
     Config: configManager,
@@ -236,6 +237,7 @@ window.onload = async () => {
     domElements: domElements,
     SoundManager: soundManager,
     StorageHAL: storageHAL,
+    AuditManager: auditManager,
   };
 
   const userManager = new UserManager(dependencies);
@@ -266,6 +268,7 @@ window.onload = async () => {
   aiManager.setDependencies(dependencies);
   networkManager.setDependencies(dependencies);
   storageHAL.setDependencies(dependencies);
+  auditManager.setDependencies(dependencies);
 
   try {
     // Initialization sequence

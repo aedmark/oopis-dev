@@ -360,6 +360,7 @@ class UserManager {
               if (await this._verifyPasswordWithSalt(passwordFromPrompt, salt, hash)) {
                 resolve(await successCallback(username));
               } else {
+                this.dependencies.AuditManager.log(username, 'auth_failure', `Failed login attempt for user '${username}'.`);
                 resolve(ErrorHandler.createError(failureMessage));
               }
             },
@@ -434,6 +435,7 @@ class UserManager {
             ? homePath
             : this.config.FILESYSTEM.ROOT_PATH
     );
+    this.dependencies.AuditManager.log(username, 'login_success', `User logged in successfully.`);
     return ErrorHandler.createSuccess({
       message: `Logged in as ${username}.`,
       isLogin: true,
@@ -484,6 +486,7 @@ class UserManager {
             ? homePath
             : this.config.FILESYSTEM.ROOT_PATH
     );
+    this.dependencies.AuditManager.log(this.getCurrentUser().name, 'su_success', `Switched to user: ${username}.`);
     return ErrorHandler.createSuccess({
       message: `Switched to user: ${username}.`,
     });

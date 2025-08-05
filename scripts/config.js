@@ -205,7 +205,7 @@ class ConfigManager {
        * @type {string[]}
        */
       COMMANDS_MANIFEST: [
-        "adventure", "agenda", "alias", "awk", "backup", "base64", "basic", "bc", "beep", "bg", "binder",
+        "adventure", "agenda", "alias", "auditlog", "awk", "backup", "base64", "basic", "bc", "beep", "bg", "binder",
         "bulletin", "cat", "cd", "check_fail", "chgrp", "chidi", "chmod", "chown", "cksum",
         "clear", "clearfs", "comm", "committee", "cp", "csplit", "curl", "cut", "date", "delay",
         "df", "diff", "dreamatorium", "du", "echo", "edit", "exit", "explore", "export", "expr",
