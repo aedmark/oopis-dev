@@ -1306,6 +1306,94 @@ groupdel testgroup
 groupdel recursive_test_group
 groupdel harvest_festival
 
+delay 500
+echo "===== OopisOS Planner Command Test Suite ====="
+delay 500
+
+echo "--- Phase 1: Setup and User Creation ---"
+echo "Creating test users 'plan_user1' and 'plan_user2'..."
+useradd plan_user1
+testpass
+testpass
+useradd plan_user2
+testpass
+testpass
+
+echo "Users created. Proceeding with tests..."
+delay 300
+su Guest
+echo ""
+echo "--- Phase 2: 'planner create' Tests ---"
+echo "Attempting to create project as non-root (should fail)..."
+check_fail "planner create my_secret_project"
+delay 200
+logout
+delay 200
+echo "Attempting to create project as root (should succeed)..."
+sudo planner create city_mural
+delay 200
+
+echo "Verifying project file was created in /etc/projects/..."
+ls /etc/projects/
+delay 300
+
+echo ""
+echo "--- Phase 3: Task Management Tests ---"
+echo "Adding initial tasks to 'city_mural' project..."
+planner city_mural add "Scout locations for the mural"
+planner city_mural add "Hold public design submissions"
+planner city_mural add "Purchase 50 gallons of paint"
+planner city_mural add "Hire a qualified artist"
+delay 300
+
+echo "Displaying initial project board:"
+planner city_mural
+delay 500
+
+echo "--- Assigning tasks ---"
+planner city_mural assign plan_user1 1
+planner city_mural assign plan_user2 3
+delay 200
+
+echo "Displaying board after assignments:"
+planner city_mural
+delay 500
+
+echo "--- Marking a task as complete ---"
+planner city_mural done 1
+delay 200
+
+echo "Displaying final project board:"
+planner city_mural
+delay 500
+
+echo ""
+echo "--- Phase 4: Edge Case and Error Handling ---"
+echo "Attempting to assign task to non-existent user (should fail)..."
+check_fail "planner city_mural assign nonexistent_user 2"
+delay 200
+
+echo "Attempting to complete a non-existent task (should fail)..."
+check_fail "planner city_mural done 99"
+delay 200
+
+echo "Attempting to view a non-existent project (should fail)..."
+check_fail "planner nonexistent_project"
+delay 300
+
+echo ""
+echo "--- Phase 5: Cleanup ---"
+echo "Removing test users and project file..."
+removeuser -f plan_user1
+removeuser -f plan_user2
+sudo rm /etc/projects/city_mural.json
+delay 200
+
+echo "Verifying cleanup..."
+check_fail "ls /etc/projects/city_mural.json"
+echo ""
+echo "===== Planner Command Test Suite Complete! ====="
+
 login Guest
 listusers
 delay 200

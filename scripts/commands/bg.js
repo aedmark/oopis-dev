@@ -1,58 +1,72 @@
 /**
- * @file scripts/commands/beep.js
- * @description The 'beep' command, which plays a simple system sound. It serves as an auditory notification
- * and a way to test the sound system.
+ * @fileoverview This file defines the 'bg' command, a utility for resuming
+ * a stopped background job.
+ * @module commands/bg
  */
 
 /**
- * Represents the 'beep' command.
- * @class BeepCommand
+ * Represents the 'bg' (background) command.
+ * @class BgCommand
  * @extends Command
  */
-window.BeepCommand = class BeepCommand extends Command {
+window.BgCommand = class BgCommand extends Command {
     /**
      * @constructor
      */
     constructor() {
         super({
-            commandName: "beep",
-            description: "Plays a simple system beep.",
-            helpText: `Usage: beep
-      Plays a short, simple system tone through the emulated sound card.
-      
+            commandName: "bg",
+            description: "Resumes a stopped job in the background.",
+            helpText: `Usage: bg [%job_id]
+      Resumes a stopped background job.
       DESCRIPTION
-      The beep command produces a standard terminal beep sound. It's useful
-      for getting auditory feedback, such as signaling the completion of a
-      long-running script or alerting the user to an event.
-      
-      This command requires the AudioContext to be active, which is
-      initialized after the first user interaction with the terminal (a keypress or click).`
+      The bg (background) command resumes the specified job, keeping it
+      in the background. If no job ID is specified, the most recently
+      stopped job is used.`,
+            validations: {
+                args: {
+                    max: 1
+                }
+            },
         });
     }
 
     /**
-     * Main logic for the 'beep' command.
-     * It ensures the SoundManager is initialized and then plays a system beep.
+     * Executes the core logic of the 'bg' command.
      * @param {object} context - The command execution context.
-     * @param {object} context.dependencies - The system dependencies.
-     * @returns {Promise<object>} The result of the command execution.
+     * @returns {Promise<object>} A promise that resolves with a success or error object from the ErrorHandler.
      */
     async coreLogic(context) {
-        const { dependencies } = context;
-        const { SoundManager, ErrorHandler } = dependencies;
+        const { args, dependencies } = context;
+        const { CommandExecutor, ErrorHandler } = dependencies;
+        const jobIdArg = args[0] ? args[0].replace('%', '') : null;
+        const suggestion = "Use 'jobs' or 'ps' to see active jobs.";
 
-        if (!SoundManager.isInitialized) {
-            await SoundManager.initialize();
-            if (!SoundManager.isInitialized) {
-                return ErrorHandler.createError(
-                    "beep: AudioContext could not be started. Please click or type first."
-                );
+        if (jobIdArg) {
+            const jobId = parseInt(jobIdArg, 10);
+            if (isNaN(jobId)) {
+                return ErrorHandler.createError({
+                    message: `bg: invalid job ID: ${jobIdArg}`,
+                    suggestion,
+                });
+            }
+            const result = CommandExecutor.sendSignalToJob(jobId, 'CONT');
+            return result.success ? ErrorHandler.createSuccess() : ErrorHandler.createError({ message: result.error, suggestion });
+        } else {
+            const jobs = CommandExecutor.getActiveJobs();
+            const jobIds = Object.keys(jobs).filter(id => jobs[id].status === 'paused');
+            if (jobIds.length > 0) {
+                const lastJobId = jobIds[jobIds.length - 1];
+                const result = CommandExecutor.sendSignalToJob(parseInt(lastJobId, 10), 'CONT');
+                return result.success ? ErrorHandler.createSuccess() : ErrorHandler.createError({ message: result.error, suggestion });
+            } else {
+                return ErrorHandler.createError({
+                    message: "bg: no current job",
+                    suggestion,
+                });
             }
         }
-
-        SoundManager.beep();
-        return ErrorHandler.createSuccess();
     }
-};
+}
 
-window.CommandRegistry.register(new BeepCommand());
+window.CommandRegistry.register(new BgCommand());
